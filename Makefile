@@ -16,24 +16,23 @@ logs-all:
 	docker compose logs -f
 
 test:
-	python -m pytest tests/ -v
+	python3 -m pytest tests/ -v
 
 lint:
-	python -m ruff check app/ tests/
+	python3 -m ruff check app/ tests/
 
 lint-fix:
-	python -m ruff check --fix app/ tests/
+	python3 -m ruff check --fix app/ tests/
 
 shell:
 	docker compose exec bot /bin/bash
 
 pull-models:
-	docker compose exec ollama ollama pull gpt-oss-20b
 	docker compose exec ollama ollama pull qwen3:0.6b
-	docker compose exec ollama ollama pull qwen3.5:27b
+	docker compose exec ollama ollama pull qwen3:1.7b
 
 restart:
-	docker compose restart bot
+	docker compose up -d --force-recreate bot
 
 clean:
 	docker compose down -v

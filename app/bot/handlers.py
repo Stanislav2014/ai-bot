@@ -78,9 +78,10 @@ class BotHandlers:
             buttons.append([InlineKeyboardButton(label, callback_data=f"model:{m}")])
 
         await query.edit_message_text(
-            f"Switched: {previous} → {model_name}\nTap to switch:",
+            "Tap to switch:",
             reply_markup=InlineKeyboardMarkup(buttons),
         )
+        await query.message.reply_text(f"Switched: {previous} → {model_name}")
 
     async def set_model(
         self, update: Update, context: ContextTypes.DEFAULT_TYPE

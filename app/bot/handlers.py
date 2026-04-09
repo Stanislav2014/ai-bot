@@ -38,14 +38,16 @@ class BotHandlers:
     ) -> None:
         user_id = update.effective_user.id
         current = self._get_model(user_id)
-        remote_models = await self.llm.list_models()
-        all_models = sorted(set(AVAILABLE_MODELS + remote_models))
+        installed = await self.llm.list_models()
         lines = []
-        for m in all_models:
+        for m in sorted(installed):
             marker = " (current)" if m == current else ""
             lines.append(f"• {m}{marker}")
+        if not lines:
+            await update.message.reply_text("No models installed. Ask admin to run: make pull-models")
+            return
         await update.message.reply_text(
-            "Available models:\n" + "\n".join(lines) + "\n\nUse /model <name> to switch."
+            "Installed models:\n" + "\n".join(lines) + "\n\nUse /model <name> to switch."
         )
 
     async def set_model(
@@ -56,6 +58,13 @@ class BotHandlers:
             await update.message.reply_text("Usage: /model <name>\nExample: /model qwen3:0.6b")
             return
         model_name = context.args[0]
+        installed = await self.llm.list_models()
+        if installed and model_name not in installed:
+            await update.message.reply_text(
+                f"Model '{model_name}' is not installed.\n\n"
+                f"Available: {', '.join(installed)}"
+            )
+            return
         self.user_models[user_id] = model_name
         logger.info("model_changed", user_id=user_id, model=model_name)
         await update.message.reply_text(f"Model switched to: {model_name}")
@@ -135,9 +144,15 @@ class BotHandlers:
                 )
             except Exception:
                 logger.exception("failed_to_log_error_prompt")
-            await update.message.reply_text(
-                "Sorry, the language model is currently unavailable. Please try again later."
-            )
+            error_msg = str(e)
+            if "404" in error_msg:
+                await update.message.reply_text(
+                    f"Model '{model}' is not available. Use /models to see installed models."
+                )
+            else:
+                await update.message.reply_text(
+                    "Sorry, the language model is currently unavailable. Please try again later."
+                )
         except Exception:
             logger.exception("unexpected_error", user_id=user_id)
             try:

@@ -57,10 +57,18 @@ class BotHandlers:
         query = update.callback_query
         await query.answer()
         user_id = query.from_user.id
+        username = query.from_user.username
         model_name = query.data.removeprefix("model:")
+        previous = self._get_model(user_id)
 
         self.user_models[user_id] = model_name
-        logger.info("model_changed", user_id=user_id, model=model_name)
+        logger.info(
+            "model_changed",
+            user_id=user_id,
+            username=username,
+            previous_model=previous,
+            new_model=model_name,
+        )
 
         # Update the keyboard to reflect new selection
         installed = await self.llm.list_models()
@@ -89,8 +97,15 @@ class BotHandlers:
                 f"Available: {', '.join(installed)}"
             )
             return
+        previous = self._get_model(user_id)
         self.user_models[user_id] = model_name
-        logger.info("model_changed", user_id=user_id, model=model_name)
+        logger.info(
+            "model_changed",
+            user_id=user_id,
+            username=update.effective_user.username,
+            previous_model=previous,
+            new_model=model_name,
+        )
         await update.message.reply_text(f"Model switched to: {model_name}")
 
     async def handle_message(

@@ -1,0 +1,32 @@
+services:
+  ollama:
+    image: ollama/ollama:latest
+    container_name: ollama
+    # Port exposed for local debugging; remove in production
+    # ports:
+    #   - "11434:11434"
+    volumes:
+      - ollama_data:/root/.ollama
+    restart: unless-stopped
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+
+  bot:
+    build: .
+    container_name: ai-bot
+    env_file:
+      - .env
+    depends_on:
+      - ollama
+    volumes:
+      - bot_data:/app/data
+    restart: unless-stopped
+
+volumes:
+  ollama_data:
+  bot_data:

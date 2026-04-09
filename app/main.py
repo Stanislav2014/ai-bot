@@ -2,7 +2,7 @@ import asyncio
 import signal
 
 import structlog
-from telegram.ext import ApplicationBuilder, CommandHandler, MessageHandler, filters
+from telegram.ext import ApplicationBuilder, CallbackQueryHandler, CommandHandler, MessageHandler, filters
 
 from app.bot.handlers import BotHandlers
 from app.bot.middleware import LoggingMiddleware
@@ -29,6 +29,9 @@ async def run() -> None:
     app.add_handler(CommandHandler("help", handlers.help_command))
     app.add_handler(CommandHandler("models", handlers.models))
     app.add_handler(CommandHandler("model", handlers.set_model))
+
+    # Callback handler for inline keyboard (model selection)
+    app.add_handler(CallbackQueryHandler(handlers.model_callback, pattern=r"^model:"))
 
     # Message handler (all text messages)
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handlers.handle_message))

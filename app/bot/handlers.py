@@ -1,5 +1,5 @@
 import structlog
-from telegram import Update
+from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update
 from telegram.ext import ContextTypes
 
 from app.config import settings
@@ -22,8 +22,7 @@ class BotHandlers:
             f"Hello, {user.first_name}! I'm a local LLM bot.\n\n"
             f"Current model: {self._get_model(user.id)}\n\n"
             "Commands:\n"
-            "/models — list available models\n"
-            "/model <name> — switch model\n"
+            "/models — choose a model\n"
             "/help — show this message"
         )
 
@@ -38,15 +37,41 @@ class BotHandlers:
         user_id = update.effective_user.id
         current = self._get_model(user_id)
         installed = await self.llm.list_models()
-        lines = []
-        for m in sorted(installed):
-            marker = " (current)" if m == current else ""
-            lines.append(f"• {m}{marker}")
-        if not lines:
+        if not installed:
             await update.message.reply_text("No models installed. Ask admin to run: make pull-models")
             return
+
+        buttons = []
+        for m in sorted(installed):
+            label = f"{'> ' if m == current else ''}{m}"
+            buttons.append([InlineKeyboardButton(label, callback_data=f"model:{m}")])
+
         await update.message.reply_text(
-            "Installed models:\n" + "\n".join(lines) + "\n\nUse /model <name> to switch."
+            f"Current model: {current}\nTap to switch:",
+            reply_markup=InlineKeyboardMarkup(buttons),
+        )
+
+    async def model_callback(
+        self, update: Update, context: ContextTypes.DEFAULT_TYPE
+    ) -> None:
+        query = update.callback_query
+        await query.answer()
+        user_id = query.from_user.id
+        model_name = query.data.removeprefix("model:")
+
+        self.user_models[user_id] = model_name
+        logger.info("model_changed", user_id=user_id, model=model_name)
+
+        # Update the keyboard to reflect new selection
+        installed = await self.llm.list_models()
+        buttons = []
+        for m in sorted(installed):
+            label = f"{'> ' if m == model_name else ''}{m}"
+            buttons.append([InlineKeyboardButton(label, callback_data=f"model:{m}")])
+
+        await query.edit_message_text(
+            f"Switched to: {model_name}\nTap to switch:",
+            reply_markup=InlineKeyboardMarkup(buttons),
         )
 
     async def set_model(
@@ -54,7 +79,7 @@ class BotHandlers:
     ) -> None:
         user_id = update.effective_user.id
         if not context.args:
-            await update.message.reply_text("Usage: /model <name>\nExample: /model qwen3:0.6b")
+            await update.message.reply_text("Usage: /model <name>\nOr use /models for buttons.")
             return
         model_name = context.args[0]
         installed = await self.llm.list_models()

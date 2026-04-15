@@ -784,7 +784,7 @@ Expected: `All checks passed!`.
 - Modify: `docs/tech-stack.md`
 - Modify: `docs/tasks.md`
 - Modify: `docs/current-sprint.md`
-- Modify: `docs/change-request.md`
+- Modify: `docs/change-request.md` (обновить блок D-04, не чистить файл)
 
 - [ ] **Step 1: `context-dump.md` — обновить Flow 2**
 
@@ -923,31 +923,9 @@ Commands:
 
 Переместить D-04 из In Progress в Done (этот спринт).
 
-- [ ] **Step 11: `change-request.md` — очистить (вернуть в idle state)**
+- [ ] **Step 11: `change-request.md` — обновить статус блока D-04 на Merged**
 
-Заменить содержимое на:
-```markdown
-# Change Request — текущий
-
-> 📝 **Сейчас активной задачи нет.** При старте задачи — скопировать [change-request-doc.md](change-request-doc.md) поверх этого файла и заполнить.
-
----
-
-## Метадата
-
-| Поле | Значение |
-|------|----------|
-| **Task ID** | _none_ |
-| **Status** | _idle_ |
-
-## Goal
-
-_Активной задачи нет. Последняя завершённая: D-04 Dialog history (2026-04-15)._
-
-## Pending action items
-
-_пусто_
-```
+Блок D-04 в `change-request.md` **не удаляем** — это зеркало спринта. Меняем Status на `Merged YYYY-MM-DD · commit <sha>`, отмечаем все Success criteria `[x]`, action items помечаем выполненными.
 
 - [ ] **Step 12: Коммит docs**
 

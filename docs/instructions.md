@@ -31,10 +31,10 @@
 ## 3. Жизненный цикл задачи
 
 1. **Создание**
-   - Скопировать структуру из [change-request-doc.md](change-request-doc.md) в [change-request.md](change-request.md), заполнить реальными данными
+   - **Добавить** новый блок в [change-request.md](change-request.md) по шаблону из [change-request-doc.md](change-request-doc.md). change-request.md — зеркало спринта, в нём одновременно могут жить несколько задач.
    - Добавить строку в [tasks.md](tasks.md) в нужную фазу
    - Перенести в [current-sprint.md](current-sprint.md) → `To Do`
-   - Создать спеку в `docs/tasks/{PREFIX}-{NN}_*.md` — **единая точка истины** для задачи (design + план + история). `change-request.md` дублирует live-tracking, task spec — каноническое описание.
+   - Создать спеку в `docs/tasks/{PREFIX}-{NN}_*.md` — **единая точка истины** для задачи (design + план + история).
    - ⚠ **Не использовать `docs/superpowers/specs/`** для новых задач — эта папка архив для оригинального MVP-дизайна.
 
 2. **Research**
@@ -65,8 +65,12 @@
    - Обновить changelog/history в task spec
    - Пометить в [tasks.md](tasks.md) ✅
    - Перенести в `Done` в [current-sprint.md](current-sprint.md)
-   - Очистить [change-request.md](change-request.md) (вернуть в template state)
+   - В [change-request.md](change-request.md) **обновить** статус блока задачи на Merged — **не удалять**. Блок остаётся до закрытия спринта.
    - Обновить [legacy-warning.md](legacy-warning.md), если задача добавила/убрала тех-долг
+
+7. **Sprint close**
+   - Когда спринт закрывается — перенести history из блоков change-request в соответствующие task spec files (раздел `## History`)
+   - После этого очистить change-request.md, оставив только шапку «Sprint N — <dates>» и пустые секции под следующий спринт
 
 ## 4. TDD — mandatory
 

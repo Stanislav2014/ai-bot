@@ -1,7 +1,7 @@
-# Change Request — TEMPLATE
+# Change Request — TEMPLATE (один блок задачи)
 
-> 📋 **Это шаблон.** Реальные данные текущей задачи — в [change-request.md](change-request.md).
-> При старте задачи скопировать этот файл в `change-request.md` и заполнить.
+> 📋 **Это шаблон одного task-блока.** Реальные данные — в [change-request.md](change-request.md), где может быть несколько таких блоков одновременно (по числу задач в спринте).
+> При старте новой задачи — **добавить** этот блок в change-request.md, не заменять весь файл. После merge — оставить блок на месте со статусом Merged, удалять только при закрытии спринта.
 
 ---
 
@@ -104,7 +104,7 @@ Concrete TODOs, которые точно нужно сделать (не uncert
 - [ ] Обновить [legacy-warning.md](legacy-warning.md), если задача добавила/убрала тех-долг
 - [ ] Обновить [context-dump.md](context-dump.md), если изменился flow
 - [ ] Обновить [contracts/](contracts/), если контракт поменялся
-- [ ] Очистить change-request.md (вернуть в template state)
+- [ ] В change-request.md обновить статус блока задачи на Merged (не удалять блок)
 
 ---
 

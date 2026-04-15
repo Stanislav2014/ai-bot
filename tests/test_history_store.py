@@ -47,3 +47,11 @@ async def test_window_zero_means_unlimited(history_dir: Path) -> None:
     for i in range(50):
         await store.append(1, "user", f"m{i}")
     assert len(await store.get(1)) == 50
+
+
+async def test_reset_clears_file(history_dir: Path) -> None:
+    store = HistoryStore(history_dir, max_messages=20)
+    await store.append(1, "user", "hi")
+    await store.reset(1)
+    assert await store.get(1) == []
+    assert not (history_dir / "1.yaml").exists()

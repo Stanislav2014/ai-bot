@@ -55,3 +55,10 @@ class HistoryStore:
                 self._cache[user_id] = history
             with self._file(user_id).open("w", encoding="utf-8") as f:
                 yaml.safe_dump(history, f, allow_unicode=True, sort_keys=False)
+
+    async def reset(self, user_id: int) -> None:
+        async with self._lock(user_id):
+            self._cache.pop(user_id, None)
+            path = self._file(user_id)
+            if path.exists():
+                path.unlink()

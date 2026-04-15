@@ -15,16 +15,11 @@
 
 ---
 
-## 2. Dialog history
+## 2. Dialog history ✅ РЕШЕНО (2026-04-15)
 
-**Проблема**: Каждое сообщение — независимый LLM-запрос. Пользователь не может задать follow-up вопрос. Это осознанный stateless в MVP, но частая жалоба.
+**Решение**: Persistent per-user YAML файлы в `data/history/{user_id}.yaml`, sliding window default=20 через env `HISTORY_MAX_MESSAGES`, команда `/reset`. System prompt не хранится в файле — prepend-ится из кода при каждом LLM вызове.
 
-**Варианты**:
-- A. Никогда не добавлять — остаётся stateless
-- B. In-memory sliding window (последние N сообщений per user, теряется при рестарте)
-- C. Persistent history (SQLite)
-
-**Рекомендация**: не торопиться. Следующий шаг — собрать реальный usage feedback.
+**Реализация**: D-04 (см. [tasks/D-04_DIALOG_HISTORY_YAML.md](tasks/D-04_DIALOG_HISTORY_YAML.md)).
 
 ---
 

@@ -16,15 +16,20 @@ ai-bot — простой монопроцессный Python async-сервис
 
 ## Паттерны
 
-### 1. Stateless message processing
+### 1. Per-user dialog history с YAML персистенцией (D-04)
 
-Каждое сообщение пользователя — изолированный LLM-запрос:
-- без истории диалога
-- без persistence message ID / counter / context
-- system prompt жёстко зашит ([app/bot/handlers.py:10](../app/bot/handlers.py))
+Каждое сообщение пользователя отправляется в LLM **вместе с историей**:
+- `[system] + history из YAML + new_user_message`
+- system prompt жёстко зашит в коде ([app/bot/handlers.py](../app/bot/handlers.py)), в файле не хранится — при изменении применяется сразу ко всем юзерам
+- история per-user живёт в `data/history/{user_id}.yaml` (см. [db-schema.md](db-schema.md))
+- sliding window через `settings.history_max_messages` (0 = без лимита)
+- команда `/reset` очищает историю (удаляет файл + запись в кеше)
+- запись в файл — только **после** успешного LLM ответа, чтобы не сломать парность user/assistant
 
-**Плюсы**: простота, отсутствие race conditions, отсутствие БД, детерминированные ошибки.
-**Минусы**: нет follow-up вопросов, нет memory. Осознанный trade-off.
+`app/history/store.py` — единственный класс `HistoryStore` с методами `get`/`append`/`reset`. In-memory cache + per-user `asyncio.Lock` для сериализации одновременных записей.
+
+**Плюсы**: follow-up вопросы работают, простота YAML vs БД, дифф-френдли формат.
+**Минусы**: I/O на каждое сообщение, длинные истории могут упереться в context length — смягчается sliding window.
 
 ### 2. Per-user model selection (in-memory)
 
@@ -128,3 +133,19 @@ OpenAI-compatible серверы иногда возвращают `400` или 
 ### 10. `httpx.AsyncClient` без явного connect pool limit
 
 Pool default — хватает для одного бота. Если когда-нибудь появится parallel tasks — может потребоваться настроить `httpx.Limits`.
+
+### 11. Concurrent сообщения от одного юзера в HistoryStore
+
+`HistoryStore._locks[user_id] = asyncio.Lock()`. Если юзер шлёт 2 сообщения быстрее чем первое обрабатывается — второй `append` ждёт первого. Hidden constraint: локи никогда не чистятся — минимальная утечка размером с число когда-либо активных юзеров, для self-hosted бота не проблема.
+
+### 12. История не сохраняется при LLM ошибке
+
+`handle_message` делает `self.history.append()` **только после** успешного `llm.chat()`. При `LLMError` user сообщение в файл не попадает, чтобы не сломать парность user/assistant в истории (LLM ожидает assistant после user).
+
+### 13. Sliding window trim по сообщениям, не по парам
+
+`HistoryStore.append()` обрезает `history[-max_messages:]`. После обрезки первое сообщение в истории может оказаться `assistant` (если `max_messages` нечётное). OpenAI-compatible серверы это допускают. Если увидите деградацию ответов — переделать обрезку на пары user/assistant.
+
+### 14. Corrupt YAML — автоматический recovery
+
+Если YAML файл битый (или не-list), `HistoryStore._load_from_disk()` логирует `history_corrupt` и **перезаписывает** файл пустым списком. Юзер теряет историю, но бот не падает. Hidden constraint: факт corruption виден только в логах.

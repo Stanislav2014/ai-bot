@@ -66,16 +66,14 @@ AVAILABLE_MODELS = ["gpt-oss-20b", "qwen3:0.6b", "qwen3.5:27b"]
 
 ---
 
-## 4. Per-user state в памяти процесса
-⚠ Архитектурное (by design, но стоит помнить)
+## 4. `user_models` — per-user модель в памяти процесса
+⚠ Архитектурное (by design, но только для выбора модели — история диалога персистентна, см. D-04)
 
-**Где**: [app/bot/handlers.py:16](../app/bot/handlers.py)
+**Где**: [app/bot/handlers.py](../app/bot/handlers.py) — `self.user_models: dict[int, str] = {}`
 
-**Что**: `self.user_models: dict[int, str] = {}`
+**Что**: Выбранная модель per-user живёт только в памяти процесса. При рестарте все выбранные сбрасываются на `settings.default_model`. История диалога при этом сохраняется (реализовано в D-04).
 
-**Проблема**: При рестарте процесса (deploy, container restart) все per-user выбранные модели сбрасываются на дефолт. Пользователю не сообщается.
-
-**Fix**: см. [discuss.md § 1](discuss.md#1-persistence-для-per-user-selected-model). Решение осознанное — пока оставляем.
+**Fix**: см. [discuss.md § 1](discuss.md#1-persistence-для-per-user-selected-model). Следующий шаг — D-03 (persistent user_models).
 
 ---
 

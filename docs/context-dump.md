@@ -31,18 +31,21 @@
 
 1. `Update` приходит через polling в `Application` dispatcher
 2. **LoggingMiddleware.check_update()** проверяет — логирует `incoming_message` (user_id, username, chat_id, text[:200], message_id), возвращает `False` (не поглощает update) · [app/bot/middleware.py:18-29](../app/bot/middleware.py)
-3. `MessageHandler(TEXT & ~COMMAND)` → `BotHandlers.handle_message` · [app/bot/handlers.py:112](../app/bot/handlers.py)
-4. Resolve `model = self._get_model(user_id)` → `user_models.get(user_id, settings.default_model)` · [app/bot/handlers.py:158-159](../app/bot/handlers.py)
-5. Лог `user_message` (user_id, username, model, text_length) · [app/bot/handlers.py:120-126](../app/bot/handlers.py)
-6. Строится `messages = [{system}, {user}]` — **без истории** · [app/bot/handlers.py:129-132](../app/bot/handlers.py)
-7. `chat.send_action("typing")` — Telegram показывает индикатор
-8. `llm.chat(messages, model=model)` → HTTP POST `{base_url}/v1/chat/completions` с body `{model, messages, stream: false}` · [app/llm/client.py:24-42](../app/llm/client.py)
-9. Лог `llm_request` (model, messages_count) → реально уходит в Lemonade
-10. Lemonade обрабатывает → возвращает JSON choices/message/content
-11. `LLMClient.chat()` парсит `data["choices"][0]["message"]["content"]` и `data["usage"]["total_tokens"]` · [app/llm/client.py:42-45](../app/llm/client.py)
-12. Лог `llm_response` (model, tokens) · [app/llm/client.py:44](../app/llm/client.py)
-13. `handle_message` получает `{content, tokens_used}`, логирует `llm_reply` (user_id, model, reply_length) · [app/bot/handlers.py:139](../app/bot/handlers.py)
-14. `message.reply_text(content)` → отправка обратно в Telegram
+3. `MessageHandler(TEXT & ~COMMAND)` → `BotHandlers.handle_message` · [app/bot/handlers.py](../app/bot/handlers.py)
+4. Resolve `model = self._get_model(user_id)` → `user_models.get(user_id, settings.default_model)` · [app/bot/handlers.py](../app/bot/handlers.py)
+5. Лог `user_message` (user_id, username, model, text_length) · [app/bot/handlers.py](../app/bot/handlers.py)
+6. **`history_msgs = await self.history.get(user_id)`** — загрузка прошлых user/assistant сообщений (cache → YAML файл) · [app/history/store.py](../app/history/store.py) · [app/bot/handlers.py](../app/bot/handlers.py)
+7. Строится `messages = [{system}] + history_msgs + [{user}]` · [app/bot/handlers.py](../app/bot/handlers.py)
+8. `chat.send_action("typing")` — Telegram показывает индикатор
+9. `llm.chat(messages, model=model)` → HTTP POST `{base_url}/v1/chat/completions` с body `{model, messages, stream: false}` · [app/llm/client.py:24-42](../app/llm/client.py)
+10. Лог `llm_request` (model, messages_count) → реально уходит в Lemonade
+11. Lemonade обрабатывает → возвращает JSON choices/message/content
+12. `LLMClient.chat()` парсит `data["choices"][0]["message"]["content"]` и `data["usage"]["total_tokens"]` · [app/llm/client.py:42-45](../app/llm/client.py)
+13. Лог `llm_response` (model, tokens) · [app/llm/client.py:44](../app/llm/client.py)
+14. **`await self.history.append(user_id, "user", text)`** — запись user-сообщения в YAML (только после успешного LLM ответа, чтобы не сломать парность user/assistant)
+15. **`await self.history.append(user_id, "assistant", reply)`** — запись assistant-ответа в YAML
+16. `handle_message` логирует `llm_reply` (user_id, model, reply_length, history_len) · [app/bot/handlers.py](../app/bot/handlers.py)
+17. `message.reply_text(content)` → отправка обратно в Telegram
 
 ---
 
@@ -117,6 +120,17 @@
 
 ---
 
+## Flow 9 — `/reset` command
+
+**Trigger**: пользователь пишет `/reset`.
+
+1. `CommandHandler("reset")` → `BotHandlers.reset` · [app/bot/handlers.py](../app/bot/handlers.py)
+2. `await self.history.reset(user_id)` — удаляет запись в in-memory cache + unlink файла `data/history/{user_id}.yaml` (если существует) · [app/history/store.py](../app/history/store.py)
+3. Лог `history_reset` (user_id, username)
+4. `reply_text("История диалога очищена.")`
+
+---
+
 ## Flow 8 — Shutdown
 
 **Trigger**: `SIGINT` или `SIGTERM` (например, `docker compose down`).
@@ -140,6 +154,7 @@
 | `httpx` | HTTP клиент | app/llm/client.py | — |
 | `structlog` | JSON логи | app/logging_config.py, везде | — |
 | `pydantic-settings` | Env-based config | app/config.py | — |
+| `PyYAML` | Сериализация per-user истории диалога | app/history/store.py | — |
 
 ---
 
@@ -147,14 +162,17 @@
 
 ```
 app/
-├── main.py                  — entry point, setup, signal handling (70 строк)
-├── config.py                — Settings из .env (14 строк)
-├── logging_config.py        — structlog configure (25 строк)
+├── main.py                  — entry point, setup, signal handling
+├── config.py                — Settings из .env
+├── logging_config.py        — structlog configure
 ├── bot/
-│   ├── handlers.py          — все Telegram хэндлеры (159 строк)
-│   └── middleware.py        — LoggingMiddleware (29 строк)
+│   ├── handlers.py          — все Telegram хэндлеры + /reset
+│   └── middleware.py        — LoggingMiddleware
+├── history/
+│   ├── __init__.py          — экспорт HistoryStore
+│   └── store.py             — HistoryStore (YAML per-user + cache + locks)
 └── llm/
-    └── client.py            — LLMClient + LLMError (74 строки)
+    └── client.py            — LLMClient + LLMError
 ```
 
-Общий размер: ~370 строк production кода. Тестов: ~50 строк (на client.py).
+Тесты: `tests/test_llm_client.py` (3) + `tests/test_history_store.py` (8) = 11.

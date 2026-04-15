@@ -1,14 +1,15 @@
 # Database Schema
 
-## Текущее состояние: **STATELESS**
+## Текущее состояние: **без БД, с файловой персистенцией**
 
-ai-bot **не использует базу данных**. Это осознанный дизайн, зафиксированный в первоначальной спеке [superpowers/specs/2026-04-09-telegram-llm-bot-design.md](superpowers/specs/2026-04-09-telegram-llm-bot-design.md) (пересмотрено после промпта 8: «промты сохранять не нужно»).
+ai-bot **не использует базу данных**. Часть состояния (история диалога) хранится в YAML-файлах per-user, что проще чем SQLite для текущего scope.
 
 ## Что где хранится
 
 | Данные | Где | Lifetime |
 |--------|-----|----------|
-| Выбранная модель per-user | `BotHandlers.user_models` — Python `dict[int, str]` | До рестарта процесса |
+| История диалога per-user | `data/history/{user_id}.yaml` — YAML list `{role, content}` | Persistent (docker volume `./data:/app/data`) |
+| Выбранная модель per-user | `BotHandlers.user_models` — Python `dict[int, str]` | До рестарта процесса (см. [legacy-warning § 4](legacy-warning.md#4-user_models--per-user-модель-в-памяти-процесса)) |
 | Логи | stdout (structlog JSON) → Docker logs | По ротации docker |
 | Секреты (токен) | `.env` файл в git-ignored | Persistent, manual |
 | Кеш моделей Lemonade | `lemonade_cache` docker volume | Persistent |

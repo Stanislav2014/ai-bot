@@ -13,6 +13,7 @@
 | `httpx` | 0.28.1 | Async HTTP клиент для LLM API |
 | `pydantic-settings` | 2.7.1 | Env-based config (.env → Settings) |
 | `structlog` | 24.4.0 | Structured JSON логирование |
+| `PyYAML` | 6.0.2 | Persistent dialog history (YAML per-user) |
 
 [requirements.txt](../requirements.txt)
 
@@ -62,6 +63,8 @@
 | `DEFAULT_MODEL` | `qwen3:0.6b` (в коде) / `Qwen3-0.6B-GGUF` (в .env.example) | Дефолтная модель |
 | `LLM_TIMEOUT` | 120 | Секунд таймаут на LLM запрос |
 | `LOG_LEVEL` | INFO | Уровень structlog |
+| `HISTORY_DIR` | `data/history` | Папка с YAML файлами истории per-user |
+| `HISTORY_MAX_MESSAGES` | 20 | Макс сообщений в истории (0 = без лимита) |
 
 ## Python version constraint
 

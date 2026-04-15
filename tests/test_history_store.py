@@ -83,3 +83,33 @@ async def test_char_limit_trims_oldest_when_over_budget(history_dir: Path) -> No
     # Trim stopped at smallest allowable — removing one more would go further
     # but adding one more dropped message would push us back over budget
     assert total + 9 > 50
+
+
+async def test_char_limit_zero_means_disabled(history_dir: Path) -> None:
+    store = HistoryStore(history_dir, max_messages=200, max_chars=0)
+    long_msg = "x" * 1000
+    for _ in range(50):
+        await store.append(1, "user", long_msg)
+    result = await store.get(1)
+    assert len(result) == 50
+
+
+async def test_char_limit_keeps_last_when_single_message_over_budget(
+    history_dir: Path,
+) -> None:
+    store = HistoryStore(history_dir, max_messages=20, max_chars=10)
+    huge = "x" * 100
+    await store.append(1, "user", huge)
+    result = await store.get(1)
+    assert len(result) == 1
+    assert result[0]["content"] == huge
+
+
+async def test_char_and_count_limits_combined(history_dir: Path) -> None:
+    store = HistoryStore(history_dir, max_messages=5, max_chars=100)
+    for _ in range(10):
+        await store.append(1, "user", "x" * 30)
+    result = await store.get(1)
+    # count-trim leaves 5 (150 chars); char-trim drops until <= 100 → 3 × 30 = 90
+    assert len(result) == 3
+    assert sum(len(m["content"]) for m in result) == 90

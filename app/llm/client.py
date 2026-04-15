@@ -14,7 +14,7 @@ AVAILABLE_MODELS = [
 
 class LLMClient:
     def __init__(self) -> None:
-        self.base_url = settings.ollama_base_url.rstrip("/")
+        self.base_url = settings.llm_base_url.rstrip("/")
         self.timeout = settings.llm_timeout
         self._client = httpx.AsyncClient(timeout=self.timeout)
 
@@ -58,12 +58,13 @@ class LLMClient:
             raise LLMError("Cannot connect to LLM server. Is Ollama running?")
 
     async def list_models(self) -> list[str]:
-        url = f"{self.base_url}/api/tags"
+        """Fetch installed models via OpenAI-compatible /v1/models endpoint."""
+        url = f"{self.base_url}/v1/models"
         try:
             resp = await self._client.get(url, timeout=10)
             resp.raise_for_status()
             data = resp.json()
-            return [m["name"] for m in data.get("models", [])]
+            return [m["id"] for m in data.get("data", [])]
         except Exception:
             logger.warning("failed_to_list_models", url=url)
             return AVAILABLE_MODELS

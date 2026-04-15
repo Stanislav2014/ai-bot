@@ -14,7 +14,7 @@ from app.logging_config import setup_logging
 async def run() -> None:
     setup_logging()
     logger = structlog.get_logger()
-    logger.info("starting_bot", model=settings.default_model, ollama_url=settings.ollama_base_url)
+    logger.info("starting_bot", model=settings.default_model, llm_url=settings.llm_base_url)
 
     llm = LLMClient()
     handlers = BotHandlers(llm=llm)

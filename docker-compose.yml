@@ -1,20 +1,12 @@
 services:
-  ollama:
-    image: ollama/ollama:latest
-    container_name: ollama
+  lemonade:
+    build: ./lemonade
+    container_name: lemonade
     ports:
-      - "11434:11434"
+      - "8000:8000"
     volumes:
-      - ollama_data:/root/.ollama
+      - lemonade_cache:/root/.cache
     restart: unless-stopped
-    # Uncomment for GPU support:
-    # deploy:
-    #   resources:
-    #     reservations:
-    #       devices:
-    #         - driver: nvidia
-    #           count: all
-    #           capabilities: [gpu]
 
   bot:
     build: .
@@ -22,8 +14,8 @@ services:
     env_file:
       - .env
     depends_on:
-      - ollama
+      - lemonade
     restart: unless-stopped
 
 volumes:
-  ollama_data:
+  lemonade_cache:

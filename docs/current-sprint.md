@@ -10,7 +10,13 @@ _пусто_
 
 ## In Progress
 
-_пусто_
+### D-05 · Context char limit — второй safeguard
+Кап по суммарной длине истории (`HISTORY_MAX_CHARS`, default 8000). Работает поверх D-04 count limit.
+- Branch: `feature/BAU/BOT-D05` (dependent от D-04)
+- Started: 2026-04-15
+- Spec: [tasks/D-05_CONTEXT_CHAR_LIMIT.md](tasks/D-05_CONTEXT_CHAR_LIMIT.md)
+- Plan: [tasks/D-05_CONTEXT_CHAR_LIMIT_plan.md](tasks/D-05_CONTEXT_CHAR_LIMIT_plan.md)
+- Phase: 0 (paperwork done, TDD ahead)
 
 ## In Review
 

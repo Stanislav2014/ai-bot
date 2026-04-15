@@ -73,6 +73,55 @@
 
 ---
 
+## D-05 · Context char limit — второй safeguard
+
+| Поле | Значение |
+|------|----------|
+| **Task ID** | `D-05` |
+| **Ticket** | `BOT-D05` |
+| **Branch** | `feature/BAU/BOT-D05` (dependent от `feature/BAU/BOT-D04`) |
+| **Task spec** | [tasks/D-05_CONTEXT_CHAR_LIMIT.md](tasks/D-05_CONTEXT_CHAR_LIMIT.md) |
+| **Plan** | [tasks/D-05_CONTEXT_CHAR_LIMIT_plan.md](tasks/D-05_CONTEXT_CHAR_LIMIT_plan.md) |
+| **Started** | 2026-04-15 |
+| **Status** | In Progress — Phase 0 (paperwork done, starting TDD) |
+| **Owner** | Stan |
+
+### Goal
+Кап по суммарной длине истории диалога (`HISTORY_MAX_CHARS`, default 8000 chars). Работает поверх D-04 count-limit как AND-safeguard: если одна длинная простыня раздувает историю выше бюджета — FIFO-обрезка до `≤ max_chars`. Последнее (только что пришедшее) сообщение защищено от drop.
+
+### Success criteria
+
+- [ ] 4 новых unit теста зелёные (`test_char_limit_*`)
+- [ ] 8 существующих history тестов не сломаны
+- [ ] `make test` (15 тестов: 3 LLM + 12 history) зелёный
+- [ ] `make lint` чистый
+- [ ] `HISTORY_MAX_CHARS` env var работает (default 8000, 0 = disabled)
+- [ ] main.py передаёт max_chars в HistoryStore, в `starting_bot` логе видно поле
+- [ ] Ручной тест: 3 длинных (~3000 chars) сообщения подряд → 4-е получает историю ≤8000 chars
+- [ ] Merge в master (после merge D-04)
+
+### Pending action items
+
+- [ ] **A1** · Task 1 plan: добавить `max_chars` kwarg с default=0 (backwards compat) · verify: 8 существующих тестов green
+- [ ] **A2** · Task 2 plan: TDD char-trim logic · verify: `test_char_limit_trims_oldest_when_over_budget` green
+- [ ] **A3** · Task 3 plan: edge cases (disabled, single-oversize, combined) · verify: 4 new tests green
+- [ ] **A4** · Task 4-5 plan: config + main.py wiring
+- [ ] **A5** · Task 6 plan: docs update (architecture, context-dump Flow 2, tech-stack)
+- [ ] **A6** · Task 7 plan: manual verification в Telegram с длинными сообщениями
+- [ ] **A7** · Merge D-05 → master (после D-04 merge)
+
+### Regression watch
+
+- HistoryStore API расширен новым kwarg — защита через default=0 backwards compat
+- Существующие 8 history тестов — gate на регрессию
+- Flow 2 в handlers.py не меняется (HistoryStore инкапсулирует логику)
+
+### Checkpoints
+
+**Phase 0** — 2026-04-15 — спек + plan записаны, paperwork обновлён, ветка `feature/BAU/BOT-D05` создана от HEAD D-04
+
+---
+
 ## C-01 · Migrate LLM server from Ollama to Lemonade
 
 | Поле | Значение |

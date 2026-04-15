@@ -63,3 +63,8 @@ JSON file на диске. См. [discuss.md § 1](discuss.md#1-persistence-дл
 Псевдо-память: `data/history/{user_id}.yaml`, sliding window (env `HISTORY_MAX_MESSAGES`, default 20), команда `/reset`. System prompt prepend-ится из кода, не хранится в файле.
 → [tasks/D-04_DIALOG_HISTORY_YAML.md](tasks/D-04_DIALOG_HISTORY_YAML.md)
 Branch: `feature/BAU/BOT-D04` · merged 2026-04-15
+
+### D-05 🛠 Context char limit — второй safeguard
+Кап по суммарной длине истории (`HISTORY_MAX_CHARS`, default 8000). Работает поверх `HISTORY_MAX_MESSAGES`. FIFO-trim защищает от одной длинной простыни, переполняющей context window.
+Branch: `feature/BAU/BOT-D05` (dependent от D-04)
+→ [tasks/D-05_CONTEXT_CHAR_LIMIT.md](tasks/D-05_CONTEXT_CHAR_LIMIT.md) · [plan](tasks/D-05_CONTEXT_CHAR_LIMIT_plan.md)

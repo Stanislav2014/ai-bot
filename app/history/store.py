@@ -8,9 +8,10 @@ logger = structlog.get_logger()
 
 
 class HistoryStore:
-    def __init__(self, data_dir: Path, max_messages: int) -> None:
+    def __init__(self, data_dir: Path, max_messages: int, max_chars: int = 0) -> None:
         self._data_dir = data_dir
         self._max_messages = max_messages
+        self._max_chars = max_chars
         self._cache: dict[int, list[dict[str, str]]] = {}
         self._locks: dict[int, asyncio.Lock] = {}
         self._data_dir.mkdir(parents=True, exist_ok=True)

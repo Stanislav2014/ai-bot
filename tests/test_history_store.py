@@ -55,3 +55,18 @@ async def test_reset_clears_file(history_dir: Path) -> None:
     await store.reset(1)
     assert await store.get(1) == []
     assert not (history_dir / "1.yaml").exists()
+
+
+async def test_corrupt_yaml_recovers(history_dir: Path) -> None:
+    history_dir.mkdir(parents=True, exist_ok=True)
+    (history_dir / "1.yaml").write_text("!!!garbage:::\n- [}\n", encoding="utf-8")
+    store = HistoryStore(history_dir, max_messages=20)
+    assert await store.get(1) == []
+
+
+async def test_per_user_isolation(history_dir: Path) -> None:
+    store = HistoryStore(history_dir, max_messages=20)
+    await store.append(1, "user", "from 1")
+    await store.append(2, "user", "from 2")
+    assert await store.get(1) == [{"role": "user", "content": "from 1"}]
+    assert await store.get(2) == [{"role": "user", "content": "from 2"}]

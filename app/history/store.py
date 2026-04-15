@@ -43,3 +43,15 @@ class HistoryStore:
             if user_id not in self._cache:
                 self._cache[user_id] = self._load_from_disk(user_id)
             return list(self._cache[user_id])
+
+    async def append(self, user_id: int, role: str, content: str) -> None:
+        async with self._lock(user_id):
+            if user_id not in self._cache:
+                self._cache[user_id] = self._load_from_disk(user_id)
+            history = self._cache[user_id]
+            history.append({"role": role, "content": content})
+            if self._max_messages > 0 and len(history) > self._max_messages:
+                history = history[-self._max_messages :]
+                self._cache[user_id] = history
+            with self._file(user_id).open("w", encoding="utf-8") as f:
+                yaml.safe_dump(history, f, allow_unicode=True, sort_keys=False)

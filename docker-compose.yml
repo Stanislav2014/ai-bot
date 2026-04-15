@@ -11,6 +11,8 @@ services:
   bot:
     build: .
     container_name: ai-bot
+    # Match host UID so bind-mounted ./data is writable by the container
+    user: "${UID:-1000}:${GID:-1000}"
     env_file:
       - .env
     volumes:

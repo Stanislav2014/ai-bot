@@ -22,12 +22,14 @@ async def run() -> None:
         llm_url=settings.llm_base_url,
         history_dir=settings.history_dir,
         history_max_messages=settings.history_max_messages,
+        history_max_chars=settings.history_max_chars,
     )
 
     llm = LLMClient()
     history = HistoryStore(
         data_dir=Path(settings.history_dir),
         max_messages=settings.history_max_messages,
+        max_chars=settings.history_max_chars,
     )
     handlers = BotHandlers(llm=llm, history=history)
 

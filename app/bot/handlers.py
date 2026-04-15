@@ -3,6 +3,7 @@ from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update
 from telegram.ext import ContextTypes
 
 from app.config import settings
+from app.history import HistoryStore
 from app.llm.client import LLMClient, LLMError
 
 logger = structlog.get_logger()
@@ -11,8 +12,9 @@ SYSTEM_PROMPT = "You are a helpful assistant. Answer concisely and accurately."
 
 
 class BotHandlers:
-    def __init__(self, llm: LLMClient) -> None:
+    def __init__(self, llm: LLMClient, history: HistoryStore) -> None:
         self.llm = llm
+        self.history = history
         self.user_models: dict[int, str] = {}
 
     async def start(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
@@ -23,6 +25,7 @@ class BotHandlers:
             f"Current model: {self._get_model(user.id)}\n\n"
             "Commands:\n"
             "/models — choose a model\n"
+            "/reset — clear dialog history\n"
             "/help — show this message"
         )
 
@@ -125,18 +128,28 @@ class BotHandlers:
             text_length=len(text),
         )
 
-        # Each message is independent — no dialog history (per spec)
-        messages = [
-            {"role": "system", "content": SYSTEM_PROMPT},
-            {"role": "user", "content": text},
-        ]
+        history_msgs = await self.history.get(user_id)
+        messages = (
+            [{"role": "system", "content": SYSTEM_PROMPT}]
+            + history_msgs
+            + [{"role": "user", "content": text}]
+        )
 
         try:
             await update.message.chat.send_action("typing")
             result = await self.llm.chat(messages, model=model)
             reply = result["content"]
 
-            logger.info("llm_reply", user_id=user_id, model=model, reply_length=len(reply))
+            await self.history.append(user_id, "user", text)
+            await self.history.append(user_id, "assistant", reply)
+
+            logger.info(
+                "llm_reply",
+                user_id=user_id,
+                model=model,
+                reply_length=len(reply),
+                history_len=len(history_msgs) + 2,
+            )
             await update.message.reply_text(reply)
 
         except LLMError as e:
@@ -154,6 +167,14 @@ class BotHandlers:
             await update.message.reply_text(
                 "An unexpected error occurred. Please try again later."
             )
+
+    async def reset(
+        self, update: Update, context: ContextTypes.DEFAULT_TYPE
+    ) -> None:
+        user = update.effective_user
+        await self.history.reset(user.id)
+        logger.info("history_reset", user_id=user.id, username=user.username)
+        await update.message.reply_text("История диалога очищена.")
 
     def _get_model(self, user_id: int) -> str:
         return self.user_models.get(user_id, settings.default_model)

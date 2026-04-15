@@ -23,3 +23,10 @@ async def test_append_and_get(history_dir: Path) -> None:
         {"role": "user", "content": "hi"},
         {"role": "assistant", "content": "hello"},
     ]
+
+
+async def test_persistence_across_instances(history_dir: Path) -> None:
+    s1 = HistoryStore(history_dir, max_messages=20)
+    await s1.append(1, "user", "persistent")
+    s2 = HistoryStore(history_dir, max_messages=20)
+    assert await s2.get(1) == [{"role": "user", "content": "persistent"}]

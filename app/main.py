@@ -1,5 +1,6 @@
 import asyncio
 import signal
+from pathlib import Path
 
 import structlog
 from telegram.ext import ApplicationBuilder, CallbackQueryHandler, CommandHandler, MessageHandler, filters
@@ -7,6 +8,7 @@ from telegram.ext import ApplicationBuilder, CallbackQueryHandler, CommandHandle
 from app.bot.handlers import BotHandlers
 from app.bot.middleware import LoggingMiddleware
 from app.config import settings
+from app.history import HistoryStore
 from app.llm.client import LLMClient
 from app.logging_config import setup_logging
 
@@ -14,10 +16,20 @@ from app.logging_config import setup_logging
 async def run() -> None:
     setup_logging()
     logger = structlog.get_logger()
-    logger.info("starting_bot", model=settings.default_model, llm_url=settings.llm_base_url)
+    logger.info(
+        "starting_bot",
+        model=settings.default_model,
+        llm_url=settings.llm_base_url,
+        history_dir=settings.history_dir,
+        history_max_messages=settings.history_max_messages,
+    )
 
     llm = LLMClient()
-    handlers = BotHandlers(llm=llm)
+    history = HistoryStore(
+        data_dir=Path(settings.history_dir),
+        max_messages=settings.history_max_messages,
+    )
+    handlers = BotHandlers(llm=llm, history=history)
 
     app = ApplicationBuilder().token(settings.telegram_bot_token).build()
 
@@ -29,6 +41,7 @@ async def run() -> None:
     app.add_handler(CommandHandler("help", handlers.help_command))
     app.add_handler(CommandHandler("models", handlers.models))
     app.add_handler(CommandHandler("model", handlers.set_model))
+    app.add_handler(CommandHandler("reset", handlers.reset))
 
     # Callback handler for inline keyboard (model selection)
     app.add_handler(CallbackQueryHandler(handlers.model_callback, pattern=r"^model:"))

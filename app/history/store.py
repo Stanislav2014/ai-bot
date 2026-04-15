@@ -7,6 +7,10 @@ import yaml
 logger = structlog.get_logger()
 
 
+def _total_chars(history: list[dict[str, str]]) -> int:
+    return sum(len(m["content"]) for m in history)
+
+
 class HistoryStore:
     def __init__(self, data_dir: Path, max_messages: int, max_chars: int = 0) -> None:
         self._data_dir = data_dir
@@ -53,7 +57,10 @@ class HistoryStore:
             history.append({"role": role, "content": content})
             if self._max_messages > 0 and len(history) > self._max_messages:
                 history = history[-self._max_messages :]
-                self._cache[user_id] = history
+            if self._max_chars > 0:
+                while len(history) > 1 and _total_chars(history) > self._max_chars:
+                    history = history[1:]
+            self._cache[user_id] = history
             with self._file(user_id).open("w", encoding="utf-8") as f:
                 yaml.safe_dump(history, f, allow_unicode=True, sort_keys=False)
 

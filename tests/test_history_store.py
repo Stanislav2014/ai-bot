@@ -70,3 +70,16 @@ async def test_per_user_isolation(history_dir: Path) -> None:
     await store.append(2, "user", "from 2")
     assert await store.get(1) == [{"role": "user", "content": "from 1"}]
     assert await store.get(2) == [{"role": "user", "content": "from 2"}]
+
+
+async def test_char_limit_trims_oldest_when_over_budget(history_dir: Path) -> None:
+    store = HistoryStore(history_dir, max_messages=20, max_chars=50)
+    for i in range(10):
+        await store.append(1, "user", f"m{i:08d}")  # each content is 9 chars
+    result = await store.get(1)
+    total = sum(len(m["content"]) for m in result)
+    assert total <= 50
+    assert result[-1]["content"] == "m00000009"
+    # Trim stopped at smallest allowable — removing one more would go further
+    # but adding one more dropped message would push us back over budget
+    assert total + 9 > 50

@@ -7,6 +7,8 @@ class Settings(BaseSettings):
     default_model: str = "qwen3:0.6b"
     llm_timeout: int = 120
     log_level: str = "INFO"
+    history_dir: str = "data/history"
+    history_max_messages: int = 20
 
     model_config = {"env_file": ".env", "env_file_encoding": "utf-8"}
 

@@ -10,17 +10,11 @@ _пусто_
 
 ## In Progress
 
-### D-05 · Context char limit — второй safeguard
-Кап по суммарной длине истории (`HISTORY_MAX_CHARS`, default 8000). Работает поверх D-04 count limit.
-- Branch: `feature/BAU/BOT-D05` (dependent от D-04)
-- Started: 2026-04-15
-- Spec: [tasks/D-05_CONTEXT_CHAR_LIMIT.md](tasks/D-05_CONTEXT_CHAR_LIMIT.md)
-- Plan: [tasks/D-05_CONTEXT_CHAR_LIMIT_plan.md](tasks/D-05_CONTEXT_CHAR_LIMIT_plan.md)
-- Phase: 0 (paperwork done, TDD ahead)
+_пусто_
 
 ## In Review
 
-_пусто (D-04 ожидает ручного smoke-теста в Telegram)_
+_D-04 и D-05 ожидают ручного smoke-теста в Telegram перед merge_
 
 ## Done (этот спринт)
 
@@ -30,9 +24,15 @@ Pre-existing uncommitted работа, сведена в отдельный ко
 - Closed: 2026-04-15
 
 ### D-04 · Dialog history — persistent YAML per-user
-Псевдо-память: `data/history/{user_id}.yaml`, sliding window, `/reset`. 11 коммитов на ветке `feature/BAU/BOT-D04`, 11/11 тестов зелёные, lint чистый. Ожидает manual smoke-test и merge.
+Псевдо-память: `data/history/{user_id}.yaml`, sliding window, `/reset`. 11 чистых коммитов + fix permission bind-mount (`aae5549`), 11/11 тестов зелёные, lint чистый. Ожидает manual smoke-test и merge.
 - Branch: `feature/BAU/BOT-D04`
 - Spec: [tasks/D-04_DIALOG_HISTORY_YAML.md](tasks/D-04_DIALOG_HISTORY_YAML.md)
+- Completed (code): 2026-04-15
+
+### D-05 · Context char limit — второй safeguard
+`HISTORY_MAX_CHARS` default 8000, FIFO-обрезка поверх count-trim. 6 коммитов на ветке `feature/BAU/BOT-D05` (dependent от D-04), 15/15 тестов зелёные, lint чистый. Ожидает manual smoke-test и merge после D-04.
+- Branch: `feature/BAU/BOT-D05`
+- Spec: [tasks/D-05_CONTEXT_CHAR_LIMIT.md](tasks/D-05_CONTEXT_CHAR_LIMIT.md)
 - Completed (code): 2026-04-15
 
 ---

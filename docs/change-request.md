@@ -83,7 +83,7 @@
 | **Task spec** | [tasks/D-05_CONTEXT_CHAR_LIMIT.md](tasks/D-05_CONTEXT_CHAR_LIMIT.md) |
 | **Plan** | [tasks/D-05_CONTEXT_CHAR_LIMIT_plan.md](tasks/D-05_CONTEXT_CHAR_LIMIT_plan.md) |
 | **Started** | 2026-04-15 |
-| **Status** | In Progress — Phase 0 (paperwork done, starting TDD) |
+| **Status** | Code complete, awaiting manual smoke-test and merge (depends on D-04 merge first) |
 | **Owner** | Stan |
 
 ### Goal
@@ -91,23 +91,23 @@
 
 ### Success criteria
 
-- [ ] 4 новых unit теста зелёные (`test_char_limit_*`)
-- [ ] 8 существующих history тестов не сломаны
-- [ ] `make test` (15 тестов: 3 LLM + 12 history) зелёный
-- [ ] `make lint` чистый
-- [ ] `HISTORY_MAX_CHARS` env var работает (default 8000, 0 = disabled)
-- [ ] main.py передаёт max_chars в HistoryStore, в `starting_bot` логе видно поле
+- [x] 4 новых unit теста зелёные (`test_char_limit_*`)
+- [x] 8 существующих history тестов не сломаны
+- [x] `make test` (15 тестов: 3 LLM + 12 history) зелёный
+- [x] `make lint` чистый
+- [x] `HISTORY_MAX_CHARS` env var работает (default 8000, 0 = disabled)
+- [x] main.py передаёт max_chars в HistoryStore, в `starting_bot` логе видно поле
 - [ ] Ручной тест: 3 длинных (~3000 chars) сообщения подряд → 4-е получает историю ≤8000 chars
 - [ ] Merge в master (после merge D-04)
 
 ### Pending action items
 
-- [ ] **A1** · Task 1 plan: добавить `max_chars` kwarg с default=0 (backwards compat) · verify: 8 существующих тестов green
-- [ ] **A2** · Task 2 plan: TDD char-trim logic · verify: `test_char_limit_trims_oldest_when_over_budget` green
-- [ ] **A3** · Task 3 plan: edge cases (disabled, single-oversize, combined) · verify: 4 new tests green
-- [ ] **A4** · Task 4-5 plan: config + main.py wiring
-- [ ] **A5** · Task 6 plan: docs update (architecture, context-dump Flow 2, tech-stack)
-- [ ] **A6** · Task 7 plan: manual verification в Telegram с длинными сообщениями
+- [x] **A1** · Task 1: `max_chars` kwarg default=0 (backwards compat) · commit `aa3d832`
+- [x] **A2** · Task 2: TDD char-trim logic · commit `65de5da`
+- [x] **A3** · Task 3: edge cases (disabled, single-oversize, combined) · commit `2d80141`
+- [x] **A4** · Task 4-5: config + main.py wiring · commits `47aa2d5`, `eca354c`
+- [x] **A5** · Task 6: docs update (architecture, context-dump Flow 2, tech-stack)
+- [ ] **A6** · Task 7: manual verification в Telegram с длинными сообщениями (owner: Stan)
 - [ ] **A7** · Merge D-05 → master (после D-04 merge)
 
 ### Regression watch
@@ -119,6 +119,12 @@
 ### Checkpoints
 
 **Phase 0** — 2026-04-15 — спек + plan записаны, paperwork обновлён, ветка `feature/BAU/BOT-D05` создана от HEAD D-04
+
+**Phase 1-3 (TDD HistoryStore)** — 2026-04-15 — 9→12 тестов history_store, backwards compat подтверждена, 4 новых char-limit теста зелёные. Коммиты `aa3d832`, `65de5da`, `2d80141`.
+
+**Phase 4-5 (Config + wiring)** — 2026-04-15 — `history_max_chars=8000` в settings, .env.example, main.py wiring. `starting_bot` лог содержит `history_max_chars`. Коммиты `47aa2d5`, `eca354c`.
+
+**Phase 6 (Docs)** — 2026-04-15 — architecture § 1 (D-04/D-05 pattern расширен), context-dump Flow 2 (шаги 14-15 упоминают двухступенчатый trim), tech-stack env table, tasks.md ✅, current-sprint.md → In Review.
 
 ---
 

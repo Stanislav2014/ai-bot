@@ -42,8 +42,8 @@
 11. Lemonade обрабатывает → возвращает JSON choices/message/content
 12. `LLMClient.chat()` парсит `data["choices"][0]["message"]["content"]` и `data["usage"]["total_tokens"]` · [app/llm/client.py:42-45](../app/llm/client.py)
 13. Лог `llm_response` (model, tokens) · [app/llm/client.py:44](../app/llm/client.py)
-14. **`await self.history.append(user_id, "user", text)`** — запись user-сообщения в YAML (только после успешного LLM ответа, чтобы не сломать парность user/assistant)
-15. **`await self.history.append(user_id, "assistant", reply)`** — запись assistant-ответа в YAML
+14. **`await self.history.append(user_id, "user", text)`** — запись user-сообщения в YAML (только после успешного LLM ответа, чтобы не сломать парность user/assistant). Append применяет count-trim + char-trim FIFO внутри (см. [app/history/store.py](../app/history/store.py) `HistoryStore.append`)
+15. **`await self.history.append(user_id, "assistant", reply)`** — запись assistant-ответа в YAML (те же два trim'а)
 16. `handle_message` логирует `llm_reply` (user_id, model, reply_length, history_len) · [app/bot/handlers.py](../app/bot/handlers.py)
 17. `message.reply_text(content)` → отправка обратно в Telegram
 

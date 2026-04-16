@@ -70,6 +70,7 @@
 | `HISTORY_KEEP_RECENT` | 2 | Сколько последних raw сообщений сохранить после суммаризации |
 | `HISTORY_SUMMARIZE_MODEL` | `""` | Модель для summary LLM-запроса (пусто = `DEFAULT_MODEL`) |
 | `SYSTEM_PROMPT` | `"Ты опытный программист и отвечаешь кратко и по делу."` | System prompt (persona бота), prepend-ится в каждый LLM-запрос |
+| `LOG_CONTEXT_FULL` | `true` | Логировать полный `messages` payload в `llm_request` event. Metadata (total_chars/estimated_tokens) логируется всегда. Отключить в prod при росте логов |
 
 ## Python version constraint
 

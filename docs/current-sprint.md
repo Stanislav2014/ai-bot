@@ -10,16 +10,15 @@ _пусто_
 
 ## In Progress
 
-### D-08 · Context logging — visibility перед LLM call
-Расширяет `llm_request` лог полями `total_chars`, `estimated_tokens`, полный `messages` payload под гейтом `LOG_CONTEXT_FULL`.
-- Branch: `feature/BAU/BOT-D08`
-- Started: 2026-04-15
-- Spec: [tasks/D-08_CONTEXT_LOGGING.md](tasks/D-08_CONTEXT_LOGGING.md)
-- Phase: 0 (paperwork done, implementation ahead)
+_пусто_
 
 ## In Review
 
-_пусто_
+### D-08 · Context logging — visibility перед LLM call
+`llm_request` лог с `total_chars`, `estimated_tokens`, full `messages` (под env gate). Helper `_context_stats` + 3 unit теста. 27/27 зелёные, ruff clean.
+- Branch: `feature/BAU/BOT-D08`
+- Spec: [tasks/D-08_CONTEXT_LOGGING.md](tasks/D-08_CONTEXT_LOGGING.md)
+- Completed (code): 2026-04-15
 
 ## Done (этот спринт)
 

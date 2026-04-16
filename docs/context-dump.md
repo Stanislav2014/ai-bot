@@ -39,7 +39,7 @@
 7. Строится `messages = [{system: self.system_prompt}] + history_msgs + [{user}]` — `self.system_prompt` inject-ится из `settings.system_prompt` (env `SYSTEM_PROMPT`, D-07), дефолт — русский программистский persona · [app/bot/handlers.py](../app/bot/handlers.py)
 8. `chat.send_action("typing")` — Telegram показывает индикатор
 9. `llm.chat(messages, model=model)` → HTTP POST `{base_url}/v1/chat/completions` с body `{model, messages, stream: false}` · [app/llm/client.py:24-42](../app/llm/client.py)
-10. Лог `llm_request` (model, messages_count) → реально уходит в Lemonade
+10. Лог `llm_request` (model, messages_count, `total_chars`, `estimated_tokens`; + `messages` при `LOG_CONTEXT_FULL=true`, D-08) — перед HTTP-вызовом, виден весь input → реально уходит в Lemonade
 11. Lemonade обрабатывает → возвращает JSON choices/message/content
 12. `LLMClient.chat()` парсит `data["choices"][0]["message"]["content"]` и `data["usage"]["total_tokens"]` · [app/llm/client.py:42-45](../app/llm/client.py)
 13. Лог `llm_response` (model, tokens) · [app/llm/client.py:44](../app/llm/client.py)

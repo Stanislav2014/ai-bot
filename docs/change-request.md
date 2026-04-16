@@ -13,7 +13,7 @@
 | **Branch** | `feature/BAU/BOT-D08` |
 | **Task spec** | [tasks/D-08_CONTEXT_LOGGING.md](tasks/D-08_CONTEXT_LOGGING.md) |
 | **Started** | 2026-04-15 |
-| **Status** | In Progress — Phase 0 (paperwork done, implementation ahead) |
+| **Status** | Code complete, awaiting manual smoke-test and merge |
 | **Owner** | Stan |
 
 ### Goal
@@ -21,23 +21,23 @@
 
 ### Success criteria
 
-- [ ] `_context_stats(messages)` helper + 3 unit теста зелёные
-- [ ] `llm_request` лог содержит `total_chars`, `estimated_tokens` всегда; `messages` — под env gate
-- [ ] `settings.log_context_full` (env `LOG_CONTEXT_FULL`, default `true`)
-- [ ] `.env.example` обновлён
-- [ ] Существующие 24 теста зелёные (до этой задачи) → 27 после
-- [ ] `make lint` чистый
+- [x] `_context_stats(messages)` helper + 3 unit теста зелёные
+- [x] `llm_request` лог содержит `total_chars`, `estimated_tokens` всегда; `messages` — под env gate
+- [x] `settings.log_context_full` (env `LOG_CONTEXT_FULL`, default `true`)
+- [x] `.env.example` обновлён
+- [x] Существующие тесты зелёные → всего 27 после
+- [x] `make lint` чистый
 - [ ] Ручной smoke: `docker compose logs bot | grep llm_request` показывает все новые поля для user диалога И для summary-вызова
 - [ ] `LOG_CONTEXT_FULL=false` → messages исчезают, metadata остаётся
 - [ ] Merge в master
 
 ### Pending action items
 
-- [ ] **A1** · Phase 1: helper + unit tests
-- [ ] **A2** · Phase 2: config + .env.example
-- [ ] **A3** · Phase 3: рефактор `LLMClient.chat()` лога
-- [ ] **A4** · Phase 4: full test run + lint
-- [ ] **A5** · Phase 5: docs update
+- [x] **A1** · Phase 1: helper + unit tests (commit pending)
+- [x] **A2** · Phase 2: config + .env.example
+- [x] **A3** · Phase 3: рефактор `LLMClient.chat()` лога
+- [x] **A4** · Phase 4: full test run + lint (27/27, ruff clean)
+- [x] **A5** · Phase 5: docs update
 - [ ] **A6** · Phase 6: manual smoke (owner: Stan)
 - [ ] **A7** · Phase 7: merge D-08 → master
 
@@ -50,6 +50,12 @@
 ### Checkpoints
 
 **Phase 0** — 2026-04-15 — brainstorming, вариант A утверждён (LLMClient-level, env gate), spec записан, ветка создана
+
+**Phase 1-4 (Implementation)** — 2026-04-15 — `_context_stats` helper + 3 unit теста, config `log_context_full`, .env.example, log extension в `LLMClient.chat()` (metadata всегда, messages под gate). 27/27 tests green, ruff clean. Commit `7adcef1`.
+
+**Phase 5 (Docs)** — 2026-04-15 — architecture § 5 (Structured logging) получил раздел про D-08 observability, context-dump Flow 2 step 10 обновлён, tech-stack env table дополнена `LOG_CONTEXT_FULL`, tasks.md ✅, current-sprint.md → In Review.
+
+**Phase 6 (Manual smoke)** — _ждёт пользователя_
 
 ---
 

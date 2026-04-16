@@ -5,7 +5,7 @@
 | **Task ID** | D-08 |
 | **Ticket** | BOT-D08 |
 | **Branch** | `feature/BAU/BOT-D08` |
-| **Status** | In Progress — Phase 0 |
+| **Status** | ✅ Merged 2026-04-15 · commits `7adcef1` + `605d59d` + `f130fb6` · verified in prod 2026-04-16 |
 | **Owner** | Stan |
 | **Started** | 2026-04-15 |
 
@@ -109,15 +109,16 @@ def test_context_stats_ignores_missing_content_field() -> None:
 
 ## Success criteria
 
-- [ ] `_context_stats(messages)` helper работает, 3 unit теста зелёные
-- [ ] `LLMClient.chat()` логирует `llm_request` с новыми полями (`total_chars`, `estimated_tokens`) всегда; `messages` — под env `LOG_CONTEXT_FULL`
-- [ ] `settings.log_context_full` env поле (default `true`)
-- [ ] `.env.example` описывает `LOG_CONTEXT_FULL`
-- [ ] Существующие 24 тестов зелёные
-- [ ] `make lint` чистый
-- [ ] Ручной smoke: в `docker compose logs bot` видно `llm_request` с полями `total_chars`, `estimated_tokens`, `messages` — И для user диалога, И для summarization
-- [ ] Override `LOG_CONTEXT_FULL=false` → messages исчезают из лога, metadata остаётся
-- [ ] Merge в master
+- [x] `_context_stats(messages)` helper работает, 3 unit теста зелёные · [app/llm/client.py:15-18](../../app/llm/client.py), [tests/test_llm_client.py](../../tests/test_llm_client.py)
+- [x] `LLMClient.chat()` логирует `llm_request` с новыми полями (`total_chars`, `estimated_tokens`) всегда; `messages` — под env `LOG_CONTEXT_FULL` · [app/llm/client.py:41-50](../../app/llm/client.py)
+- [x] `settings.log_context_full` env поле (default `true`) · [app/config.py](../../app/config.py)
+- [x] `.env.example` описывает `LOG_CONTEXT_FULL` · [.env.example](../../.env.example)
+- [x] Существующие тесты зелёные — всего 27 (3 LLM + 13 history + 8 summarizer + 3 context_stats)
+- [x] `make lint` чистый
+- [x] Ручной smoke: prod лог 2026-04-16 18:50:49 — `{"model":"Qwen3-8B-GGUF","messages_count":2,"total_chars":76,"estimated_tokens":19,"messages":[...],"event":"llm_request"}` — все поля видны для user диалога
+- [x] Override `LOG_CONTEXT_FULL=false` → messages исчезают, metadata остаётся · verified 2026-04-16 19:00:31 (subprocess smoke): `llm_request estimated_tokens=4 messages_count=1 model=Qwen3-0.6B-GGUF total_chars=18` (без `messages`)
+- [x] Merge в master · `7adcef1` feat, `605d59d` docs
+- [ ] **(open)** Smoke для summarization вызова: триггер на 6-м сообщении в одной сессии — пока не воспроизведён, требуется реальный длинный диалог в Telegram
 
 ---
 
@@ -152,21 +153,21 @@ def test_context_stats_ignores_missing_content_field() -> None:
 - [x] Дизайн утверждён (вариант A: уровень LLMClient, env gate для full content)
 - [x] Spec записан (этот файл)
 
-### Phase 1 — TDD helper + lint
-- [ ] Добавить `_context_stats` в `LLMClient` модуль
-- [ ] Написать 3 unit теста
+### Phase 1 — TDD helper + lint ✅
+- [x] Добавить `_context_stats` в `LLMClient` модуль
+- [x] Написать 3 unit теста
 
-### Phase 2 — Config + .env.example
+### Phase 2 — Config + .env.example ✅
 
-### Phase 3 — Рефактор `LLMClient.chat()` лога
+### Phase 3 — Рефактор `LLMClient.chat()` лога ✅
 
-### Phase 4 — Full test run + lint
+### Phase 4 — Full test run + lint ✅ — 27/27 green, ruff clean
 
-### Phase 5 — Docs update
+### Phase 5 — Docs update ✅ — architecture § 5, context-dump Flow 2 step 10, tech-stack env table
 
-### Phase 6 — Manual smoke
+### Phase 6 — Manual smoke ✅ partial — user диалог verified, env gate verified; summarization path pending реальный 6+ диалог
 
-### Phase 7 — Merge
+### Phase 7 — Merge ✅ — master commit `7adcef1` (feat) + `605d59d` (docs)
 
 ---
 
@@ -188,3 +189,6 @@ def test_context_stats_ignores_missing_content_field() -> None:
 ## History
 
 - 2026-04-15 — task started, вариант A утверждён (LLMClient-level logging with env gate), spec записан
+- 2026-04-15 — implementation (commit `7adcef1`), docs (commit `605d59d`), merge в master
+- 2026-04-16 — prod rebuild (`make build && make restart`), зафиксирован live `llm_request` event для user диалога @StasMura: `total_chars=76, estimated_tokens=19, messages_count=2` + полный payload
+- 2026-04-16 — verified env gate: `LOG_CONTEXT_FULL=false` → messages field отсутствует в event (subprocess smoke в контейнере)

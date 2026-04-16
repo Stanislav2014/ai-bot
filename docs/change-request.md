@@ -128,6 +128,60 @@
 
 ---
 
+## D-06 · History summarization — умная обрезка через LLM
+
+| Поле | Значение |
+|------|----------|
+| **Task ID** | `D-06` |
+| **Ticket** | `BOT-D06` |
+| **Branch** | `feature/BAU/BOT-D06` (dependent от `feature/BAU/BOT-D05`) |
+| **Task spec** | [tasks/D-06_HISTORY_SUMMARIZATION.md](tasks/D-06_HISTORY_SUMMARIZATION.md) |
+| **Plan** | [tasks/D-06_HISTORY_SUMMARIZATION_plan.md](tasks/D-06_HISTORY_SUMMARIZATION_plan.md) |
+| **Started** | 2026-04-15 |
+| **Status** | In Progress — Phase 0 (paperwork done, starting TDD) |
+| **Owner** | Stan |
+
+### Goal
+Умная обрезка истории: при `len > HISTORY_SUMMARIZE_THRESHOLD` (default 5) старые сообщения заменяются single summary-system-message через отдельный LLM-запрос, последние `HISTORY_KEEP_RECENT` (default 2) сохраняются raw. Fail-safe: ошибка LLM не блокирует основной ответ.
+
+### Success criteria
+
+- [ ] `app/history/summarizer.py` с `Summarizer` + `maybe_summarize`
+- [ ] `HistoryStore.replace(user_id, new_history)` новый метод
+- [ ] `tests/test_summarizer.py` — 8 тестов зелёные
+- [ ] `tests/test_history_store.py` — +1 тест на `replace` зелёный
+- [ ] `make test` всего 24 теста зелёные
+- [ ] `make lint` чистый
+- [ ] `HISTORY_SUMMARIZE_THRESHOLD=0` → точное D-05 поведение (gate на regression)
+- [ ] main.py wiring; `starting_bot` лог включает summarize-поля
+- [ ] Ручной smoke: 6+ сообщений → появляется `role: system` summary в `data/history/<user_id>.yaml`, лог `history_summarized`
+- [ ] Merge в master (после D-04, D-05)
+
+### Pending action items
+
+- [ ] **A1** · Task 1: `HistoryStore.replace` TDD · verify: `test_replace_overwrites_cache_and_file` green
+- [ ] **A2** · Task 2: Summarizer skeleton + below-threshold tests · verify: 2 tests green
+- [ ] **A3** · Task 3: happy path RED→GREEN · verify: `test_over_threshold_returns_summary_plus_recent` green
+- [ ] **A4** · Task 4: behavior tests (role, keep_recent, payload, failure, empty)
+- [ ] **A5** · Task 5: config + .env.example
+- [ ] **A6** · Task 6: BotHandlers + main.py wiring
+- [ ] **A7** · Task 7: docs update
+- [ ] **A8** · Task 8: manual smoke-test (owner: Stan)
+- [ ] **A9** · Merge D-06 → master (после merge D-04 и D-05)
+
+### Regression watch
+
+- `HISTORY_SUMMARIZE_THRESHOLD=0` gate — все 15 существующих тестов должны оставаться зелёными
+- Failure в summary LLM call → fall-through, основной ответ пользователю не блокируется
+- Handler flow меняется (summarizer call между get и build payload) — тестов handlers нет, ручная проверка
+- Extra latency на триггер (+1 LLM call) — документируется, приемлемо для локальной модели
+
+### Checkpoints
+
+**Phase 0** — 2026-04-15 — brainstorming done, spec + plan записаны, ветка создаётся сразу после этого блока
+
+---
+
 ## C-01 · Migrate LLM server from Ollama to Lemonade
 
 | Поле | Значение |

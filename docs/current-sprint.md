@@ -10,7 +10,13 @@ _пусто_
 
 ## In Progress
 
-_пусто_
+### D-06 · History summarization — умная обрезка через LLM
+Summarizer класс заменяет старые сообщения single summary-system-message при `len > threshold` (default 5). Последние `HISTORY_KEEP_RECENT` (default 2) сохраняются raw. Fail-safe.
+- Branch: `feature/BAU/BOT-D06` (dependent от D-05)
+- Started: 2026-04-15
+- Spec: [tasks/D-06_HISTORY_SUMMARIZATION.md](tasks/D-06_HISTORY_SUMMARIZATION.md)
+- Plan: [tasks/D-06_HISTORY_SUMMARIZATION_plan.md](tasks/D-06_HISTORY_SUMMARIZATION_plan.md)
+- Phase: 0 (paperwork done, TDD ahead)
 
 ## In Review
 

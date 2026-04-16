@@ -66,6 +66,9 @@
 | `HISTORY_DIR` | `data/history` | Папка с YAML файлами истории per-user |
 | `HISTORY_MAX_MESSAGES` | 20 | Макс сообщений в истории (0 = без лимита) |
 | `HISTORY_MAX_CHARS` | 8000 | Макс суммарная длина истории в символах (0 = без лимита). Второй safeguard поверх `HISTORY_MAX_MESSAGES` |
+| `HISTORY_SUMMARIZE_THRESHOLD` | 5 | Суммаризировать при `len(history) > threshold` (0 = disabled) |
+| `HISTORY_KEEP_RECENT` | 2 | Сколько последних raw сообщений сохранить после суммаризации |
+| `HISTORY_SUMMARIZE_MODEL` | `""` | Модель для summary LLM-запроса (пусто = `DEFAULT_MODEL`) |
 
 ## Python version constraint
 

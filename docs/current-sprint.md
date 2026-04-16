@@ -10,17 +10,11 @@ _пусто_
 
 ## In Progress
 
-### D-06 · History summarization — умная обрезка через LLM
-Summarizer класс заменяет старые сообщения single summary-system-message при `len > threshold` (default 5). Последние `HISTORY_KEEP_RECENT` (default 2) сохраняются raw. Fail-safe.
-- Branch: `feature/BAU/BOT-D06` (dependent от D-05)
-- Started: 2026-04-15
-- Spec: [tasks/D-06_HISTORY_SUMMARIZATION.md](tasks/D-06_HISTORY_SUMMARIZATION.md)
-- Plan: [tasks/D-06_HISTORY_SUMMARIZATION_plan.md](tasks/D-06_HISTORY_SUMMARIZATION_plan.md)
-- Phase: 0 (paperwork done, TDD ahead)
+_пусто_
 
 ## In Review
 
-_D-04 и D-05 ожидают ручного smoke-теста в Telegram перед merge_
+_D-04, D-05, D-06 ожидают ручного smoke-теста в Telegram перед merge_
 
 ## Done (этот спринт)
 
@@ -39,6 +33,12 @@ Pre-existing uncommitted работа, сведена в отдельный ко
 `HISTORY_MAX_CHARS` default 8000, FIFO-обрезка поверх count-trim. 6 коммитов на ветке `feature/BAU/BOT-D05` (dependent от D-04), 15/15 тестов зелёные, lint чистый. Ожидает manual smoke-test и merge после D-04.
 - Branch: `feature/BAU/BOT-D05`
 - Spec: [tasks/D-05_CONTEXT_CHAR_LIMIT.md](tasks/D-05_CONTEXT_CHAR_LIMIT.md)
+- Completed (code): 2026-04-15
+
+### D-06 · History summarization — умная обрезка через LLM
+Summarizer класс + `HistoryStore.replace`. При `len > 5` старые сообщения заменяются single summary-system-message через LLM-запрос, последние 2 сохраняются raw. Fail-safe. 8 коммитов на ветке `feature/BAU/BOT-D06` (dependent от D-05), 24/24 тестов зелёные (3 LLM + 13 history + 8 summarizer), lint чистый.
+- Branch: `feature/BAU/BOT-D06`
+- Spec: [tasks/D-06_HISTORY_SUMMARIZATION.md](tasks/D-06_HISTORY_SUMMARIZATION.md)
 - Completed (code): 2026-04-15
 
 ---

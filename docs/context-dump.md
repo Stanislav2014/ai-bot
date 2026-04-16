@@ -35,6 +35,7 @@
 4. Resolve `model = self._get_model(user_id)` → `user_models.get(user_id, settings.default_model)` · [app/bot/handlers.py](../app/bot/handlers.py)
 5. Лог `user_message` (user_id, username, model, text_length) · [app/bot/handlers.py](../app/bot/handlers.py)
 6. **`history_msgs = await self.history.get(user_id)`** — загрузка прошлых user/assistant сообщений (cache → YAML файл) · [app/history/store.py](../app/history/store.py) · [app/bot/handlers.py](../app/bot/handlers.py)
+6.5. **`new_history = await self.summarizer.maybe_summarize(history_msgs)`** (D-06) — если `len > HISTORY_SUMMARIZE_THRESHOLD`, старые сообщения уходят в отдельный LLM-запрос на summary, результат заменяет их single `role=system` сообщением с префиксом `"Previous conversation summary: "`. При изменении — `await self.history.replace(user_id, new_history)` + лог `history_summarized` (before/after). Fail/disabled → возвращается `history_msgs` без изменений · [app/history/summarizer.py](../app/history/summarizer.py)
 7. Строится `messages = [{system}] + history_msgs + [{user}]` · [app/bot/handlers.py](../app/bot/handlers.py)
 8. `chat.send_action("typing")` — Telegram показывает индикатор
 9. `llm.chat(messages, model=model)` → HTTP POST `{base_url}/v1/chat/completions` с body `{model, messages, stream: false}` · [app/llm/client.py:24-42](../app/llm/client.py)

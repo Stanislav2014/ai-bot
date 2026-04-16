@@ -69,7 +69,7 @@ Branch: `feature/BAU/BOT-D04` · merged 2026-04-15
 Branch: `feature/BAU/BOT-D05` · code complete 2026-04-15 · 15/15 tests green
 → [tasks/D-05_CONTEXT_CHAR_LIMIT.md](tasks/D-05_CONTEXT_CHAR_LIMIT.md)
 
-### D-06 🛠 History summarization — умная обрезка через LLM
-Summarizer класс: при `len > HISTORY_SUMMARIZE_THRESHOLD` (default 5) старые сообщения заменяются single summary-system-message через LLM-запрос; последние `HISTORY_KEEP_RECENT` сохраняются raw. Fail-safe: при ошибке LLM возвращается оригинальная история. D-04/D-05 работают как fallback.
-Branch: `feature/BAU/BOT-D06` (dependent от D-05)
-→ [tasks/D-06_HISTORY_SUMMARIZATION.md](tasks/D-06_HISTORY_SUMMARIZATION.md) · [plan](tasks/D-06_HISTORY_SUMMARIZATION_plan.md)
+### D-06 ✅ History summarization — умная обрезка через LLM
+Summarizer класс: при `len > HISTORY_SUMMARIZE_THRESHOLD` (default 5) старые сообщения заменяются single summary-system-message через LLM-запрос; последние `HISTORY_KEEP_RECENT` (default 2) сохраняются raw. Fail-safe. D-04/D-05 — fallback.
+Branch: `feature/BAU/BOT-D06` · code complete 2026-04-15 · 24/24 tests green
+→ [tasks/D-06_HISTORY_SUMMARIZATION.md](tasks/D-06_HISTORY_SUMMARIZATION.md)

@@ -138,7 +138,7 @@
 | **Task spec** | [tasks/D-06_HISTORY_SUMMARIZATION.md](tasks/D-06_HISTORY_SUMMARIZATION.md) |
 | **Plan** | [tasks/D-06_HISTORY_SUMMARIZATION_plan.md](tasks/D-06_HISTORY_SUMMARIZATION_plan.md) |
 | **Started** | 2026-04-15 |
-| **Status** | In Progress — Phase 0 (paperwork done, starting TDD) |
+| **Status** | Code complete, awaiting manual smoke-test and merge (depends on D-04/D-05 merge first) |
 | **Owner** | Stan |
 
 ### Goal
@@ -146,26 +146,26 @@
 
 ### Success criteria
 
-- [ ] `app/history/summarizer.py` с `Summarizer` + `maybe_summarize`
-- [ ] `HistoryStore.replace(user_id, new_history)` новый метод
-- [ ] `tests/test_summarizer.py` — 8 тестов зелёные
-- [ ] `tests/test_history_store.py` — +1 тест на `replace` зелёный
-- [ ] `make test` всего 24 теста зелёные
-- [ ] `make lint` чистый
-- [ ] `HISTORY_SUMMARIZE_THRESHOLD=0` → точное D-05 поведение (gate на regression)
-- [ ] main.py wiring; `starting_bot` лог включает summarize-поля
+- [x] `app/history/summarizer.py` с `Summarizer` + `maybe_summarize`
+- [x] `HistoryStore.replace(user_id, new_history)` новый метод
+- [x] `tests/test_summarizer.py` — 8 тестов зелёные
+- [x] `tests/test_history_store.py` — +1 тест на `replace` зелёный
+- [x] `make test` всего 24 теста зелёные
+- [x] `make lint` чистый
+- [x] `HISTORY_SUMMARIZE_THRESHOLD=0` → точное D-05 поведение (gate на regression, покрыт тестом)
+- [x] main.py wiring; `starting_bot` лог включает summarize-поля
 - [ ] Ручной smoke: 6+ сообщений → появляется `role: system` summary в `data/history/<user_id>.yaml`, лог `history_summarized`
 - [ ] Merge в master (после D-04, D-05)
 
 ### Pending action items
 
-- [ ] **A1** · Task 1: `HistoryStore.replace` TDD · verify: `test_replace_overwrites_cache_and_file` green
-- [ ] **A2** · Task 2: Summarizer skeleton + below-threshold tests · verify: 2 tests green
-- [ ] **A3** · Task 3: happy path RED→GREEN · verify: `test_over_threshold_returns_summary_plus_recent` green
-- [ ] **A4** · Task 4: behavior tests (role, keep_recent, payload, failure, empty)
-- [ ] **A5** · Task 5: config + .env.example
-- [ ] **A6** · Task 6: BotHandlers + main.py wiring
-- [ ] **A7** · Task 7: docs update
+- [x] **A1** · Task 1: `HistoryStore.replace` TDD · commit `88400d0`
+- [x] **A2** · Task 2: Summarizer skeleton + below-threshold tests · commit `608cc34`
+- [x] **A3** · Task 3: happy path RED→GREEN · commit `c5fa605`
+- [x] **A4** · Task 4: behavior tests (role, keep_recent, payload, failure, empty) · commit `b12edcc`
+- [x] **A5** · Task 5: config + .env.example · commit `77d7a18`
+- [x] **A6** · Task 6: BotHandlers + main.py wiring · commit `8cdf7a2`
+- [x] **A7** · Task 7: docs update
 - [ ] **A8** · Task 8: manual smoke-test (owner: Stan)
 - [ ] **A9** · Merge D-06 → master (после merge D-04 и D-05)
 
@@ -178,7 +178,19 @@
 
 ### Checkpoints
 
-**Phase 0** — 2026-04-15 — brainstorming done, spec + plan записаны, ветка создаётся сразу после этого блока
+**Phase 0** — 2026-04-15 — brainstorming done, spec + plan записаны, ветка `feature/BAU/BOT-D06` создана от HEAD D-05 (commit `48392f7`)
+
+**Phase 1 (HistoryStore.replace TDD)** — 2026-04-15 — RED → GREEN → 13/13 history tests green. Commit `88400d0`.
+
+**Phase 2-3 (Summarizer skeleton + happy path)** — 2026-04-15 — skeleton с below-threshold guard + happy path с LLM mock. Commits `608cc34`, `c5fa605`.
+
+**Phase 4 (Behavior tests)** — 2026-04-15 — role system check, keep_recent intact, payload transcript format, LLM failure fallback, empty response fallback. Commit `b12edcc`. 8/8 summarizer tests green.
+
+**Phase 5 (Config + wiring)** — 2026-04-15 — 3 новых env, handle_message вызывает summarizer + replace + лог `history_summarized`, main.py резолвит `summarize_model`. 24/24 tests green, ruff clean. Commits `77d7a18`, `8cdf7a2`.
+
+**Phase 6 (Docs)** — 2026-04-15 — architecture § 1 расширена D-06 bullet-ом + edge cases 15-16 (recursive merge, latency), context-dump Flow 2 step 6.5, tech-stack 3 env строки, tasks.md ✅, current-sprint.md → In Review.
+
+**Phase 7 (Manual smoke-test)** — _ждёт пользователя_
 
 ---
 

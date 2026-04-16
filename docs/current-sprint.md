@@ -10,11 +10,16 @@ _пусто_
 
 ## In Progress
 
-_пусто_
+### D-07 · System prompt — configurable persona
+Env `SYSTEM_PROMPT` вместо hardcoded константы. Дефолт — русский программистский persona. Инъекция в `BotHandlers.__init__`.
+- Branch: `feature/BAU/BOT-D07` (от master после D-04/D-05/D-06 merge)
+- Started: 2026-04-15
+- Spec: [tasks/D-07_SYSTEM_PROMPT.md](tasks/D-07_SYSTEM_PROMPT.md)
+- Phase: 0 (paperwork done, implementation ahead)
 
 ## In Review
 
-_D-04, D-05, D-06 ожидают ручного smoke-теста в Telegram перед merge_
+_пусто_
 
 ## Done (этот спринт)
 
@@ -24,28 +29,22 @@ Pre-existing uncommitted работа, сведена в отдельный ко
 - Closed: 2026-04-15
 
 ### D-04 · Dialog history — persistent YAML per-user
-Псевдо-память: `data/history/{user_id}.yaml`, sliding window, `/reset`. 11 чистых коммитов + fix permission bind-mount (`aae5549`), 11/11 тестов зелёные, lint чистый. Ожидает manual smoke-test и merge.
-- Branch: `feature/BAU/BOT-D04`
+Псевдо-память: `data/history/{user_id}.yaml`, sliding window, `/reset`. Merged 2026-04-15.
 - Spec: [tasks/D-04_DIALOG_HISTORY_YAML.md](tasks/D-04_DIALOG_HISTORY_YAML.md)
-- Completed (code): 2026-04-15
 
 ### D-05 · Context char limit — второй safeguard
-`HISTORY_MAX_CHARS` default 8000, FIFO-обрезка поверх count-trim. 6 коммитов на ветке `feature/BAU/BOT-D05` (dependent от D-04), 15/15 тестов зелёные, lint чистый. Ожидает manual smoke-test и merge после D-04.
-- Branch: `feature/BAU/BOT-D05`
+`HISTORY_MAX_CHARS` default 8000, FIFO-обрезка поверх count-trim. Last-message protected. Merged 2026-04-15.
 - Spec: [tasks/D-05_CONTEXT_CHAR_LIMIT.md](tasks/D-05_CONTEXT_CHAR_LIMIT.md)
-- Completed (code): 2026-04-15
 
 ### D-06 · History summarization — умная обрезка через LLM
-Summarizer класс + `HistoryStore.replace`. При `len > 5` старые сообщения заменяются single summary-system-message через LLM-запрос, последние 2 сохраняются raw. Fail-safe. 8 коммитов на ветке `feature/BAU/BOT-D06` (dependent от D-05), 24/24 тестов зелёные (3 LLM + 13 history + 8 summarizer), lint чистый.
-- Branch: `feature/BAU/BOT-D06`
+Summarizer класс + `HistoryStore.replace`. При `len > 5` старые сообщения заменяются single summary-system-message через LLM-запрос, последние 2 сохраняются raw. Fail-safe. Merged 2026-04-15.
 - Spec: [tasks/D-06_HISTORY_SUMMARIZATION.md](tasks/D-06_HISTORY_SUMMARIZATION.md)
-- Completed (code): 2026-04-15
 
 ---
 
 ## Notes
 
 - Sprint 1 — первый спринт после развёртывания doc-структуры
-- D-04 требует ручной smoke-тест в реальном Telegram до merge в master (см. [tasks/D-04_DIALOG_HISTORY_YAML_plan.md Task 12](tasks/D-04_DIALOG_HISTORY_YAML_plan.md))
+- D-04/D-05/D-06 смержены в master 2026-04-15. Ручной smoke-тест пока откладывается.
 - Остаток C-01: README.md упоминания Ollama, Makefile `pull-models` — вынести в отдельный C-02 коммит
-- Backup branch `backup/d04-tangled` можно удалить после успешного merge D-04 в master
+- Backup branch `backup/d04-tangled` можно удалить в любой момент (feature ветки уже merged и удалены)

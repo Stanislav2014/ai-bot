@@ -66,10 +66,15 @@ Branch: `feature/BAU/BOT-D04` · merged 2026-04-15
 
 ### D-05 ✅ Context char limit — второй safeguard
 Кап по суммарной длине истории (`HISTORY_MAX_CHARS`, default 8000). Работает поверх `HISTORY_MAX_MESSAGES`. FIFO-trim защищает от одной длинной простыни, переполняющей context window. Last-message protected from drop.
-Branch: `feature/BAU/BOT-D05` · code complete 2026-04-15 · 15/15 tests green
+Branch: `feature/BAU/BOT-D05` · merged 2026-04-15 · 15/15 tests green
 → [tasks/D-05_CONTEXT_CHAR_LIMIT.md](tasks/D-05_CONTEXT_CHAR_LIMIT.md)
 
 ### D-06 ✅ History summarization — умная обрезка через LLM
 Summarizer класс: при `len > HISTORY_SUMMARIZE_THRESHOLD` (default 5) старые сообщения заменяются single summary-system-message через LLM-запрос; последние `HISTORY_KEEP_RECENT` (default 2) сохраняются raw. Fail-safe. D-04/D-05 — fallback.
-Branch: `feature/BAU/BOT-D06` · code complete 2026-04-15 · 24/24 tests green
+Branch: `feature/BAU/BOT-D06` · merged 2026-04-15 · 24/24 tests green
 → [tasks/D-06_HISTORY_SUMMARIZATION.md](tasks/D-06_HISTORY_SUMMARIZATION.md)
+
+### D-07 🛠 System prompt — configurable persona
+Env `SYSTEM_PROMPT` (default: русский программистский persona) вместо hardcoded `"You are a helpful assistant..."`. Инъекция в `BotHandlers.__init__`.
+Branch: `feature/BAU/BOT-D07`
+→ [tasks/D-07_SYSTEM_PROMPT.md](tasks/D-07_SYSTEM_PROMPT.md)

@@ -4,6 +4,54 @@
 
 ---
 
+## D-07 · System prompt — configurable persona
+
+| Поле | Значение |
+|------|----------|
+| **Task ID** | `D-07` |
+| **Ticket** | `BOT-D07` |
+| **Branch** | `feature/BAU/BOT-D07` (от master после merge D-04/D-05/D-06) |
+| **Task spec** | [tasks/D-07_SYSTEM_PROMPT.md](tasks/D-07_SYSTEM_PROMPT.md) |
+| **Started** | 2026-04-15 |
+| **Status** | In Progress — Phase 0 (paperwork done, implementation ahead) |
+| **Owner** | Stan |
+
+### Goal
+Сделать system prompt configurable через env `SYSTEM_PROMPT` с осмысленным дефолтом (русский программистский persona). Инъекция в `BotHandlers.__init__` вместо module-level константы.
+
+### Success criteria
+
+- [ ] `settings.system_prompt` (env `SYSTEM_PROMPT`) работает, дефолт — русский программист
+- [ ] `BotHandlers.__init__` принимает `system_prompt`, использует `self.system_prompt` в `handle_message`
+- [ ] Module-level `SYSTEM_PROMPT` удалена
+- [ ] main.py wiring + truncated log field
+- [ ] `.env.example` обновлён с русским примером
+- [ ] 24 существующих теста зелёные, ruff чистый
+- [ ] Ручной smoke: программистский тон в ответах + override через env меняет стиль
+- [ ] Merge в master
+
+### Pending action items
+
+- [ ] **A1** · Phase 1: config + .env.example
+- [ ] **A2** · Phase 2: handlers refactor (инъекция, замена константы)
+- [ ] **A3** · Phase 3: main.py wiring
+- [ ] **A4** · Phase 4: lint + tests
+- [ ] **A5** · Phase 5: manual smoke-test (owner: Stan)
+- [ ] **A6** · Phase 6: docs update
+- [ ] **A7** · Merge D-07 → master
+
+### Regression watch
+
+- `handle_message` единственная точка использования — низкий risk
+- Существующие 24 теста не трогают handlers directly → должны остаться зелёными
+- `Summarizer` изолирован, его `SUMMARY_PROMPT` отдельная сущность
+
+### Checkpoints
+
+**Phase 0** — 2026-04-15 — brainstorming, вариант A утверждён (env-configurable, русский дефолт, no per-user override), spec записан, ветка создана
+
+---
+
 ## D-04 · Dialog history — persistent YAML per-user
 
 | Поле | Значение |

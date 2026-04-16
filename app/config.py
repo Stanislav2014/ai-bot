@@ -10,6 +10,9 @@ class Settings(BaseSettings):
     history_dir: str = "data/history"
     history_max_messages: int = 20
     history_max_chars: int = 8000
+    history_summarize_threshold: int = 5
+    history_keep_recent: int = 2
+    history_summarize_model: str = ""
 
     model_config = {"env_file": ".env", "env_file_encoding": "utf-8"}
 

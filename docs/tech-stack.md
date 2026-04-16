@@ -69,6 +69,7 @@
 | `HISTORY_SUMMARIZE_THRESHOLD` | 5 | Суммаризировать при `len(history) > threshold` (0 = disabled) |
 | `HISTORY_KEEP_RECENT` | 2 | Сколько последних raw сообщений сохранить после суммаризации |
 | `HISTORY_SUMMARIZE_MODEL` | `""` | Модель для summary LLM-запроса (пусто = `DEFAULT_MODEL`) |
+| `SYSTEM_PROMPT` | `"Ты опытный программист и отвечаешь кратко и по делу."` | System prompt (persona бота), prepend-ится в каждый LLM-запрос |
 
 ## Python version constraint
 

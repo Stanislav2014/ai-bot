@@ -20,7 +20,7 @@ ai-bot — простой монопроцессный Python async-сервис
 
 Каждое сообщение пользователя отправляется в LLM **вместе с историей**:
 - `[system] + history из YAML + new_user_message`
-- system prompt жёстко зашит в коде ([app/bot/handlers.py](../app/bot/handlers.py)), в файле не хранится — при изменении применяется сразу ко всем юзерам
+- system prompt конфигурируется через env `SYSTEM_PROMPT` (D-07), inject-ится в `BotHandlers.__init__`, в файле истории не хранится — при изменении применяется сразу ко всем юзерам без миграции YAML
 - история per-user живёт в `data/history/{user_id}.yaml` (см. [db-schema.md](db-schema.md))
 - sliding window через `settings.history_max_messages` (0 = без лимита)
 - **char budget** (D-05): после count-trim дополнительно режет FIFO пока `sum(len(content)) ≤ settings.history_max_chars` (0 = без лимита). Защита от одной длинной простыни, переполняющей context window. Последнее (только что пришедшее) сообщение защищено от drop — если оно само больше бюджета, остаётся одно, лог предупреждения нет, но LLM может упасть с context error.

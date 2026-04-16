@@ -12,6 +12,12 @@ AVAILABLE_MODELS = [
 ]
 
 
+def _context_stats(messages: list[dict[str, str]]) -> tuple[int, int]:
+    """Return (total_chars, estimated_tokens). Tokens = chars // 4 heuristic."""
+    total_chars = sum(len(m.get("content", "")) for m in messages)
+    return total_chars, total_chars // 4
+
+
 class LLMClient:
     def __init__(self) -> None:
         self.base_url = settings.llm_base_url.rstrip("/")
@@ -32,7 +38,16 @@ class LLMClient:
             "stream": False,
         }
 
-        logger.info("llm_request", model=model, messages_count=len(messages))
+        total_chars, est_tokens = _context_stats(messages)
+        log_data: dict = {
+            "model": model,
+            "messages_count": len(messages),
+            "total_chars": total_chars,
+            "estimated_tokens": est_tokens,
+        }
+        if settings.log_context_full:
+            log_data["messages"] = messages
+        logger.info("llm_request", **log_data)
 
         try:
             resp = await self._client.post(url, json=payload)

@@ -4,7 +4,25 @@ import httpx
 import pytest
 import pytest_asyncio
 
-from app.llm.client import LLMClient, LLMError
+from app.llm.client import LLMClient, LLMError, _context_stats
+
+
+def test_context_stats_counts_chars_and_tokens() -> None:
+    messages = [
+        {"role": "system", "content": "Hi"},
+        {"role": "user", "content": "Hello world"},
+    ]
+    total_chars, est_tokens = _context_stats(messages)
+    assert total_chars == 13
+    assert est_tokens == 3
+
+
+def test_context_stats_empty_messages() -> None:
+    assert _context_stats([]) == (0, 0)
+
+
+def test_context_stats_ignores_missing_content_field() -> None:
+    assert _context_stats([{"role": "system"}]) == (0, 0)
 
 
 @pytest_asyncio.fixture

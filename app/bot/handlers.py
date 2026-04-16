@@ -3,7 +3,7 @@ from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update
 from telegram.ext import ContextTypes
 
 from app.config import settings
-from app.history import HistoryStore
+from app.history import HistoryStore, Summarizer
 from app.llm.client import LLMClient, LLMError
 
 logger = structlog.get_logger()
@@ -12,9 +12,15 @@ SYSTEM_PROMPT = "You are a helpful assistant. Answer concisely and accurately."
 
 
 class BotHandlers:
-    def __init__(self, llm: LLMClient, history: HistoryStore) -> None:
+    def __init__(
+        self,
+        llm: LLMClient,
+        history: HistoryStore,
+        summarizer: Summarizer,
+    ) -> None:
         self.llm = llm
         self.history = history
+        self.summarizer = summarizer
         self.user_models: dict[int, str] = {}
 
     async def start(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
@@ -129,6 +135,16 @@ class BotHandlers:
         )
 
         history_msgs = await self.history.get(user_id)
+        new_history = await self.summarizer.maybe_summarize(history_msgs)
+        if new_history is not history_msgs:
+            await self.history.replace(user_id, new_history)
+            logger.info(
+                "history_summarized",
+                user_id=user_id,
+                before=len(history_msgs),
+                after=len(new_history),
+            )
+            history_msgs = new_history
         messages = (
             [{"role": "system", "content": SYSTEM_PROMPT}]
             + history_msgs

@@ -8,7 +8,7 @@ from telegram.ext import ApplicationBuilder, CallbackQueryHandler, CommandHandle
 from app.bot.handlers import BotHandlers
 from app.bot.middleware import LoggingMiddleware
 from app.config import settings
-from app.history import HistoryStore
+from app.history import HistoryStore, Summarizer
 from app.llm.client import LLMClient
 from app.logging_config import setup_logging
 
@@ -16,6 +16,7 @@ from app.logging_config import setup_logging
 async def run() -> None:
     setup_logging()
     logger = structlog.get_logger()
+    summarize_model = settings.history_summarize_model or settings.default_model
     logger.info(
         "starting_bot",
         model=settings.default_model,
@@ -23,6 +24,9 @@ async def run() -> None:
         history_dir=settings.history_dir,
         history_max_messages=settings.history_max_messages,
         history_max_chars=settings.history_max_chars,
+        summarize_threshold=settings.history_summarize_threshold,
+        keep_recent=settings.history_keep_recent,
+        summarize_model=summarize_model,
     )
 
     llm = LLMClient()
@@ -31,7 +35,13 @@ async def run() -> None:
         max_messages=settings.history_max_messages,
         max_chars=settings.history_max_chars,
     )
-    handlers = BotHandlers(llm=llm, history=history)
+    summarizer = Summarizer(
+        llm=llm,
+        threshold=settings.history_summarize_threshold,
+        keep_recent=settings.history_keep_recent,
+        model=summarize_model,
+    )
+    handlers = BotHandlers(llm=llm, history=history, summarizer=summarizer)
 
     app = ApplicationBuilder().token(settings.telegram_bot_token).build()
 

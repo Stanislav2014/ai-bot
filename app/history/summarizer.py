@@ -30,4 +30,33 @@ class Summarizer:
     ) -> list[dict[str, str]]:
         if self._threshold <= 0 or len(history) <= self._threshold:
             return history
-        return history  # stub — filled in Task 3
+        split = max(0, len(history) - self._keep_recent)
+        to_summarize = history[:split]
+        recent = history[split:]
+        if not to_summarize:
+            return history
+        try:
+            summary_text = await self._call_llm(to_summarize)
+        except Exception:
+            logger.exception("summarize_failed")
+            return history
+        summary_text = summary_text.strip()
+        if not summary_text:
+            logger.warning("summarize_empty_response")
+            return history
+        summary_msg = {
+            "role": "system",
+            "content": f"Previous conversation summary: {summary_text}",
+        }
+        return [summary_msg] + recent
+
+    async def _call_llm(self, messages: list[dict[str, str]]) -> str:
+        transcript = "\n".join(
+            f"{m['role']}: {m['content']}" for m in messages
+        )
+        prompt = [
+            {"role": "system", "content": SUMMARY_PROMPT},
+            {"role": "user", "content": transcript},
+        ]
+        result = await self._llm.chat(prompt, model=self._model)
+        return result["content"]

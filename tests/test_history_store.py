@@ -113,3 +113,16 @@ async def test_char_and_count_limits_combined(history_dir: Path) -> None:
     # count-trim leaves 5 (150 chars); char-trim drops until <= 100 → 3 × 30 = 90
     assert len(result) == 3
     assert sum(len(m["content"]) for m in result) == 90
+
+
+async def test_replace_overwrites_cache_and_file(history_dir: Path) -> None:
+    store = HistoryStore(history_dir, max_messages=20)
+    await store.append(1, "user", "old")
+    new_history = [
+        {"role": "system", "content": "Summary X"},
+        {"role": "user", "content": "latest"},
+    ]
+    await store.replace(1, new_history)
+    assert await store.get(1) == new_history
+    s2 = HistoryStore(history_dir, max_messages=20)
+    assert await s2.get(1) == new_history

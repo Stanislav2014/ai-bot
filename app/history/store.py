@@ -70,3 +70,11 @@ class HistoryStore:
             path = self._file(user_id)
             if path.exists():
                 path.unlink()
+
+    async def replace(
+        self, user_id: int, new_history: list[dict[str, str]]
+    ) -> None:
+        async with self._lock(user_id):
+            self._cache[user_id] = list(new_history)
+            with self._file(user_id).open("w", encoding="utf-8") as f:
+                yaml.safe_dump(new_history, f, allow_unicode=True, sort_keys=False)

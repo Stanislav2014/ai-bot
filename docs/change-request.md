@@ -4,6 +4,55 @@
 
 ---
 
+## D-08 · Context logging — visibility перед LLM call
+
+| Поле | Значение |
+|------|----------|
+| **Task ID** | `D-08` |
+| **Ticket** | `BOT-D08` |
+| **Branch** | `feature/BAU/BOT-D08` |
+| **Task spec** | [tasks/D-08_CONTEXT_LOGGING.md](tasks/D-08_CONTEXT_LOGGING.md) |
+| **Started** | 2026-04-15 |
+| **Status** | In Progress — Phase 0 (paperwork done, implementation ahead) |
+| **Owner** | Stan |
+
+### Goal
+Расширить log event `llm_request` в `LLMClient.chat()` полями `total_chars`, `estimated_tokens` (chars//4 heuristic), и полным `messages` payload под гейтом env `LOG_CONTEXT_FULL` (default `true`). Покрывает оба LLM-вызова: основной диалог + summarization.
+
+### Success criteria
+
+- [ ] `_context_stats(messages)` helper + 3 unit теста зелёные
+- [ ] `llm_request` лог содержит `total_chars`, `estimated_tokens` всегда; `messages` — под env gate
+- [ ] `settings.log_context_full` (env `LOG_CONTEXT_FULL`, default `true`)
+- [ ] `.env.example` обновлён
+- [ ] Существующие 24 теста зелёные (до этой задачи) → 27 после
+- [ ] `make lint` чистый
+- [ ] Ручной smoke: `docker compose logs bot | grep llm_request` показывает все новые поля для user диалога И для summary-вызова
+- [ ] `LOG_CONTEXT_FULL=false` → messages исчезают, metadata остаётся
+- [ ] Merge в master
+
+### Pending action items
+
+- [ ] **A1** · Phase 1: helper + unit tests
+- [ ] **A2** · Phase 2: config + .env.example
+- [ ] **A3** · Phase 3: рефактор `LLMClient.chat()` лога
+- [ ] **A4** · Phase 4: full test run + lint
+- [ ] **A5** · Phase 5: docs update
+- [ ] **A6** · Phase 6: manual smoke (owner: Stan)
+- [ ] **A7** · Phase 7: merge D-08 → master
+
+### Regression watch
+
+- Existing 3 LLMClient тестов мокают HTTP — логирование до HTTP вызова, не должны сломаться
+- Summarizer вызывает LLMClient.chat() → логирование summarization payload бесплатно
+- Log size при `LOG_CONTEXT_FULL=true` растёт: каждый LLM-запрос пишет весь payload (до 8к chars). Приемлемо для dev, в prod можно выключить
+
+### Checkpoints
+
+**Phase 0** — 2026-04-15 — brainstorming, вариант A утверждён (LLMClient-level, env gate), spec записан, ветка создана
+
+---
+
 ## D-07 · System prompt — configurable persona
 
 | Поле | Значение |

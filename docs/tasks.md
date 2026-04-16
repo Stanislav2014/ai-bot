@@ -76,5 +76,10 @@ Branch: `feature/BAU/BOT-D06` · merged 2026-04-15 · 24/24 tests green
 
 ### D-07 ✅ System prompt — configurable persona
 Env `SYSTEM_PROMPT` (default: русский программистский persona) вместо hardcoded `"You are a helpful assistant..."`. Инъекция в `BotHandlers.__init__`. Module-level константа удалена.
-Branch: `feature/BAU/BOT-D07` · code complete 2026-04-15 · 24/24 tests green
+Branch: `feature/BAU/BOT-D07` · merged 2026-04-15 · 24/24 tests green
 → [tasks/D-07_SYSTEM_PROMPT.md](tasks/D-07_SYSTEM_PROMPT.md)
+
+### D-08 🛠 Context logging — visibility перед LLM call
+Расширяет event `llm_request` полями `total_chars`, `estimated_tokens` (`chars // 4` heuristic) и полным `messages` payload под гейтом env `LOG_CONTEXT_FULL` (default `true`). Покрывает оба LLM-вызова: основной диалог + summarization.
+Branch: `feature/BAU/BOT-D08`
+→ [tasks/D-08_CONTEXT_LOGGING.md](tasks/D-08_CONTEXT_LOGGING.md)

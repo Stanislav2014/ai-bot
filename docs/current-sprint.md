@@ -10,17 +10,22 @@ _пусто_
 
 ## In Progress
 
-_пусто_
+### D-08 · Context logging — visibility перед LLM call
+Расширяет `llm_request` лог полями `total_chars`, `estimated_tokens`, полный `messages` payload под гейтом `LOG_CONTEXT_FULL`.
+- Branch: `feature/BAU/BOT-D08`
+- Started: 2026-04-15
+- Spec: [tasks/D-08_CONTEXT_LOGGING.md](tasks/D-08_CONTEXT_LOGGING.md)
+- Phase: 0 (paperwork done, implementation ahead)
 
 ## In Review
 
-### D-07 · System prompt — configurable persona
-Env `SYSTEM_PROMPT` (default: русский программист). 4 файла изменены, 24/24 тестов зелёные, ruff чистый. Ожидает manual smoke-test и merge.
-- Branch: `feature/BAU/BOT-D07`
-- Spec: [tasks/D-07_SYSTEM_PROMPT.md](tasks/D-07_SYSTEM_PROMPT.md)
-- Completed (code): 2026-04-15
+_пусто_
 
 ## Done (этот спринт)
+
+### D-07 · System prompt — configurable persona
+Env `SYSTEM_PROMPT` (default: русский программист). Инъекция в `BotHandlers`, module-level константа удалена. Merged 2026-04-15.
+- Spec: [tasks/D-07_SYSTEM_PROMPT.md](tasks/D-07_SYSTEM_PROMPT.md)
 
 ### C-01 · Migrate LLM server from Ollama to Lemonade
 Pre-existing uncommitted работа, сведена в отдельный коммит на master как часть чистки перед D-04. `llm_base_url`, docker-compose lemonade service, `/v1/models` в client, `lemonade/Dockerfile`.

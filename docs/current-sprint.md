@@ -14,13 +14,13 @@ _пусто_
 
 ## In Review
 
-### D-08 · Context logging — visibility перед LLM call
-`llm_request` лог с `total_chars`, `estimated_tokens`, full `messages` (под env gate). Helper `_context_stats` + 3 unit теста. 27/27 зелёные, ruff clean.
-- Branch: `feature/BAU/BOT-D08`
-- Spec: [tasks/D-08_CONTEXT_LOGGING.md](tasks/D-08_CONTEXT_LOGGING.md)
-- Completed (code): 2026-04-15
+_пусто_
 
 ## Done (этот спринт)
+
+### D-08 · Context logging — visibility перед LLM call
+`llm_request` лог с `total_chars`, `estimated_tokens`, full `messages` (под env gate `LOG_CONTEXT_FULL`). Helper `_context_stats` + 3 unit теста. Merged 2026-04-15.
+- Spec: [tasks/D-08_CONTEXT_LOGGING.md](tasks/D-08_CONTEXT_LOGGING.md)
 
 ### D-07 · System prompt — configurable persona
 Env `SYSTEM_PROMPT` (default: русский программист). Инъекция в `BotHandlers`, module-level константа удалена. Merged 2026-04-15.
@@ -48,6 +48,9 @@ Summarizer класс + `HistoryStore.replace`. При `len > 5` старые с
 ## Notes
 
 - Sprint 1 — первый спринт после развёртывания doc-структуры
-- D-04/D-05/D-06 смержены в master 2026-04-15. Ручной smoke-тест пока откладывается.
-- Остаток C-01: README.md упоминания Ollama, Makefile `pull-models` — вынести в отдельный C-02 коммит
-- Backup branch `backup/d04-tangled` можно удалить в любой момент (feature ветки уже merged и удалены)
+- Все 5 запланированных задач (D-04..D-08) + бонус (C-01) закрыты кодом и merged в master. Deliverable: [sprint-1-delivery.md](sprint-1-delivery.md).
+- Pending (не блокирует sprint-close):
+  - Ручной smoke-test в реальном Telegram (owner: Stan)
+  - `git push origin master` (блокирован GitHub-требованием verify email)
+  - C-02: починить `Makefile pull-models` под Lemonade
+  - Backup branch `backup/d04-tangled` можно удалить

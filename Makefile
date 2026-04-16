@@ -1,4 +1,4 @@
-.PHONY: build up down logs test lint shell pull-models restart clean
+.PHONY: build up down logs test lint shell pull-models list-models restart clean
 
 build:
 	docker compose build
@@ -28,8 +28,10 @@ shell:
 	docker compose exec bot /bin/bash
 
 pull-models:
-	docker compose exec ollama ollama pull qwen3:0.6b
-	docker compose exec ollama ollama pull qwen3:1.7b
+	docker compose exec lemonade lemonade-server-dev pull Qwen3-0.6B-GGUF
+
+list-models:
+	docker compose exec lemonade lemonade-server-dev list
 
 restart:
 	docker compose up -d --force-recreate bot

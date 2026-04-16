@@ -18,33 +18,32 @@
 | `.env.example:5` — `LLM_BASE_URL` | `http://lemonade:8000/api` |
 | `docker-compose.yml` — сервис | `lemonade` |
 | `README.md` | Упоминает Ollama + `ollama serve` |
-| `Makefile:31-32` — `pull-models` | `docker compose exec ollama ollama pull` |
+| `Makefile:31-32` — `pull-models` | теперь `docker compose exec lemonade lemonade-server-dev pull` (C-02 ✅) |
 
 **Почему**: Миграция Ollama → Lemonade начата (docker-compose уже на Lemonade), но не доведена.
 
-**Риск**: Новый клон репо без `.env` → подхватит Python default `http://ollama:11434` → `ConnectError`. Команда `make pull-models` сломана (нет сервиса `ollama`).
-
-**Fix**: Либо финализировать миграцию на Lemonade (C-01 + C-02), либо откатить docker-compose.
+**Статус**: C-01 (код) и C-02 (Makefile) — ✅ закрыты. Остаются:
+- `app/config.py:6` — Python default `llm_base_url = "http://ollama:11434"`. Переносим в `.env.example` как источник истины, код default не трогаем (backward compat для старых `.env`)
+- `README.md` — упоминания Ollama. Несрочно, но стоит актуализировать при следующем проходе по docs
 
 **Связанные задачи**: [tasks.md C-01, C-02](tasks.md#phase-c--технический-долг).
 
 ---
 
-## 2. Makefile `pull-models` сломан
-🔥 Критичное (для onboarding)
+## 2. Makefile `pull-models` сломан ✅ РЕШЕНО (C-02, 2026-04-16)
 
-**Что**: [Makefile:31-32](../Makefile)
+Было: `docker compose exec ollama ollama pull ...` вызывало «no such service», потому что сервис `ollama` отсутствовал после C-01 миграции.
+
+Теперь: `pull-models` и новый таргет `list-models` используют Lemonade CLI:
 ```makefile
 pull-models:
-	docker compose exec ollama ollama pull qwen3:0.6b
-	docker compose exec ollama ollama pull qwen3:1.7b
+	docker compose exec lemonade lemonade-server-dev pull Qwen3-0.6B-GGUF
+
+list-models:
+	docker compose exec lemonade lemonade-server-dev list
 ```
 
-Сервис `ollama` в `docker-compose.yml` отсутствует — есть только `lemonade`. Команда завершится ошибкой «no such service».
-
-**Fix**: Переписать под Lemonade (если Lemonade поддерживает pull через exec) или удалить, указав что модели грузятся через volume / Dockerfile / startup script.
-
-**Связанные задачи**: [tasks.md C-02](tasks.md#phase-c--технический-долг).
+См. [tasks.md C-02](tasks.md#phase-c--технический-долг).
 
 ---
 

@@ -37,8 +37,9 @@ _Пусто — критичных багов нет._
 → commit `debb155` на master · 2026-04-15
 Частично закрывает [legacy-warning.md § 1](legacy-warning.md#1-ollama--lemonade-несогласованность). Остались: README.md упоминания Ollama, Makefile `pull-models` (см. C-02).
 
-### C-02 📝 Обновить Makefile pull-models под Lemonade
-Сейчас таргет `pull-models` вызывает `docker compose exec ollama ollama pull`. Сервис `ollama` отсутствует.
+### C-02 ✅ Обновить Makefile pull-models под Lemonade
+`pull-models` теперь `docker compose exec lemonade lemonade-server-dev pull Qwen3-0.6B-GGUF` + новый таргет `list-models` для просмотра доступных и установленных моделей.
+Branch: `feature/TD/BOT-C02` · merged 2026-04-16
 См. [legacy-warning.md § 2](legacy-warning.md#2-makefile-pull-models-сломан)
 
 ### C-03 📝 Кеш `list_models()`

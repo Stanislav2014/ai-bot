@@ -13,7 +13,7 @@
 | **Branch** | `feature/BAU/BOT-D07` (от master после merge D-04/D-05/D-06) |
 | **Task spec** | [tasks/D-07_SYSTEM_PROMPT.md](tasks/D-07_SYSTEM_PROMPT.md) |
 | **Started** | 2026-04-15 |
-| **Status** | In Progress — Phase 0 (paperwork done, implementation ahead) |
+| **Status** | Code complete, awaiting manual smoke-test and merge |
 | **Owner** | Stan |
 
 ### Goal
@@ -21,23 +21,23 @@
 
 ### Success criteria
 
-- [ ] `settings.system_prompt` (env `SYSTEM_PROMPT`) работает, дефолт — русский программист
-- [ ] `BotHandlers.__init__` принимает `system_prompt`, использует `self.system_prompt` в `handle_message`
-- [ ] Module-level `SYSTEM_PROMPT` удалена
-- [ ] main.py wiring + truncated log field
-- [ ] `.env.example` обновлён с русским примером
-- [ ] 24 существующих теста зелёные, ruff чистый
+- [x] `settings.system_prompt` (env `SYSTEM_PROMPT`) работает, дефолт — русский программист
+- [x] `BotHandlers.__init__` принимает `system_prompt`, использует `self.system_prompt` в `handle_message`
+- [x] Module-level `SYSTEM_PROMPT` удалена
+- [x] main.py wiring + truncated log field (`system_prompt=first 80 chars`)
+- [x] `.env.example` обновлён с русским примером
+- [x] 24 существующих теста зелёные, ruff чистый
 - [ ] Ручной smoke: программистский тон в ответах + override через env меняет стиль
 - [ ] Merge в master
 
 ### Pending action items
 
-- [ ] **A1** · Phase 1: config + .env.example
-- [ ] **A2** · Phase 2: handlers refactor (инъекция, замена константы)
-- [ ] **A3** · Phase 3: main.py wiring
-- [ ] **A4** · Phase 4: lint + tests
+- [x] **A1** · Phase 1: config + .env.example · commit `c14c1fd`
+- [x] **A2** · Phase 2: handlers refactor (инъекция, замена константы) · commit `c14c1fd`
+- [x] **A3** · Phase 3: main.py wiring · commit `c14c1fd`
+- [x] **A4** · Phase 4: lint + tests (24/24 green, ruff clean)
 - [ ] **A5** · Phase 5: manual smoke-test (owner: Stan)
-- [ ] **A6** · Phase 6: docs update
+- [x] **A6** · Phase 6: docs update
 - [ ] **A7** · Merge D-07 → master
 
 ### Regression watch
@@ -49,6 +49,12 @@
 ### Checkpoints
 
 **Phase 0** — 2026-04-15 — brainstorming, вариант A утверждён (env-configurable, русский дефолт, no per-user override), spec записан, ветка создана
+
+**Phase 1-4 (Implementation)** — 2026-04-15 — config поле, .env.example env, handlers refactor (удалена module-level константа, инъекция через `__init__`), main.py wiring с truncated log. 24/24 tests green, ruff clean. Commit `c14c1fd`.
+
+**Phase 6 (Docs)** — 2026-04-15 — architecture § 1 bullet обновлён (SYSTEM_PROMPT env + inject), context-dump Flow 2 step 7 ссылается на `self.system_prompt`, tech-stack env table получила строку `SYSTEM_PROMPT`, tasks.md ✅, current-sprint.md → In Review.
+
+**Phase 5 (Manual smoke)** — _ждёт пользователя_
 
 ---
 

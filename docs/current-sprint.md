@@ -10,16 +10,15 @@ _пусто_
 
 ## In Progress
 
-### D-07 · System prompt — configurable persona
-Env `SYSTEM_PROMPT` вместо hardcoded константы. Дефолт — русский программистский persona. Инъекция в `BotHandlers.__init__`.
-- Branch: `feature/BAU/BOT-D07` (от master после D-04/D-05/D-06 merge)
-- Started: 2026-04-15
-- Spec: [tasks/D-07_SYSTEM_PROMPT.md](tasks/D-07_SYSTEM_PROMPT.md)
-- Phase: 0 (paperwork done, implementation ahead)
+_пусто_
 
 ## In Review
 
-_пусто_
+### D-07 · System prompt — configurable persona
+Env `SYSTEM_PROMPT` (default: русский программист). 4 файла изменены, 24/24 тестов зелёные, ruff чистый. Ожидает manual smoke-test и merge.
+- Branch: `feature/BAU/BOT-D07`
+- Spec: [tasks/D-07_SYSTEM_PROMPT.md](tasks/D-07_SYSTEM_PROMPT.md)
+- Completed (code): 2026-04-15
 
 ## Done (этот спринт)
 

@@ -74,7 +74,7 @@ Summarizer класс: при `len > HISTORY_SUMMARIZE_THRESHOLD` (default 5) с
 Branch: `feature/BAU/BOT-D06` · merged 2026-04-15 · 24/24 tests green
 → [tasks/D-06_HISTORY_SUMMARIZATION.md](tasks/D-06_HISTORY_SUMMARIZATION.md)
 
-### D-07 🛠 System prompt — configurable persona
-Env `SYSTEM_PROMPT` (default: русский программистский persona) вместо hardcoded `"You are a helpful assistant..."`. Инъекция в `BotHandlers.__init__`.
-Branch: `feature/BAU/BOT-D07`
+### D-07 ✅ System prompt — configurable persona
+Env `SYSTEM_PROMPT` (default: русский программистский persona) вместо hardcoded `"You are a helpful assistant..."`. Инъекция в `BotHandlers.__init__`. Module-level константа удалена.
+Branch: `feature/BAU/BOT-D07` · code complete 2026-04-15 · 24/24 tests green
 → [tasks/D-07_SYSTEM_PROMPT.md](tasks/D-07_SYSTEM_PROMPT.md)

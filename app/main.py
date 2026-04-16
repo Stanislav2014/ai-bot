@@ -27,6 +27,7 @@ async def run() -> None:
         summarize_threshold=settings.history_summarize_threshold,
         keep_recent=settings.history_keep_recent,
         summarize_model=summarize_model,
+        system_prompt=settings.system_prompt[:80],
     )
 
     llm = LLMClient()
@@ -41,7 +42,12 @@ async def run() -> None:
         keep_recent=settings.history_keep_recent,
         model=summarize_model,
     )
-    handlers = BotHandlers(llm=llm, history=history, summarizer=summarizer)
+    handlers = BotHandlers(
+        llm=llm,
+        history=history,
+        summarizer=summarizer,
+        system_prompt=settings.system_prompt,
+    )
 
     app = ApplicationBuilder().token(settings.telegram_bot_token).build()
 

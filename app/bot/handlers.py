@@ -8,8 +8,6 @@ from app.llm.client import LLMClient, LLMError
 
 logger = structlog.get_logger()
 
-SYSTEM_PROMPT = "You are a helpful assistant. Answer concisely and accurately."
-
 
 class BotHandlers:
     def __init__(
@@ -17,10 +15,12 @@ class BotHandlers:
         llm: LLMClient,
         history: HistoryStore,
         summarizer: Summarizer,
+        system_prompt: str,
     ) -> None:
         self.llm = llm
         self.history = history
         self.summarizer = summarizer
+        self.system_prompt = system_prompt
         self.user_models: dict[int, str] = {}
 
     async def start(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
@@ -146,7 +146,7 @@ class BotHandlers:
             )
             history_msgs = new_history
         messages = (
-            [{"role": "system", "content": SYSTEM_PROMPT}]
+            [{"role": "system", "content": self.system_prompt}]
             + history_msgs
             + [{"role": "user", "content": text}]
         )

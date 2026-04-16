@@ -13,6 +13,7 @@ class Settings(BaseSettings):
     history_summarize_threshold: int = 5
     history_keep_recent: int = 2
     history_summarize_model: str = ""
+    system_prompt: str = "Ты опытный программист и отвечаешь кратко и по делу."
 
     model_config = {"env_file": ".env", "env_file_encoding": "utf-8"}
 

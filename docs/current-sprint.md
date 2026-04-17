@@ -14,13 +14,13 @@ _пусто_
 
 ## In Review
 
-### D-09 · Dual logging — stdout + rotating file в проекте
-structlog → stdlib → 2 handler-а (StreamHandler + RotatingFileHandler 10MB × 5). Файл `data/logs/bot.log` доступен на хосте без sudo, переживает recreate. 27/27 тесты зелёные, ruff clean, prod verified.
-- Branch: `feature/BAU/BOT-D09`
-- Spec: [tasks/D-09_LOG_FILE_ROTATION.md](tasks/D-09_LOG_FILE_ROTATION.md)
-- Completed (code): 2026-04-17
+_пусто_
 
 ## Done (этот спринт)
+
+### D-09 · Dual logging — stdout + rotating file в проекте
+structlog → stdlib → 2 handler-а (StreamHandler + RotatingFileHandler 10MB × 5). Файл `data/logs/bot.log` доступен на хосте без sudo, переживает recreate. Merged 2026-04-17.
+- Spec: [tasks/D-09_LOG_FILE_ROTATION.md](tasks/D-09_LOG_FILE_ROTATION.md)
 
 ### D-08 · Context logging — visibility перед LLM call
 `llm_request` лог с `total_chars`, `estimated_tokens`, full `messages` (под env gate `LOG_CONTEXT_FULL`). Helper `_context_stats` + 3 unit теста. Merged 2026-04-15.

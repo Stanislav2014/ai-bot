@@ -12,7 +12,7 @@
 | **Branch** | `feature/BAU/BOT-D09` |
 | **Task spec** | [tasks/D-09_LOG_FILE_ROTATION.md](tasks/D-09_LOG_FILE_ROTATION.md) |
 | **Started** | 2026-04-17 |
-| **Status** | Code complete, awaiting merge |
+| **Status** | ✅ Merged 2026-04-17 · commit `70f4e44` · pushed to origin |
 | **Owner** | Stan |
 
 ### Goal
@@ -26,8 +26,8 @@
 - [x] `.env.example` — `LOG_FILE` + rotation policy в комментарии
 - [x] 27/27 tests green, ruff clean
 - [x] Prod rebuild 2026-04-17 — файл подтверждён на хосте (1085 bytes, owner stan:stan, `starting_bot` + `bot_started` events в JSON)
-- [ ] Merge в master
-- [ ] Push
+- [x] Merge в master (ff, commit `70f4e44`)
+- [x] Push on origin (`3bb4375..70f4e44`)
 
 ### Regression watch
 - `structlog.get_logger()` API не меняется — весь downstream код работает без правок

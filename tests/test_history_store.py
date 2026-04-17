@@ -126,3 +126,23 @@ async def test_replace_overwrites_cache_and_file(history_dir: Path) -> None:
     assert await store.get(1) == new_history
     s2 = HistoryStore(history_dir, max_messages=20)
     assert await s2.get(1) == new_history
+
+
+async def test_disabled_store_get_returns_empty(history_dir: Path) -> None:
+    store = HistoryStore(history_dir, max_messages=20, enabled=False)
+    await store.append(1, "user", "hi")
+    assert await store.get(1) == []
+    assert not (history_dir / "1.yaml").exists()
+
+
+async def test_disabled_store_preserves_existing_file(history_dir: Path) -> None:
+    enabled = HistoryStore(history_dir, max_messages=20, enabled=True)
+    await enabled.append(1, "user", "from before")
+
+    disabled = HistoryStore(history_dir, max_messages=20, enabled=False)
+    await disabled.append(1, "user", "should not persist")
+
+    assert await disabled.get(1) == []
+    import yaml as _yaml
+    on_disk = _yaml.safe_load((history_dir / "1.yaml").read_text())
+    assert on_disk == [{"role": "user", "content": "from before"}]

@@ -21,6 +21,7 @@ async def run() -> None:
         "starting_bot",
         model=settings.default_model,
         llm_url=settings.llm_base_url,
+        history_enabled=settings.history_enabled,
         history_dir=settings.history_dir,
         history_max_messages=settings.history_max_messages,
         history_max_chars=settings.history_max_chars,
@@ -35,6 +36,7 @@ async def run() -> None:
         data_dir=Path(settings.history_dir),
         max_messages=settings.history_max_messages,
         max_chars=settings.history_max_chars,
+        enabled=settings.history_enabled,
     )
     summarizer = Summarizer(
         llm=llm,

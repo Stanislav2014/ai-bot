@@ -14,7 +14,11 @@ _пусто_
 
 ## In Review
 
-_пусто_
+### D-10 · HISTORY_ENABLED flag — выключаемый контекст
+Env `HISTORY_ENABLED=false` делает `HistoryStore.get/append/replace` no-op — бот становится полностью stateless. 2 новых unit теста, 29/29 зелёные, ruff clean.
+- Branch: `feature/BAU/BOT-D10`
+- Spec: [tasks/D-10_HISTORY_ENABLED_FLAG.md](tasks/D-10_HISTORY_ENABLED_FLAG.md)
+- Completed (code): 2026-04-17
 
 ## Done (этот спринт)
 

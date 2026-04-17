@@ -12,13 +12,21 @@ def _total_chars(history: list[dict[str, str]]) -> int:
 
 
 class HistoryStore:
-    def __init__(self, data_dir: Path, max_messages: int, max_chars: int = 0) -> None:
+    def __init__(
+        self,
+        data_dir: Path,
+        max_messages: int,
+        max_chars: int = 0,
+        enabled: bool = True,
+    ) -> None:
         self._data_dir = data_dir
         self._max_messages = max_messages
         self._max_chars = max_chars
+        self._enabled = enabled
         self._cache: dict[int, list[dict[str, str]]] = {}
         self._locks: dict[int, asyncio.Lock] = {}
-        self._data_dir.mkdir(parents=True, exist_ok=True)
+        if enabled:
+            self._data_dir.mkdir(parents=True, exist_ok=True)
 
     def _lock(self, user_id: int) -> asyncio.Lock:
         if user_id not in self._locks:
@@ -44,12 +52,16 @@ class HistoryStore:
             return []
 
     async def get(self, user_id: int) -> list[dict[str, str]]:
+        if not self._enabled:
+            return []
         async with self._lock(user_id):
             if user_id not in self._cache:
                 self._cache[user_id] = self._load_from_disk(user_id)
             return list(self._cache[user_id])
 
     async def append(self, user_id: int, role: str, content: str) -> None:
+        if not self._enabled:
+            return
         async with self._lock(user_id):
             if user_id not in self._cache:
                 self._cache[user_id] = self._load_from_disk(user_id)
@@ -74,6 +86,8 @@ class HistoryStore:
     async def replace(
         self, user_id: int, new_history: list[dict[str, str]]
     ) -> None:
+        if not self._enabled:
+            return
         async with self._lock(user_id):
             self._cache[user_id] = list(new_history)
             with self._file(user_id).open("w", encoding="utf-8") as f:

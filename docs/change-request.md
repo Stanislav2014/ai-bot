@@ -4,6 +4,35 @@
 
 ---
 
+## D-10 · HISTORY_ENABLED flag
+
+| Поле | Значение |
+|------|----------|
+| **Task ID** | `D-10` |
+| **Branch** | `feature/BAU/BOT-D10` |
+| **Task spec** | [tasks/D-10_HISTORY_ENABLED_FLAG.md](tasks/D-10_HISTORY_ENABLED_FLAG.md) |
+| **Started** | 2026-04-17 |
+| **Status** | Code complete, awaiting merge |
+| **Owner** | Stan |
+
+### Goal
+Добавить explicit env-флаг `HISTORY_ENABLED` (default `true`). При `false` → `HistoryStore` операции становятся no-op, бот ведёт себя как stateless MVP. Исправляет неверный совет про «три лимита в 0».
+
+### Done
+- [x] `settings.history_enabled` (default `true`)
+- [x] `HistoryStore.__init__` принимает `enabled` kwarg
+- [x] `get/append/replace` gated; `reset` остаётся active (user cleanup)
+- [x] main.py wiring + `starting_bot` log поле
+- [x] `.env.example` — `HISTORY_ENABLED` с объяснением
+- [x] 29/29 tests green, ruff clean
+- [ ] Ручной smoke + merge + push
+
+### Checkpoints
+
+**Phase 1 (Implementation)** — 2026-04-17 — code + 2 tests в один прогон, все зелёные.
+
+---
+
 ## D-09 · Dual logging — stdout + rotating file в проекте
 
 | Поле | Значение |

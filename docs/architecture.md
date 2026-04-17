@@ -20,6 +20,7 @@ ai-bot — простой монопроцессный Python async-сервис
 
 Каждое сообщение пользователя отправляется в LLM **вместе с историей**:
 - `[system] + history из YAML + new_user_message`
+- **feature gate** (D-10): env `HISTORY_ENABLED` (default `true`). При `false` — `HistoryStore.get`/`append`/`replace` становятся no-op, `LLMClient.chat()` получает только `[system, user]`. Stateless-режим одной переменной, существующие файлы не трогаются (можно чистить руками или `/reset`).
 - system prompt конфигурируется через env `SYSTEM_PROMPT` (D-07), inject-ится в `BotHandlers.__init__`, в файле истории не хранится — при изменении применяется сразу ко всем юзерам без миграции YAML
 - история per-user живёт в `data/history/{user_id}.yaml` (см. [db-schema.md](db-schema.md))
 - sliding window через `settings.history_max_messages` (0 = без лимита)

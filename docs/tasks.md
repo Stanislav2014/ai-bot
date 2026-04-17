@@ -89,3 +89,8 @@ Branch: `feature/BAU/BOT-D08` · merged 2026-04-15 · 27/27 tests green
 structlog форвардит в stdlib logging с двумя handler-ами: `StreamHandler(stdout)` (Docker compatible) + `RotatingFileHandler(data/logs/bot.log, 10MB × 5)`. Env `LOG_FILE` управляет путём.
 Branch: `feature/BAU/BOT-D09` · merged 2026-04-17 · 27/27 tests green
 → [tasks/D-09_LOG_FILE_ROTATION.md](tasks/D-09_LOG_FILE_ROTATION.md)
+
+### D-10 🛠 HISTORY_ENABLED flag — выключаемый контекст
+Новый env `HISTORY_ENABLED` (default `true`). Когда `false` — `HistoryStore.get/append/replace` no-op, бот stateless. Исправляет неверный совет «поставь три лимита в 0» (давал противоположный эффект).
+Branch: `feature/BAU/BOT-D10` · code complete 2026-04-17 · 29/29 tests green
+→ [tasks/D-10_HISTORY_ENABLED_FLAG.md](tasks/D-10_HISTORY_ENABLED_FLAG.md)

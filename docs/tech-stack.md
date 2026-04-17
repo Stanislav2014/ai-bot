@@ -64,6 +64,7 @@
 | `LLM_TIMEOUT` | 120 | Секунд таймаут на LLM запрос |
 | `LOG_LEVEL` | INFO | Уровень structlog |
 | `HISTORY_DIR` | `data/history` | Папка с YAML файлами истории per-user |
+| `HISTORY_ENABLED` | `true` | Feature gate: `false` делает бота полностью stateless (игнорирует историю). Существующие файлы не удаляются (D-10) |
 | `HISTORY_MAX_MESSAGES` | 20 | Макс сообщений в истории (0 = без лимита) |
 | `HISTORY_MAX_CHARS` | 8000 | Макс суммарная длина истории в символах (0 = без лимита). Второй safeguard поверх `HISTORY_MAX_MESSAGES` |
 | `HISTORY_SUMMARIZE_THRESHOLD` | 5 | Суммаризировать при `len(history) > threshold` (0 = disabled) |

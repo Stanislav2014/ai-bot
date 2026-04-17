@@ -38,12 +38,21 @@
 | [contracts/external/telegram.md](contracts/external/telegram.md) | Telegram Bot API |
 | [contracts/external/ollama.md](contracts/external/ollama.md) | Ollama / Lemonade OpenAI-compatible API |
 
+## Sprint deliverables
+
+| Файл | Назначение |
+|------|-----------|
+| [sprint-1-delivery.md](sprint-1-delivery.md) | Sprint 1 финальный delivery-документ: архитектура, примеры, проблемы |
+| [sprint-1-archive.md](sprint-1-archive.md) | Sprint 1 full `change-request` заморожен на момент закрытия |
+| [dialogs/](dialogs/) | Скриншоты реальных Telegram-диалогов (stateless vs context) |
+| [prompts-sprint-1.md](prompts-sprint-1.md) | Все промты Sprint 1 (хронологически) |
+
 ## История создания (архив)
 
 | Файл | Назначение |
 |------|-----------|
-| [prompts.md](prompts.md) | История промптов к Claude Code при создании проекта |
-| [time-log.md](time-log.md) | Лог затраченного времени |
+| [prompts.md](prompts.md) | История промптов к Claude Code при создании MVP |
+| [time-log.md](time-log.md) | Лог затраченного времени на MVP |
 | [superpowers/specs/](superpowers/specs/) | **Архив** — только оригинальная MVP-спека (2026-04-09). Новые задачи сюда не пишутся. |
 
 > **Конвенция**: все task-specs (включая дизайн) живут в [tasks/](tasks/). Одна задача — один файл. `superpowers/specs/` не расширяется новыми задачами.

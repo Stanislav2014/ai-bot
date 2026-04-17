@@ -1,12 +1,19 @@
 # Current Sprint
 
-_Итерация: Sprint 1 — старт 2026-04-15_
+**Sprint 1 закрыт 2026-04-17.**
 
-Kanban для текущей активной работы. Master-каталог — в [tasks.md](tasks.md).
+- Delivery: [sprint-1-delivery.md](sprint-1-delivery.md)
+- Archive (полный live change-request): [sprint-1-archive.md](sprint-1-archive.md)
+- Скриншоты из Telegram: [dialogs/](dialogs/)
+- Все промты спринта: [prompts-sprint-1.md](prompts-sprint-1.md)
+
+Итого в Sprint 1 закрыто: **9 задач** (C-01, C-02, D-04, D-05, D-06, D-07, D-08, D-09, D-10). 29/29 unit-тестов зелёные, ruff clean. Бот в проде на `master` с полным D-04..D-10 стеком. Push на GitHub — `Stanislav2014/ai-bot`.
+
+---
 
 ## To Do
 
-_пусто_
+_Sprint 2 не начат — новых задач нет._
 
 ## In Progress
 
@@ -18,47 +25,24 @@ _пусто_
 
 ## Done (этот спринт)
 
-### D-10 · HISTORY_ENABLED flag — выключаемый контекст
-Env `HISTORY_ENABLED=false` делает `HistoryStore.get/append/replace` no-op — бот становится полностью stateless. Merged 2026-04-17, 29/29 тесты зелёные.
-- Spec: [tasks/D-10_HISTORY_ENABLED_FLAG.md](tasks/D-10_HISTORY_ENABLED_FLAG.md)
+_пусто (при старте Sprint 2)_
 
-### D-09 · Dual logging — stdout + rotating file в проекте
-structlog → stdlib → 2 handler-а (StreamHandler + RotatingFileHandler 10MB × 5). Файл `data/logs/bot.log` доступен на хосте без sudo, переживает recreate. Merged 2026-04-17.
-- Spec: [tasks/D-09_LOG_FILE_ROTATION.md](tasks/D-09_LOG_FILE_ROTATION.md)
+---
 
-### D-08 · Context logging — visibility перед LLM call
-`llm_request` лог с `total_chars`, `estimated_tokens`, full `messages` (под env gate `LOG_CONTEXT_FULL`). Helper `_context_stats` + 3 unit теста. Merged 2026-04-15.
-- Spec: [tasks/D-08_CONTEXT_LOGGING.md](tasks/D-08_CONTEXT_LOGGING.md)
+## Следующий спринт — идеи (backlog)
 
-### D-07 · System prompt — configurable persona
-Env `SYSTEM_PROMPT` (default: русский программист). Инъекция в `BotHandlers`, module-level константа удалена. Merged 2026-04-15.
-- Spec: [tasks/D-07_SYSTEM_PROMPT.md](tasks/D-07_SYSTEM_PROMPT.md)
+Из [ideas.md](ideas.md) / [discuss.md](discuss.md) / [legacy-warning.md](legacy-warning.md):
 
-### C-01 · Migrate LLM server from Ollama to Lemonade
-Pre-existing uncommitted работа, сведена в отдельный коммит на master как часть чистки перед D-04. `llm_base_url`, docker-compose lemonade service, `/v1/models` в client, `lemonade/Dockerfile`.
-- Commit: `debb155` (master)
-- Closed: 2026-04-15
-
-### D-04 · Dialog history — persistent YAML per-user
-Псевдо-память: `data/history/{user_id}.yaml`, sliding window, `/reset`. Merged 2026-04-15.
-- Spec: [tasks/D-04_DIALOG_HISTORY_YAML.md](tasks/D-04_DIALOG_HISTORY_YAML.md)
-
-### D-05 · Context char limit — второй safeguard
-`HISTORY_MAX_CHARS` default 8000, FIFO-обрезка поверх count-trim. Last-message protected. Merged 2026-04-15.
-- Spec: [tasks/D-05_CONTEXT_CHAR_LIMIT.md](tasks/D-05_CONTEXT_CHAR_LIMIT.md)
-
-### D-06 · History summarization — умная обрезка через LLM
-Summarizer класс + `HistoryStore.replace`. При `len > 5` старые сообщения заменяются single summary-system-message через LLM-запрос, последние 2 сохраняются raw. Fail-safe. Merged 2026-04-15.
-- Spec: [tasks/D-06_HISTORY_SUMMARIZATION.md](tasks/D-06_HISTORY_SUMMARIZATION.md)
+- **C-03** — TTL-кеш для `list_models()` (избыточные HTTP на каждое переключение модели)
+- **D-03** — persistent `user_models` dict (сейчас in-memory, теряется при рестарте)
+- Улучшение UX: команда `/stats` / `/history` — показать размер текущего контекста
+- Streaming ответы (сейчас blocking)
+- Rate-limiting / allowlist (если понадобится публичное развёртывание)
+- Актуализация `README.md` — дополнительный cleanup после C-01 (ссылки на Ollama убраны, но можно ещё пройтись)
 
 ---
 
 ## Notes
 
-- Sprint 1 — первый спринт после развёртывания doc-структуры
-- Все 5 запланированных задач (D-04..D-08) + бонус (C-01) закрыты кодом и merged в master. Deliverable: [sprint-1-delivery.md](sprint-1-delivery.md).
-- Pending (не блокирует sprint-close):
-  - Ручной smoke-test в реальном Telegram (owner: Stan)
-  - `git push origin master` (блокирован GitHub-требованием verify email)
-  - C-02: починить `Makefile pull-models` под Lemonade
-  - Backup branch `backup/d04-tangled` можно удалить
+- Рабочий процесс: [instructions.md](instructions.md) — TDD + branch prefixes + change-request как зеркало спринта (правка после feedback Stan 2026-04-15)
+- Для новой задачи: скопировать блок шаблона из [change-request-doc.md](change-request-doc.md) в [change-request.md](change-request.md), добавить строку в [tasks.md](tasks.md), перенести в `To Do` / `In Progress` здесь

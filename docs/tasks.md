@@ -82,5 +82,10 @@ Branch: `feature/BAU/BOT-D07` · merged 2026-04-15 · 24/24 tests green
 
 ### D-08 ✅ Context logging — visibility перед LLM call
 Расширяет event `llm_request` полями `total_chars`, `estimated_tokens` (`chars // 4` heuristic) и полным `messages` payload под гейтом env `LOG_CONTEXT_FULL` (default `true`). Покрывает оба LLM-вызова: основной диалог + summarization.
-Branch: `feature/BAU/BOT-D08` · code complete 2026-04-15 · 27/27 tests green
+Branch: `feature/BAU/BOT-D08` · merged 2026-04-15 · 27/27 tests green
 → [tasks/D-08_CONTEXT_LOGGING.md](tasks/D-08_CONTEXT_LOGGING.md)
+
+### D-09 🛠 Dual logging — stdout + rotating file в проекте
+structlog форвардит в stdlib logging с двумя handler-ами: `StreamHandler(stdout)` (Docker compatible) + `RotatingFileHandler(data/logs/bot.log, 10MB × 5)`. Env `LOG_FILE` управляет путём.
+Branch: `feature/BAU/BOT-D09` · code complete 2026-04-17 · 27/27 tests green
+→ [tasks/D-09_LOG_FILE_ROTATION.md](tasks/D-09_LOG_FILE_ROTATION.md)

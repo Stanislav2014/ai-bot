@@ -15,6 +15,7 @@ class Settings(BaseSettings):
     history_summarize_model: str = ""
     system_prompt: str = "Ты опытный программист и отвечаешь кратко и по делу."
     log_context_full: bool = True
+    log_file: str = "data/logs/bot.log"
 
     model_config = {"env_file": ".env", "env_file_encoding": "utf-8"}
 

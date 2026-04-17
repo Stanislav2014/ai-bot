@@ -4,6 +4,44 @@
 
 ---
 
+## D-09 · Dual logging — stdout + rotating file в проекте
+
+| Поле | Значение |
+|------|----------|
+| **Task ID** | `D-09` |
+| **Branch** | `feature/BAU/BOT-D09` |
+| **Task spec** | [tasks/D-09_LOG_FILE_ROTATION.md](tasks/D-09_LOG_FILE_ROTATION.md) |
+| **Started** | 2026-04-17 |
+| **Status** | Code complete, awaiting merge |
+| **Owner** | Stan |
+
+### Goal
+Добавить второй выход для логов: ротируемый файл `data/logs/bot.log` внутри проекта (bind-mount), доступный на хосте без sudo. Stdout остаётся для Docker-интеграции.
+
+### Done
+- [x] `app/logging_config.py` refactored to stdlib logging backend with structlog forwarding
+- [x] `logging.StreamHandler(sys.stdout)` — stdout output preserved
+- [x] `logging.handlers.RotatingFileHandler` — 10MB × 5 backups
+- [x] `app/config.py` — `log_file: str = "data/logs/bot.log"`
+- [x] `.env.example` — `LOG_FILE` + rotation policy в комментарии
+- [x] 27/27 tests green, ruff clean
+- [x] Prod rebuild 2026-04-17 — файл подтверждён на хосте (1085 bytes, owner stan:stan, `starting_bot` + `bot_started` events в JSON)
+- [ ] Merge в master
+- [ ] Push
+
+### Regression watch
+- `structlog.get_logger()` API не меняется — весь downstream код работает без правок
+- JSON формат stdout идентичен — любые внешние парсеры не сломаются
+- `docker compose logs bot` продолжает работать (stdout handler сохранён)
+
+### Checkpoints
+
+**Phase 1 (Implementation + smoke)** — 2026-04-17 — refactor, smoke в subprocess подтверждает dual output, 27/27 tests green.
+
+**Phase 2 (Prod verify)** — 2026-04-17 — `make build && make restart`, `data/logs/bot.log` появился на хосте с корректным content.
+
+---
+
 ## D-08 · Context logging — visibility перед LLM call
 
 | Поле | Значение |

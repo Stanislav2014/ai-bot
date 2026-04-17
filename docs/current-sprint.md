@@ -14,7 +14,11 @@ _пусто_
 
 ## In Review
 
-_пусто_
+### D-09 · Dual logging — stdout + rotating file в проекте
+structlog → stdlib → 2 handler-а (StreamHandler + RotatingFileHandler 10MB × 5). Файл `data/logs/bot.log` доступен на хосте без sudo, переживает recreate. 27/27 тесты зелёные, ruff clean, prod verified.
+- Branch: `feature/BAU/BOT-D09`
+- Spec: [tasks/D-09_LOG_FILE_ROTATION.md](tasks/D-09_LOG_FILE_ROTATION.md)
+- Completed (code): 2026-04-17
 
 ## Done (этот спринт)
 

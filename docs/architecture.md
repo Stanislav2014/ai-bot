@@ -67,6 +67,8 @@ BotHandlers.handle_message — ловит Exception (BaseHandler catch-all)
 
 **Context observability (D-08)**: событие `llm_request` в `LLMClient.chat()` логируется **перед** HTTP-вызовом и содержит `model`, `messages_count`, `total_chars`, `estimated_tokens` (chars//4 heuristic). Под гейтом env `LOG_CONTEXT_FULL` (default `true`) добавляется полное содержимое `messages` — полезно для дебага system prompt / summarization / overflow. В prod можно выключить через `LOG_CONTEXT_FULL=false`. Логирование на уровне `LLMClient` покрывает оба потока: основной диалог `handle_message` и summarization `Summarizer._call_llm`.
 
+**Dual output (D-09)**: structlog форвардит в stdlib logging, у которого два handler-а — `StreamHandler(sys.stdout)` и `RotatingFileHandler(data/logs/bot.log, 10MB × 5 backups)`. Stdout сохраняет совместимость с `docker compose logs`. Файл внутри `./data` bind-mount доступен на хосте без sudo, переживает recreate контейнера. Env `LOG_FILE=""` отключает файловый handler.
+
 ### 6. Shutdown через signal handlers
 
 `SIGINT` / `SIGTERM` → `stop_event.set()` → корректный teardown `app.updater.stop()` → `app.stop()` → `llm.close()`. [app/main.py:40-61](../app/main.py).

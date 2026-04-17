@@ -71,6 +71,7 @@
 | `HISTORY_SUMMARIZE_MODEL` | `""` | Модель для summary LLM-запроса (пусто = `DEFAULT_MODEL`) |
 | `SYSTEM_PROMPT` | `"Ты опытный программист и отвечаешь кратко и по делу."` | System prompt (persona бота), prepend-ится в каждый LLM-запрос |
 | `LOG_CONTEXT_FULL` | `true` | Логировать полный `messages` payload в `llm_request` event. Metadata (total_chars/estimated_tokens) логируется всегда. Отключить в prod при росте логов |
+| `LOG_FILE` | `data/logs/bot.log` | Путь для дублирования логов в rotating-файл (10MB × 5 backups). Пусто = только stdout |
 
 ## Python version constraint
 

@@ -14,13 +14,13 @@ _пусто_
 
 ## In Review
 
-### D-10 · HISTORY_ENABLED flag — выключаемый контекст
-Env `HISTORY_ENABLED=false` делает `HistoryStore.get/append/replace` no-op — бот становится полностью stateless. 2 новых unit теста, 29/29 зелёные, ruff clean.
-- Branch: `feature/BAU/BOT-D10`
-- Spec: [tasks/D-10_HISTORY_ENABLED_FLAG.md](tasks/D-10_HISTORY_ENABLED_FLAG.md)
-- Completed (code): 2026-04-17
+_пусто_
 
 ## Done (этот спринт)
+
+### D-10 · HISTORY_ENABLED flag — выключаемый контекст
+Env `HISTORY_ENABLED=false` делает `HistoryStore.get/append/replace` no-op — бот становится полностью stateless. Merged 2026-04-17, 29/29 тесты зелёные.
+- Spec: [tasks/D-10_HISTORY_ENABLED_FLAG.md](tasks/D-10_HISTORY_ENABLED_FLAG.md)
 
 ### D-09 · Dual logging — stdout + rotating file в проекте
 structlog → stdlib → 2 handler-а (StreamHandler + RotatingFileHandler 10MB × 5). Файл `data/logs/bot.log` доступен на хосте без sudo, переживает recreate. Merged 2026-04-17.

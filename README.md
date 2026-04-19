@@ -27,21 +27,31 @@ cp .env.example .env
 # При желании поправьте SYSTEM_PROMPT, HISTORY_*, LOG_FILE — все описаны в .env.example
 ```
 
-### 2. Запуск через Docker
+### 2. Поднять Lemonade (отдельный проект)
+
+Lemonade-сервер живёт отдельно в [`../lemonade-server`](../lemonade-server). Подними его один раз, он обслужит всех клиентов через общую docker-сеть `llm-net`:
 
 ```bash
+cd ../lemonade-server
 make build
 make up
-make pull-models   # скачать дефолтную модель через Lemonade CLI
-make list-models   # показать установленные модели
-make logs          # смотреть логи в реальном времени
+make pull-models   # Qwen3-0.6B-GGUF, ~1.5GB
 ```
 
-### 3. Запуск локально (без Docker)
+### 3. Запуск бота через Docker
+
+```bash
+cd ../ai-bot
+make build
+make up            # подключится к llm-net, найдёт lemonade по DNS-имени
+make logs
+```
+
+### 4. Запуск бота локально (без Docker)
 
 ```bash
 pip install -r requirements.txt
-# Запусти Lemonade server отдельно (docker или native)
+# В .env замени LLM_BASE_URL=http://lemonade:8000/api на http://localhost:8000/api
 python -m app.main
 ```
 
@@ -58,10 +68,12 @@ python -m app.main
 ## Архитектура
 
 ```
-Telegram → Bot (polling) → [HistoryStore + Summarizer] → Lemonade API → Bot → Telegram
-                                    ↓
-                         data/history/{user_id}.yaml  (память per-user)
+Telegram → Bot (polling) → [HistoryStore + Summarizer] → Lemonade (отдельный контейнер) → Bot → Telegram
+                                    ↓                               ↑
+                         data/history/{user_id}.yaml        общая docker-сеть llm-net
 ```
+
+Lemonade вынесен в [отдельный проект](../lemonade-server) — один сервер обслуживает ai-bot и других клиентов (rag-mcp и т.д.) через shared network `llm-net`.
 
 Ключевые фичи (Sprint 1):
 - **Per-user dialog history** (D-04) — YAML файл per пользователь, follow-up запросы работают
@@ -95,10 +107,11 @@ Telegram → Bot (polling) → [HistoryStore + Summarizer] → Lemonade API → 
 | `make test` | Прогон тестов (pytest-asyncio) |
 | `make lint` | Линт (ruff) |
 | `make lint-fix` | Автофикс линт-нарушений |
-| `make pull-models` | Скачать дефолтную модель в Lemonade |
-| `make list-models` | Список установленных моделей в Lemonade |
 | `make shell` | Shell в контейнер бота |
+| `make network` | Создать общую сеть `llm-net` (идемпотентно; вызывается из `make up`) |
 | `make clean` | Остановить + удалить volumes |
+
+Команды управления моделями (`pull-models`, `list-models`) — в проекте [`../lemonade-server`](../lemonade-server).
 
 ## Деплой
 

@@ -1,13 +1,4 @@
 services:
-  lemonade:
-    build: ./lemonade
-    container_name: lemonade
-    ports:
-      - "8000:8000"
-    volumes:
-      - lemonade_cache:/root/.cache
-    restart: unless-stopped
-
   bot:
     build: .
     container_name: ai-bot
@@ -17,9 +8,10 @@ services:
       - .env
     volumes:
       - ./data:/app/data
-    depends_on:
-      - lemonade
+    networks:
+      - llm-net
     restart: unless-stopped
 
-volumes:
-  lemonade_cache:
+networks:
+  llm-net:
+    external: true

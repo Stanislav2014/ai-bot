@@ -4,6 +4,7 @@
 
 - Индекс docs: [README.md](README.md)
 - Задачник: [tasks.md](tasks.md) · [current-sprint.md](sprints/current-sprint.md)
+- Соседние проекты: [`../lemonade-server`](../../lemonade-server) (LLM-сервер, shared через `llm-net`), [`../local-rag-mcp`](../../local-rag-mcp)
 - Workflow: [instructions.md](instructions.md)
 - Архитектура: [architecture.md](architecture.md) · [context-dump.md](context-dump.md)
 - Оригинальная спека: [superpowers/specs/2026-04-09-telegram-llm-bot-design.md](superpowers/specs/2026-04-09-telegram-llm-bot-design.md)

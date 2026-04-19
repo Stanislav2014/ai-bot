@@ -5,12 +5,17 @@
 ai-bot — простой монопроцессный Python async-сервис. Одна точка входа, один event loop, без фоновых воркеров, без БД.
 
 ```
-┌──────────┐   polling     ┌──────────────┐    HTTP     ┌──────────┐
-│ Telegram │ ───────────▶  │  ai-bot      │ ──────────▶ │ Lemonade │
-│   API    │ ◀───────────  │  (Python)    │ ◀────────── │  /v1/... │
-└──────────┘  send reply   └──────────────┘   OpenAI    └──────────┘
-                                                        compatible
+┌──────────┐   polling     ┌──────────────┐    HTTP     ┌──────────────────┐
+│ Telegram │ ───────────▶  │  ai-bot      │ ──────────▶ │ Lemonade         │
+│   API    │ ◀───────────  │  (Python)    │ ◀────────── │  /v1/...         │
+└──────────┘  send reply   └──────────────┘   OpenAI    │  (отдельный      │
+                                              compatible│   docker-проект) │
+                                                        └──────────────────┘
+                              │                              ▲
+                              └──── docker network `llm-net` ┘
 ```
+
+Lemonade-сервер — отдельный docker-проект [`../lemonade-server`](../../lemonade-server), подключение через внешнюю docker-сеть `llm-net`. Ai-bot к нему обращается по DNS-имени `lemonade:8000` (разрешается внутри `llm-net`).
 
 ---
 
@@ -135,7 +140,7 @@ OpenAI-compatible серверы иногда возвращают `400` или 
 
 ### 9. Startup race: polling начинается раньше чем Lemonade готов
 
-`docker compose up` поднимает оба сервиса. `depends_on: lemonade` в docker-compose обеспечивает **старт**, но не **готовность**. Если бот начал polling, а Lemonade ещё грузит модель, первый `/message` вернёт ошибку. На практике первый cold start лечится повтором.
+Lemonade теперь в отдельном docker-проекте, `depends_on` не применим. Если ai-bot поднят, а Lemonade-контейнер ещё грузит модель (или вовсе не запущен) — первый `/message` вернёт ошибку. Бот переживёт это (graceful error → «LLM unavailable»), повтор сработает после того, как Lemonade готов. Порядок запуска: сначала `cd ../lemonade-server && make up`, потом ai-bot.
 
 ### 10. `httpx.AsyncClient` без явного connect pool limit
 

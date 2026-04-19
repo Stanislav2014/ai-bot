@@ -137,11 +137,6 @@ AVAILABLE_MODELS = ["gpt-oss-20b", "qwen3:0.6b", "qwen3.5:27b"]
 
 ---
 
-## 10. `lemonade/` папка untracked в git
-🧟 Стилистическое / процесс
+## 10. `lemonade/` папка untracked в git ✅ РЕШЕНО (2026-04-19, extraction)
 
-**Что**: В `git status` висит untracked `lemonade/` (содержит Dockerfile). `docker-compose.yml` на неё ссылается через `build: ./lemonade`.
-
-**Проблема**: У нового клонирующего проект — сборка упадёт (`lemonade/Dockerfile not found`).
-
-**Fix**: Закоммитить `lemonade/Dockerfile` и всё что нужно для сборки.
+Lemonade вынесен в отдельный проект [`../lemonade-server`](../../lemonade-server). В ai-bot папки `lemonade/` больше нет, `docker-compose.yml` на неё не ссылается. Подключение к сервису — через внешнюю docker-сеть `llm-net` по DNS-имени `lemonade:8000`.

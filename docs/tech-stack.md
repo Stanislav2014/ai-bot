@@ -31,8 +31,8 @@
 
 | Компонент | Назначение |
 |-----------|-----------|
-| **Docker Compose** | `bot` + `lemonade` сервисы |
-| **Lemonade** | Локальный LLM сервер с OpenAI-compatible API (Dockerfile в `lemonade/`) |
+| **Docker Compose** | `bot` сервис, подключается к внешней сети `llm-net` |
+| **Lemonade** | Локальный LLM-сервер с OpenAI-compatible API — **вынесен в отдельный проект** [`../lemonade-server`](../../lemonade-server). Один экземпляр обслуживает несколько клиентов (ai-bot, rag-mcp…) через shared network `llm-net`. |
 | **Makefile** | Обёртки над docker compose и dev-командами |
 | **deploy.sh** | Pull-build-up + проверка моделей |
 
@@ -49,7 +49,7 @@
 
 | Порт | Сервис |
 |------|--------|
-| 8000 | Lemonade (внутри docker-сети) — пробрасывается наружу docker-compose.yml |
+| 8000 | Lemonade (в соседнем проекте `lemonade-server`) — доступ через shared network `llm-net` по DNS-имени `lemonade`, наружу пробрасывается из `lemonade-server/docker-compose.yml` |
 | — | Бот не слушает порты (polling mode, исходящие соединения только) |
 
 ## Config через env

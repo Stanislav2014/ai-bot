@@ -3,11 +3,11 @@
 ## Внутренние
 
 - Индекс docs: [README.md](README.md)
-- Задачник: [tasks.md](tasks.md) · [current-sprint.md](current-sprint.md)
+- Задачник: [tasks.md](tasks.md) · [current-sprint.md](sprints/current-sprint.md)
 - Workflow: [instructions.md](instructions.md)
 - Архитектура: [architecture.md](architecture.md) · [context-dump.md](context-dump.md)
 - Оригинальная спека: [superpowers/specs/2026-04-09-telegram-llm-bot-design.md](superpowers/specs/2026-04-09-telegram-llm-bot-design.md)
-- История создания: [prompts.md](prompts.md) · [time-log.md](time-log.md)
+- История создания: [prompts.md](prompts/prompts.md) · [time-log.md](time-log.md)
 
 ## Официальная документация стека
 

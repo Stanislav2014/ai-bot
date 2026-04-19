@@ -27,7 +27,7 @@ Telegram-бот, который работает как простой AI-чат
 | Стек и версии | [tech-stack.md](tech-stack.md) |
 | Команды бота | [ui-kit.md](ui-kit.md) |
 | API контракты | [contracts/](contracts/) |
-| Текущая работа | [current-sprint.md](current-sprint.md) |
+| Текущая работа | [current-sprint.md](sprints/current-sprint.md) |
 | Все задачи | [tasks.md](tasks.md) |
 
 ## Ключевые принципы

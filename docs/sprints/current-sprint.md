@@ -4,8 +4,8 @@
 
 - Delivery: [sprint-1-delivery.md](sprint-1-delivery.md)
 - Archive (полный live change-request): [sprint-1-archive.md](sprint-1-archive.md)
-- Скриншоты из Telegram: [dialogs/](dialogs/)
-- Все промты спринта: [prompts-sprint-1.md](prompts-sprint-1.md)
+- Скриншоты из Telegram: [dialogs/](../dialogs/)
+- Все промты спринта: [prompts-sprint-1.md](../prompts/prompts-sprint-1.md)
 
 Итого в Sprint 1 закрыто: **9 задач** (C-01, C-02, D-04, D-05, D-06, D-07, D-08, D-09, D-10). 29/29 unit-тестов зелёные, ruff clean. Бот в проде на `master` с полным D-04..D-10 стеком. Push на GitHub — `Stanislav2014/ai-bot`.
 

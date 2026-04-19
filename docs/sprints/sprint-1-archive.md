@@ -14,7 +14,7 @@
 |------|----------|
 | **Task ID** | `D-10` |
 | **Branch** | `feature/BAU/BOT-D10` |
-| **Task spec** | [tasks/D-10_HISTORY_ENABLED_FLAG.md](tasks/D-10_HISTORY_ENABLED_FLAG.md) |
+| **Task spec** | [tasks/D-10_HISTORY_ENABLED_FLAG.md](../tasks/D-10_HISTORY_ENABLED_FLAG.md) |
 | **Started** | 2026-04-17 |
 | **Status** | Code complete, awaiting merge |
 | **Owner** | Stan |
@@ -43,7 +43,7 @@
 |------|----------|
 | **Task ID** | `D-09` |
 | **Branch** | `feature/BAU/BOT-D09` |
-| **Task spec** | [tasks/D-09_LOG_FILE_ROTATION.md](tasks/D-09_LOG_FILE_ROTATION.md) |
+| **Task spec** | [tasks/D-09_LOG_FILE_ROTATION.md](../tasks/D-09_LOG_FILE_ROTATION.md) |
 | **Started** | 2026-04-17 |
 | **Status** | ✅ Merged 2026-04-17 · commit `70f4e44` · pushed to origin |
 | **Owner** | Stan |
@@ -82,7 +82,7 @@
 | **Task ID** | `D-08` |
 | **Ticket** | `BOT-D08` |
 | **Branch** | `feature/BAU/BOT-D08` |
-| **Task spec** | [tasks/D-08_CONTEXT_LOGGING.md](tasks/D-08_CONTEXT_LOGGING.md) |
+| **Task spec** | [tasks/D-08_CONTEXT_LOGGING.md](../tasks/D-08_CONTEXT_LOGGING.md) |
 | **Started** | 2026-04-15 |
 | **Status** | Code complete, awaiting manual smoke-test and merge |
 | **Owner** | Stan |
@@ -137,7 +137,7 @@
 | **Task ID** | `D-07` |
 | **Ticket** | `BOT-D07` |
 | **Branch** | `feature/BAU/BOT-D07` (от master после merge D-04/D-05/D-06) |
-| **Task spec** | [tasks/D-07_SYSTEM_PROMPT.md](tasks/D-07_SYSTEM_PROMPT.md) |
+| **Task spec** | [tasks/D-07_SYSTEM_PROMPT.md](../tasks/D-07_SYSTEM_PROMPT.md) |
 | **Started** | 2026-04-15 |
 | **Status** | Code complete, awaiting manual smoke-test and merge |
 | **Owner** | Stan |
@@ -191,8 +191,8 @@
 | **Task ID** | `D-04` |
 | **Ticket** | `BOT-D04` (внутренний) |
 | **Branch** | `feature/BAU/BOT-D04` |
-| **Task spec** | [tasks/D-04_DIALOG_HISTORY_YAML.md](tasks/D-04_DIALOG_HISTORY_YAML.md) |
-| **Plan** | [tasks/D-04_DIALOG_HISTORY_YAML_plan.md](tasks/D-04_DIALOG_HISTORY_YAML_plan.md) |
+| **Task spec** | [tasks/D-04_DIALOG_HISTORY_YAML.md](../tasks/D-04_DIALOG_HISTORY_YAML.md) |
+| **Plan** | [tasks/D-04_DIALOG_HISTORY_YAML_plan.md](../tasks/D-04_DIALOG_HISTORY_YAML_plan.md) |
 | **Started** | 2026-04-15 |
 | **Status** | Code complete, awaiting manual smoke-test in Telegram |
 | **Owner** | Stan |
@@ -217,7 +217,7 @@
 
 ### Pending action items
 
-- [ ] **A1** · Ручной smoke-test из [plan.md Task 12](tasks/D-04_DIALOG_HISTORY_YAML_plan.md#task-12-финальный-прогон--manual-testing) · owner: Stan
+- [ ] **A1** · Ручной smoke-test из [plan.md Task 12](../tasks/D-04_DIALOG_HISTORY_YAML_plan.md#task-12-финальный-прогон--manual-testing) · owner: Stan
 - [ ] **A2** · Merge `feature/BAU/BOT-D04` → `master` после успешного smoke-теста · owner: Stan
 - [ ] **A3** · Удалить `backup/d04-tangled` ветку после merge · owner: Stan
 - [ ] **A4** · Добавить «Docker bind-mount UID mismatch» в legacy-warning / architecture edge cases (бонус, см. fix коммит `aae5549`) · owner: Stan/Claude
@@ -231,7 +231,7 @@
 
 ### Checkpoints
 
-**Phase 0 (Design)** — 2026-04-15 — brainstorming завершён, variant B (persistent YAML), спек записан в [tasks/D-04_DIALOG_HISTORY_YAML.md](tasks/D-04_DIALOG_HISTORY_YAML.md).
+**Phase 0 (Design)** — 2026-04-15 — brainstorming завершён, variant B (persistent YAML), спек записан в [tasks/D-04_DIALOG_HISTORY_YAML.md](../tasks/D-04_DIALOG_HISTORY_YAML.md).
 
 **Phase 1-4 (Code)** — 2026-04-15 — 11 чистых коммитов D-04 на feature branch (после разделения с C-01). 11/11 тестов зелёные, ruff чистый.
 
@@ -260,8 +260,8 @@
 | **Task ID** | `D-05` |
 | **Ticket** | `BOT-D05` |
 | **Branch** | `feature/BAU/BOT-D05` (dependent от `feature/BAU/BOT-D04`) |
-| **Task spec** | [tasks/D-05_CONTEXT_CHAR_LIMIT.md](tasks/D-05_CONTEXT_CHAR_LIMIT.md) |
-| **Plan** | [tasks/D-05_CONTEXT_CHAR_LIMIT_plan.md](tasks/D-05_CONTEXT_CHAR_LIMIT_plan.md) |
+| **Task spec** | [tasks/D-05_CONTEXT_CHAR_LIMIT.md](../tasks/D-05_CONTEXT_CHAR_LIMIT.md) |
+| **Plan** | [tasks/D-05_CONTEXT_CHAR_LIMIT_plan.md](../tasks/D-05_CONTEXT_CHAR_LIMIT_plan.md) |
 | **Started** | 2026-04-15 |
 | **Status** | Code complete, awaiting manual smoke-test and merge (depends on D-04 merge first) |
 | **Owner** | Stan |
@@ -315,8 +315,8 @@
 | **Task ID** | `D-06` |
 | **Ticket** | `BOT-D06` |
 | **Branch** | `feature/BAU/BOT-D06` (dependent от `feature/BAU/BOT-D05`) |
-| **Task spec** | [tasks/D-06_HISTORY_SUMMARIZATION.md](tasks/D-06_HISTORY_SUMMARIZATION.md) |
-| **Plan** | [tasks/D-06_HISTORY_SUMMARIZATION_plan.md](tasks/D-06_HISTORY_SUMMARIZATION_plan.md) |
+| **Task spec** | [tasks/D-06_HISTORY_SUMMARIZATION.md](../tasks/D-06_HISTORY_SUMMARIZATION.md) |
+| **Plan** | [tasks/D-06_HISTORY_SUMMARIZATION_plan.md](../tasks/D-06_HISTORY_SUMMARIZATION_plan.md) |
 | **Started** | 2026-04-15 |
 | **Status** | Code complete, awaiting manual smoke-test and merge (depends on D-04/D-05 merge first) |
 | **Owner** | Stan |

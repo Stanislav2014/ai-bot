@@ -2,7 +2,7 @@
 
 Telegram-бот, работающий с локальными языковыми моделями через **Lemonade Server** (OpenAI-compatible). Хранит историю диалога per-user, сжимает старый контекст через суммаризацию, configurable persona.
 
-Sprint 1 закрыт 2026-04-17 — 9 задач. См. [docs/sprint-1-delivery.md](docs/sprint-1-delivery.md) и [docs/dialogs/](docs/dialogs/) для деталей и живых примеров.
+Sprint 1 закрыт 2026-04-17 — 9 задач. См. [docs/sprints/sprint-1-delivery.md](docs/sprints/sprint-1-delivery.md) и [docs/dialogs/](docs/dialogs/) для деталей и живых примеров.
 
 ## LLM
 
@@ -15,7 +15,7 @@ Sprint 1 закрыт 2026-04-17 — 9 задач. См. [docs/sprint-1-delivery
 
 ## Как сгенерирован код
 
-Код сгенерирован с помощью Claude (Anthropic) с последующей доработкой через TDD и code review. Полная история работы и все промты — в [docs/prompts-sprint-1.md](docs/prompts-sprint-1.md).
+Код сгенерирован с помощью Claude (Anthropic) с последующей доработкой через TDD и code review. Полная история работы и все промты — в [docs/prompts/prompts-sprint-1.md](docs/prompts/prompts-sprint-1.md).
 
 ## Быстрый старт
 
@@ -77,7 +77,7 @@ Telegram → Bot (polling) → [HistoryStore + Summarizer] → Lemonade API → 
 ## Документация
 
 - [docs/README.md](docs/README.md) — индекс всей документации
-- [docs/sprint-1-delivery.md](docs/sprint-1-delivery.md) — финальный delivery-документ Sprint 1
+- [docs/sprints/sprint-1-delivery.md](docs/sprints/sprint-1-delivery.md) — финальный delivery-документ Sprint 1
 - [docs/dialogs/](docs/dialogs/) — скриншоты реальных диалогов (stateless vs context)
 - [docs/tasks/](docs/tasks/) — спеки всех задач D-04…D-10, C-01/C-02
 - [docs/architecture.md](docs/architecture.md) — архитектурные паттерны + edge cases

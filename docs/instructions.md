@@ -33,7 +33,7 @@
 1. **Создание**
    - **Добавить** новый блок в [change-request.md](change-request.md) по шаблону из [change-request-doc.md](change-request-doc.md). change-request.md — зеркало спринта, в нём одновременно могут жить несколько задач.
    - Добавить строку в [tasks.md](tasks.md) в нужную фазу
-   - Перенести в [current-sprint.md](current-sprint.md) → `To Do`
+   - Перенести в [current-sprint.md](sprints/current-sprint.md) → `To Do`
    - Создать спеку в `docs/tasks/{PREFIX}-{NN}_*.md` — **единая точка истины** для задачи (design + план + история).
    - ⚠ **Не использовать `docs/superpowers/specs/`** для новых задач — эта папка архив для оригинального MVP-дизайна.
 
@@ -64,7 +64,7 @@
 6. **Post-merge**
    - Обновить changelog/history в task spec
    - Пометить в [tasks.md](tasks.md) ✅
-   - Перенести в `Done` в [current-sprint.md](current-sprint.md)
+   - Перенести в `Done` в [current-sprint.md](sprints/current-sprint.md)
    - В [change-request.md](change-request.md) **обновить** статус блока задачи на Merged — **не удалять**. Блок остаётся до закрытия спринта.
    - Обновить [legacy-warning.md](legacy-warning.md), если задача добавила/убрала тех-долг
 

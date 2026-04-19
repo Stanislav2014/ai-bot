@@ -1,6 +1,6 @@
 # Dialog examples — Sprint 1 acceptance artifacts
 
-Скриншоты живых диалогов из Telegram, подтверждающих acceptance criteria Sprint 1 (см. [sprint-1-delivery.md](../sprint-1-delivery.md)).
+Скриншоты живых диалогов из Telegram, подтверждающих acceptance criteria Sprint 1 (см. [sprint-1-delivery.md](../sprints/sprint-1-delivery.md)).
 
 ## Файлы
 

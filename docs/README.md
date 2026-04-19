@@ -12,7 +12,7 @@
 | [ideas.md](ideas.md) | Копилка идей (ещё не задачи) |
 | [discuss.md](discuss.md) | Открытые архитектурные / продуктовые вопросы |
 | [tasks.md](tasks.md) | Master-каталог задач по фазам (A-/B-/C-/D-) |
-| [current-sprint.md](current-sprint.md) | Kanban текущей итерации |
+| [current-sprint.md](sprints/current-sprint.md) | Kanban текущей итерации |
 | [change-request.md](change-request.md) | Реальные данные текущей задачи |
 | [change-request-doc.md](change-request-doc.md) | Шаблон change-request |
 | [tasks/](tasks/) | Детальные спеки задач |
@@ -42,16 +42,16 @@
 
 | Файл | Назначение |
 |------|-----------|
-| [sprint-1-delivery.md](sprint-1-delivery.md) | Sprint 1 финальный delivery-документ: архитектура, примеры, проблемы |
-| [sprint-1-archive.md](sprint-1-archive.md) | Sprint 1 full `change-request` заморожен на момент закрытия |
+| [sprints/sprint-1-delivery.md](sprints/sprint-1-delivery.md) | Sprint 1 финальный delivery-документ: архитектура, примеры, проблемы |
+| [sprints/sprint-1-archive.md](sprints/sprint-1-archive.md) | Sprint 1 full `change-request` заморожен на момент закрытия |
 | [dialogs/](dialogs/) | Скриншоты реальных Telegram-диалогов (stateless vs context) |
-| [prompts-sprint-1.md](prompts-sprint-1.md) | Все промты Sprint 1 (хронологически) |
+| [prompts/prompts-sprint-1.md](prompts/prompts-sprint-1.md) | Все промты Sprint 1 (хронологически) |
 
 ## История создания (архив)
 
 | Файл | Назначение |
 |------|-----------|
-| [prompts.md](prompts.md) | История промптов к Claude Code при создании MVP |
+| [prompts/prompts.md](prompts/prompts.md) | История промптов к Claude Code при создании MVP |
 | [time-log.md](time-log.md) | Лог затраченного времени на MVP |
 | [superpowers/specs/](superpowers/specs/) | **Архив** — только оригинальная MVP-спека (2026-04-09). Новые задачи сюда не пишутся. |
 

@@ -7,7 +7,7 @@
 ---
 
 - **C-03** — TTL-кеш для `list_models()` (избыточные HTTP на каждое переключение модели)
-- **D-03** — persistent `user_models` dict (сейчас in-memory, теряется при рестарте)
+- ~~**D-03** — persistent `user_models` dict~~ → закрыто в C-04 (Sprint 2)
 - Улучшение UX: команда `/stats` / `/history` — показать размер текущего контекста
 - Streaming ответы (сейчас blocking)
 - Rate-limiting / allowlist (если понадобится публичное развёртывание)

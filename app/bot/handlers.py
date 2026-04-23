@@ -2,33 +2,24 @@ import structlog
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update
 from telegram.ext import ContextTypes
 
-from app.config import settings
-from app.history import HistoryStore, Summarizer
-from app.llm.client import LLMClient, LLMError
+from app.chat import ChatService, LLMError
+from app.users import UserService
 
 logger = structlog.get_logger()
 
 
 class BotHandlers:
-    def __init__(
-        self,
-        llm: LLMClient,
-        history: HistoryStore,
-        summarizer: Summarizer,
-        system_prompt: str,
-    ) -> None:
-        self.llm = llm
-        self.history = history
-        self.summarizer = summarizer
-        self.system_prompt = system_prompt
-        self.user_models: dict[int, str] = {}
+    def __init__(self, users: UserService, chat: ChatService) -> None:
+        self.users = users
+        self.chat = chat
 
     async def start(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         user = update.effective_user
         logger.info("command_start", user_id=user.id, username=user.username)
+        current = await self.users.get_model(user.id)
         await update.message.reply_text(
             f"Hello, {user.first_name}! I'm a local LLM bot.\n\n"
-            f"Current model: {self._get_model(user.id)}\n\n"
+            f"Current model: {current}\n\n"
             "Commands:\n"
             "/models — choose a model\n"
             "/reset — clear dialog history\n"
@@ -44,8 +35,8 @@ class BotHandlers:
         self, update: Update, context: ContextTypes.DEFAULT_TYPE
     ) -> None:
         user_id = update.effective_user.id
-        current = self._get_model(user_id)
-        installed = await self.llm.list_models()
+        current = await self.users.get_model(user_id)
+        installed = await self.chat.list_models()
         if not installed:
             await update.message.reply_text("No models installed. Ask admin to run: make pull-models")
             return
@@ -68,9 +59,9 @@ class BotHandlers:
         user_id = query.from_user.id
         username = query.from_user.username
         model_name = query.data.removeprefix("model:")
-        previous = self._get_model(user_id)
+        previous = await self.users.get_model(user_id)
 
-        self.user_models[user_id] = model_name
+        await self.users.set_model(user_id, model_name)
         logger.info(
             "model_changed",
             user_id=user_id,
@@ -80,7 +71,7 @@ class BotHandlers:
         )
 
         # Update the keyboard to reflect new selection
-        installed = await self.llm.list_models()
+        installed = await self.chat.list_models()
         buttons = []
         for m in sorted(installed):
             label = f"{'> ' if m == model_name else ''}{m}"
@@ -100,15 +91,15 @@ class BotHandlers:
             await update.message.reply_text("Usage: /model <name>\nOr use /models for buttons.")
             return
         model_name = context.args[0]
-        installed = await self.llm.list_models()
+        installed = await self.chat.list_models()
         if installed and model_name not in installed:
             await update.message.reply_text(
                 f"Model '{model_name}' is not installed.\n\n"
                 f"Available: {', '.join(installed)}"
             )
             return
-        previous = self._get_model(user_id)
-        self.user_models[user_id] = model_name
+        previous = await self.users.get_model(user_id)
+        await self.users.set_model(user_id, model_name)
         logger.info(
             "model_changed",
             user_id=user_id,
@@ -124,7 +115,7 @@ class BotHandlers:
         user = update.effective_user
         user_id = user.id
         text = update.message.text
-        model = self._get_model(user_id)
+        model = await self.users.get_model(user_id)
 
         logger.info(
             "user_message",
@@ -134,38 +125,9 @@ class BotHandlers:
             text_length=len(text),
         )
 
-        history_msgs = await self.history.get(user_id)
-        new_history = await self.summarizer.maybe_summarize(history_msgs)
-        if new_history is not history_msgs:
-            await self.history.replace(user_id, new_history)
-            logger.info(
-                "history_summarized",
-                user_id=user_id,
-                before=len(history_msgs),
-                after=len(new_history),
-            )
-            history_msgs = new_history
-        messages = (
-            [{"role": "system", "content": self.system_prompt}]
-            + history_msgs
-            + [{"role": "user", "content": text}]
-        )
-
         try:
             await update.message.chat.send_action("typing")
-            result = await self.llm.chat(messages, model=model)
-            reply = result["content"]
-
-            await self.history.append(user_id, "user", text)
-            await self.history.append(user_id, "assistant", reply)
-
-            logger.info(
-                "llm_reply",
-                user_id=user_id,
-                model=model,
-                reply_length=len(reply),
-                history_len=len(history_msgs) + 2,
-            )
+            reply = await self.chat.reply(user_id, text)
             await update.message.reply_text(reply)
 
         except LLMError as e:
@@ -188,9 +150,6 @@ class BotHandlers:
         self, update: Update, context: ContextTypes.DEFAULT_TYPE
     ) -> None:
         user = update.effective_user
-        await self.history.reset(user.id)
+        await self.chat.reset_history(user.id)
         logger.info("history_reset", user_id=user.id, username=user.username)
         await update.message.reply_text("История диалога очищена.")
-
-    def _get_model(self, user_id: int) -> str:
-        return self.user_models.get(user_id, settings.default_model)

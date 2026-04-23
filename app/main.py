@@ -7,10 +7,12 @@ from telegram.ext import ApplicationBuilder, CallbackQueryHandler, CommandHandle
 
 from app.bot.handlers import BotHandlers
 from app.bot.middleware import LoggingMiddleware
+from app.chat import ChatService, Summarizer
 from app.config import settings
-from app.history import HistoryStore, Summarizer
+from app.history import HistoryStore
 from app.llm.client import LLMClient
 from app.logging_config import setup_logging
+from app.users import UserService, UserStore
 
 
 async def run() -> None:
@@ -23,6 +25,7 @@ async def run() -> None:
         llm_url=settings.llm_base_url,
         history_enabled=settings.history_enabled,
         history_dir=settings.history_dir,
+        users_dir=settings.users_dir,
         history_max_messages=settings.history_max_messages,
         history_max_chars=settings.history_max_chars,
         summarize_threshold=settings.history_summarize_threshold,
@@ -44,12 +47,16 @@ async def run() -> None:
         keep_recent=settings.history_keep_recent,
         model=summarize_model,
     )
-    handlers = BotHandlers(
-        llm=llm,
+    user_store = UserStore(data_dir=Path(settings.users_dir))
+    users = UserService(store=user_store, default_model=settings.default_model)
+    chat = ChatService(
+        users=users,
         history=history,
         summarizer=summarizer,
+        llm=llm,
         system_prompt=settings.system_prompt,
     )
+    handlers = BotHandlers(users=users, chat=chat)
 
     app = ApplicationBuilder().token(settings.telegram_bot_token).build()
 

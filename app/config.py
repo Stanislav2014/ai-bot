@@ -8,6 +8,7 @@ class Settings(BaseSettings):
     llm_timeout: int = 120
     log_level: str = "INFO"
     history_dir: str = "data/history"
+    users_dir: str = "data/users"
     history_enabled: bool = True
     history_max_messages: int = 20
     history_max_chars: int = 8000

@@ -1,6 +1,8 @@
 # Context Dump — карта взаимодействий
 
-Технический атлас: как именно компоненты взаимодействуют. Обновлять после каждого значимого исследования. Все ссылки в формате `file:line`.
+Технический атлас: как именно компоненты взаимодействуют. Все ссылки в формате `file:line`.
+
+**Когда обновлять**: см. [instructions.md § 6 Post-merge](instructions.md#3-жизненный-цикл-задачи) — изменения Flow, внешних зависимостей, карты модулей или счётчика тестов.
 
 ---
 
@@ -121,7 +123,7 @@
 
 ---
 
-## Flow 9 — `/reset` command
+## Flow 8 — `/reset` command
 
 **Trigger**: пользователь пишет `/reset`.
 
@@ -132,7 +134,7 @@
 
 ---
 
-## Flow 8 — Shutdown
+## Flow 9 — Shutdown
 
 **Trigger**: `SIGINT` или `SIGTERM` (например, `docker compose down`).
 
@@ -151,7 +153,7 @@
 | Система | Как используется | Где | Контракт |
 |---------|------------------|-----|----------|
 | **Telegram Bot API** | python-telegram-bot polling mode, `getUpdates`, `sendMessage`, callback queries, chat actions | app/main.py, app/bot/handlers.py | [contracts/external/telegram.md](contracts/external/telegram.md) |
-| **Lemonade / Ollama** | OpenAI-compatible `/v1/chat/completions`, `/v1/models` | app/llm/client.py | [contracts/external/ollama.md](contracts/external/ollama.md) |
+| **Lemonade** | OpenAI-compatible `/v1/chat/completions`, `/v1/models`. Запущен как отдельный проект (`../lemonade-server`), бот ходит к нему через shared docker-сеть `llm-net` | app/llm/client.py | [contracts/external/ollama.md](contracts/external/ollama.md) (имя файла историческое, контракт актуален) |
 | `httpx` | HTTP клиент | app/llm/client.py | — |
 | `structlog` | JSON логи | app/logging_config.py, везде | — |
 | `pydantic-settings` | Env-based config | app/config.py | — |
@@ -171,9 +173,10 @@ app/
 │   └── middleware.py        — LoggingMiddleware
 ├── history/
 │   ├── __init__.py          — экспорт HistoryStore
-│   └── store.py             — HistoryStore (YAML per-user + cache + locks)
+│   ├── store.py             — HistoryStore (YAML per-user + cache + locks)
+│   └── summarizer.py        — D-06 HistorySummarizer (LLM-based summary старых сообщений)
 └── llm/
     └── client.py            — LLMClient + LLMError
 ```
 
-Тесты: `tests/test_llm_client.py` (3) + `tests/test_history_store.py` (8) = 11.
+Тесты: `tests/test_llm_client.py` (6) + `tests/test_history_store.py` (15) + `tests/test_summarizer.py` (8) = 29.

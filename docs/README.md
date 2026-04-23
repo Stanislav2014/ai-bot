@@ -13,6 +13,7 @@
 | [discuss.md](discuss.md) | Открытые архитектурные / продуктовые вопросы |
 | [tasks.md](tasks.md) | Master-каталог задач по фазам (A-/B-/C-/D-) |
 | [current-sprint.md](sprints/current-sprint.md) | Kanban текущей итерации |
+| [backlog.md](sprints/backlog.md) | Идеи для будущих спринтов |
 | [change-request.md](change-request.md) | Реальные данные текущей задачи |
 | [change-request-doc.md](change-request-doc.md) | Шаблон change-request |
 | [tasks/](tasks/) | Детальные спеки задач |

@@ -29,16 +29,9 @@ _пусто (при старте Sprint 2)_
 
 ---
 
-## Следующий спринт — идеи (backlog)
+## Бэклог
 
-Из [ideas.md](ideas.md) / [discuss.md](discuss.md) / [legacy-warning.md](legacy-warning.md):
-
-- **C-03** — TTL-кеш для `list_models()` (избыточные HTTP на каждое переключение модели)
-- **D-03** — persistent `user_models` dict (сейчас in-memory, теряется при рестарте)
-- Улучшение UX: команда `/stats` / `/history` — показать размер текущего контекста
-- Streaming ответы (сейчас blocking)
-- Rate-limiting / allowlist (если понадобится публичное развёртывание)
-- Актуализация `README.md` — дополнительный cleanup после C-01 (ссылки на Ollama убраны, но можно ещё пройтись)
+Идеи для следующих спринтов вынесены в [backlog.md](backlog.md).
 
 ---
 

@@ -9,7 +9,7 @@
 | **Branch** | `feature/TD/C-04-modular-monolith` |
 | **Task spec** | этот файл |
 | **Started** | 2026-04-23 |
-| **Status** | In Progress |
+| **Status** | In Review |
 | **Owner** | Stan |
 
 ---
@@ -20,12 +20,12 @@
 
 ## Success criteria (verifiable)
 
-- [ ] **CR-1**: `app/bot/handlers.py` импортит только `app.users` и `app.chat` (никаких `app.llm`, `app.history`) → verify: `grep -E '^from app\.(llm|history)' app/bot/handlers.py` пусто
-- [ ] **CR-2**: `app/users/` — независимый модуль (нет импортов из `app.bot`, `app.chat`, `app.history`, `app.llm`) → verify: grep
-- [ ] **CR-3**: `app/history/` и `app/llm/` не импортят друг друга и не импортят `app.users`, `app.chat`, `app.bot` → verify: grep
-- [ ] **CR-4**: Persistent user state — выбор модели переживает рестарт. YAML per-user в `data/users/{telegram_id}.yaml` со схемой `{telegram_id, current_model, created_at}` → verify: integration test (`test_user_store.py`) + ручная проверка в Telegram
-- [ ] **CR-5**: Все существующие user-facing flow работают идентично (handle_message, /models, /model, /reset, /start) → verify: набор юнит-тестов на `ChatService` + ручная проверка
-- [ ] **CR-6**: `make test` зелёный (29 старых + новые), `make lint` чистый
+- [x] **CR-1**: `app/bot/handlers.py` импортит только `app.users` и `app.chat` (никаких `app.llm`, `app.history`) → verified: `grep -E '^from app\.(llm|history)' app/bot/handlers.py` → пусто
+- [x] **CR-2**: `app/users/` — независимый модуль → verified grep'ом, импортит только себя
+- [x] **CR-3**: `app/history/` и `app/llm/` не импортят `app.users`, `app.chat`, `app.bot` друг друга → verified grep'ом. Summarizer перенесён из `history/` в `chat/` ровно для соблюдения этого правила (`history/` стал zero-app-deps)
+- [x] **CR-4**: Persistent user state — `data/users/{telegram_id}.yaml` со схемой `{telegram_id, current_model, created_at}` → verified: `test_user_store.py::test_persistence_across_instances`, `test_yaml_format_on_disk`. (Ручной Telegram-smoke — на стороне Stan.)
+- [x] **CR-5**: User-facing flow идентичен — `test_chat_service.py` (9 тестов) покрывает reply-orchestration, list_models, reset_history, summarization-trigger, fail-no-history-leak; handlers идентичны по поведению. (Ручной Telegram-smoke — на стороне Stan.)
+- [x] **CR-6**: `make test` 52/52 ✅, `make lint` clean ✅
 
 ---
 
@@ -209,3 +209,9 @@ class BotHandlers:
 
 ## History
 - 2026-04-23 — started, спека + ветка `feature/TD/C-04-modular-monolith`
+- 2026-04-23 — Phase 1 (Users): `tests/test_user_store.py` (8) + `tests/test_user_service.py` (6) GREEN; `app/users/{models,store,service,__init__}.py` созданы
+- 2026-04-23 — Phase 2 (Chat): `tests/test_chat_service.py` (9) GREEN; `app/chat/{service,__init__}.py` созданы. **Решение по ходу**: Summarizer перенесён из `app/history/summarizer.py` в `app/chat/summarizer.py` — иначе `history/` импортирует `app.llm.client`, что нарушает CR-3. После переноса `history/` импортирует только из себя.
+- 2026-04-23 — Phase 3 (Refactor transport): `BotHandlers` переписан под `users` + `chat`, `LLMError` re-export через `app.chat`; DI в `main.py` пересобран; `config.py` + `.env.example` дополнены `users_dir`
+- 2026-04-23 — Phase 4 (Verification): 52/52 tests green, ruff clean, DI smoke-test (без сети) — все компоненты собираются
+- 2026-04-23 — Phase 5 (Docs): `context-dump.md` обновлён (Flow 1/2/4/5/6/7/8 + карта модулей + счётчик тестов 29 → 52); `tasks.md` C-04 + D-03 ✅; `backlog.md` D-03 strikethrough; `current-sprint.md` → In Review
+- 2026-04-23 — In Review: ждёт ручной Telegram-smoke от Stan, затем merge в master

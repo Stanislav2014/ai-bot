@@ -10,20 +10,25 @@
 
 **Trigger**: `python -m app.main` (или `docker compose up`)
 
-1. `main()` → `asyncio.run(run())` · [app/main.py:65-66](../app/main.py)
-2. `setup_logging()` → structlog configure JSON renderer · [app/logging_config.py:9](../app/logging_config.py)
-3. `settings` инстанцируется из `.env` (pydantic-settings) · [app/config.py:4](../app/config.py)
-4. Создаётся `LLMClient` (httpx AsyncClient с timeout) · [app/llm/client.py:16-19](../app/llm/client.py)
-5. Создаётся `BotHandlers(llm=llm)` с пустым `user_models = {}` · [app/bot/handlers.py:14-16](../app/bot/handlers.py)
-6. `ApplicationBuilder().token(...).build()` — python-telegram-bot Application · [app/main.py:22](../app/main.py)
-7. Регистрация handlers:
-   - `LoggingMiddleware` (group=-1, всегда первый) · [app/main.py:25](../app/main.py)
-   - `CommandHandler("start" | "help" | "models" | "model")` · [app/main.py:28-31](../app/main.py)
-   - `CallbackQueryHandler(pattern=r"^model:")` для inline buttons · [app/main.py:34](../app/main.py)
-   - `MessageHandler(filters.TEXT & ~filters.COMMAND)` — catch-all текст · [app/main.py:37](../app/main.py)
-8. Signal handlers: `SIGINT`, `SIGTERM` → `stop_event.set()` · [app/main.py:43-48](../app/main.py)
-9. `async with app: app.start() → app.updater.start_polling() → stop_event.wait()` · [app/main.py:53-56](../app/main.py)
-10. При сигнале: `updater.stop() → app.stop() → llm.close()` · [app/main.py:58-61](../app/main.py)
+1. `main()` → `asyncio.run(run())` · [app/main.py](../app/main.py)
+2. `setup_logging()` → structlog configure JSON renderer · [app/logging_config.py](../app/logging_config.py)
+3. `settings` инстанцируется из `.env` (pydantic-settings) · [app/config.py](../app/config.py)
+4. DI-цепочка собирается в `main.run()`:
+   - `LLMClient()` — httpx AsyncClient с timeout · [app/llm/client.py](../app/llm/client.py)
+   - `HistoryStore(history_dir, ...)` · [app/history/store.py](../app/history/store.py)
+   - `Summarizer(llm, threshold, keep_recent, model)` · [app/chat/summarizer.py](../app/chat/summarizer.py)
+   - `UserStore(users_dir)` → `UserService(store, default_model=settings.default_model)` · [app/users/](../app/users/)
+   - `ChatService(users, history, summarizer, llm, system_prompt)` · [app/chat/service.py](../app/chat/service.py)
+   - `BotHandlers(users=users, chat=chat)` — транспорт зависит **только** от UserService и ChatService · [app/bot/handlers.py](../app/bot/handlers.py)
+5. `ApplicationBuilder().token(...).build()` — python-telegram-bot Application
+6. Регистрация handlers:
+   - `LoggingMiddleware` (group=-1, всегда первый)
+   - `CommandHandler("start" | "help" | "models" | "model" | "reset")`
+   - `CallbackQueryHandler(pattern=r"^model:")` для inline buttons
+   - `MessageHandler(filters.TEXT & ~filters.COMMAND)` — catch-all текст
+7. Signal handlers: `SIGINT`, `SIGTERM` → `stop_event.set()`
+8. `async with app: app.start() → app.updater.start_polling() → stop_event.wait()`
+9. При сигнале: `updater.stop() → app.stop() → llm.close()`
 
 ---
 
@@ -31,24 +36,24 @@
 
 **Trigger**: пользователь пишет текст боту в Telegram.
 
+**Слои**: `bot/handlers.py` (транспорт) → `chat/service.py::ChatService.reply` (оркестрация) → `users` + `history` + `chat/summarizer` + `llm`.
+
 1. `Update` приходит через polling в `Application` dispatcher
-2. **LoggingMiddleware.check_update()** проверяет — логирует `incoming_message` (user_id, username, chat_id, text[:200], message_id), возвращает `False` (не поглощает update) · [app/bot/middleware.py:18-29](../app/bot/middleware.py)
+2. **LoggingMiddleware.check_update()** логирует `incoming_message` (user_id, username, chat_id, text[:200], message_id), возвращает `False` (не поглощает update) · [app/bot/middleware.py](../app/bot/middleware.py)
 3. `MessageHandler(TEXT & ~COMMAND)` → `BotHandlers.handle_message` · [app/bot/handlers.py](../app/bot/handlers.py)
-4. Resolve `model = self._get_model(user_id)` → `user_models.get(user_id, settings.default_model)` · [app/bot/handlers.py](../app/bot/handlers.py)
-5. Лог `user_message` (user_id, username, model, text_length) · [app/bot/handlers.py](../app/bot/handlers.py)
-6. **`history_msgs = await self.history.get(user_id)`** — загрузка прошлых user/assistant сообщений (cache → YAML файл) · [app/history/store.py](../app/history/store.py) · [app/bot/handlers.py](../app/bot/handlers.py)
-6.5. **`new_history = await self.summarizer.maybe_summarize(history_msgs)`** (D-06) — если `len > HISTORY_SUMMARIZE_THRESHOLD`, старые сообщения уходят в отдельный LLM-запрос на summary, результат заменяет их single `role=system` сообщением с префиксом `"Previous conversation summary: "`. При изменении — `await self.history.replace(user_id, new_history)` + лог `history_summarized` (before/after). Fail/disabled → возвращается `history_msgs` без изменений · [app/history/summarizer.py](../app/history/summarizer.py)
-7. Строится `messages = [{system: self.system_prompt}] + history_msgs + [{user}]` — `self.system_prompt` inject-ится из `settings.system_prompt` (env `SYSTEM_PROMPT`, D-07), дефолт — русский программистский persona · [app/bot/handlers.py](../app/bot/handlers.py)
-8. `chat.send_action("typing")` — Telegram показывает индикатор
-9. `llm.chat(messages, model=model)` → HTTP POST `{base_url}/v1/chat/completions` с body `{model, messages, stream: false}` · [app/llm/client.py:24-42](../app/llm/client.py)
-10. Лог `llm_request` (model, messages_count, `total_chars`, `estimated_tokens`; + `messages` при `LOG_CONTEXT_FULL=true`, D-08) — перед HTTP-вызовом, виден весь input → реально уходит в Lemonade
-11. Lemonade обрабатывает → возвращает JSON choices/message/content
-12. `LLMClient.chat()` парсит `data["choices"][0]["message"]["content"]` и `data["usage"]["total_tokens"]` · [app/llm/client.py:42-45](../app/llm/client.py)
-13. Лог `llm_response` (model, tokens) · [app/llm/client.py:44](../app/llm/client.py)
-14. **`await self.history.append(user_id, "user", text)`** — запись user-сообщения в YAML (только после успешного LLM ответа, чтобы не сломать парность user/assistant). Append применяет count-trim + char-trim FIFO внутри (см. [app/history/store.py](../app/history/store.py) `HistoryStore.append`)
-15. **`await self.history.append(user_id, "assistant", reply)`** — запись assistant-ответа в YAML (те же два trim'а)
-16. `handle_message` логирует `llm_reply` (user_id, model, reply_length, history_len) · [app/bot/handlers.py](../app/bot/handlers.py)
-17. `message.reply_text(content)` → отправка обратно в Telegram
+4. **Транспорт**: `model = await self.users.get_model(user_id)` для логирования; лог `user_message` (user_id, username, model, text_length); `chat.send_action("typing")`
+5. **`reply = await self.chat.reply(user_id, text)`** — вся бизнес-оркестрация внутри:
+   1. `model = await users.get_model(telegram_id)` — fallback на `settings.default_model`, если у пользователя нет записи · [app/users/service.py](../app/users/service.py)
+   2. `history_msgs = await history.get(telegram_id)` — загрузка прошлых сообщений (cache → YAML) · [app/history/store.py](../app/history/store.py)
+   3. `new_history = await summarizer.maybe_summarize(history_msgs)` (D-06) — если `len > HISTORY_SUMMARIZE_THRESHOLD`, старые уходят в LLM на summary, результат — single `role=system` с префиксом `"Previous conversation summary: "`. При изменении — `await history.replace(...)` + лог `history_summarized` (before/after). Fail/disabled → возвращается без изменений · [app/chat/summarizer.py](../app/chat/summarizer.py)
+   4. `messages = [{system: system_prompt}] + history_msgs + [{user: text}]` — system_prompt inject-ится в `ChatService.__init__` из `settings.system_prompt` (env `SYSTEM_PROMPT`, D-07)
+   5. `result = await llm.chat(messages, model=model)` → HTTP POST `{base_url}/v1/chat/completions`, body `{model, messages, stream: false}` · [app/llm/client.py](../app/llm/client.py)
+   6. Логи `llm_request` (model, messages_count, `total_chars`, `estimated_tokens`; + `messages` при `LOG_CONTEXT_FULL=true`, D-08) и `llm_response` (model, tokens) — внутри `LLMClient`
+   7. `await history.append(telegram_id, "user", text)` — запись только **после** успешного LLM-ответа (чтобы не сломать парность user/assistant). Append применяет count-trim + char-trim FIFO внутри
+   8. `await history.append(telegram_id, "assistant", reply)` — те же два trim'а
+   9. Лог `llm_reply` (user_id, model, reply_length, history_len)
+   10. Возврат `reply` транспорту
+6. `update.message.reply_text(reply)` → отправка обратно в Telegram
 
 ---
 
@@ -72,12 +77,12 @@
 
 **Trigger**: пользователь пишет `/models`.
 
-1. `CommandHandler("models")` → `BotHandlers.models` · [app/bot/handlers.py:34](../app/bot/handlers.py)
-2. `current = self._get_model(user_id)`
-3. `installed = await self.llm.list_models()` → HTTP GET `{base_url}/v1/models` · [app/llm/client.py:60-70](../app/llm/client.py)
+1. `CommandHandler("models")` → `BotHandlers.models` · [app/bot/handlers.py](../app/bot/handlers.py)
+2. `current = await self.users.get_model(user_id)` — fallback на default
+3. `installed = await self.chat.list_models()` — фасад над `LLMClient.list_models` (handler не знает про `app.llm`) → HTTP GET `{base_url}/v1/models` · [app/chat/service.py](../app/chat/service.py) · [app/llm/client.py](../app/llm/client.py)
 4. Если `installed` пустой → «No models installed. Ask admin to run: make pull-models»
-5. Строятся `InlineKeyboardButton` для каждой модели, маркер `> ` перед текущей · [app/bot/handlers.py:45-47](../app/bot/handlers.py)
-6. `reply_text("Current model: X\nTap to switch:", reply_markup=InlineKeyboardMarkup)` · [app/bot/handlers.py:49-52](../app/bot/handlers.py)
+5. Строятся `InlineKeyboardButton` для каждой модели, маркер `> ` перед текущей
+6. `reply_text("Current model: X\nTap to switch:", reply_markup=InlineKeyboardMarkup)`
 
 ---
 
@@ -85,16 +90,16 @@
 
 **Trigger**: пользователь тапает кнопку из keyboard `/models`.
 
-1. Telegram присылает `CallbackQuery` с `data="model:X"` → `CallbackQueryHandler(pattern=r"^model:")` → `BotHandlers.model_callback` · [app/bot/handlers.py:54](../app/bot/handlers.py)
+1. Telegram присылает `CallbackQuery` с `data="model:X"` → `CallbackQueryHandler(pattern=r"^model:")` → `BotHandlers.model_callback`
 2. `query.answer()` — нативный dismiss loading spinner Telegram
 3. `model_name = query.data.removeprefix("model:")`
-4. `previous = self._get_model(user_id)` — запомнить предыдущую модель
-5. `self.user_models[user_id] = model_name` — обновление in-memory dict · [app/bot/handlers.py:64](../app/bot/handlers.py)
-6. Лог `model_changed` (user_id, username, previous_model, new_model) · [app/bot/handlers.py:65-71](../app/bot/handlers.py)
+4. `previous = await self.users.get_model(user_id)` — запомнить предыдущую модель (из YAML или default)
+5. `await self.users.set_model(user_id, model_name)` — **persistent**: создаёт/обновляет запись в `data/users/{telegram_id}.yaml`, переживает рестарт (C-04, закрывает D-03)
+6. Лог `model_changed` (user_id, username, previous_model, new_model)
 7. Перерисовка inline keyboard:
-   - `installed = await self.llm.list_models()` (ещё HTTP вызов!)
-   - `edit_message_text("Tap to switch:", reply_markup=...)` — обновление того же сообщения · [app/bot/handlers.py:74-83](../app/bot/handlers.py)
-8. Отправка отдельного сообщения `"Switched: {prev} → {new}"` (исторически добавлено — юзер хотел явное подтверждение) · [app/bot/handlers.py:84](../app/bot/handlers.py)
+   - `installed = await self.chat.list_models()` (через фасад)
+   - `edit_message_text("Tap to switch:", reply_markup=...)` — обновление того же сообщения
+8. Отправка отдельного сообщения `"Switched: {prev} → {new}"`
 
 ---
 
@@ -102,13 +107,13 @@
 
 **Trigger**: пользователь пишет `/model qwen3:1.7b`.
 
-1. `CommandHandler("model")` → `BotHandlers.set_model` · [app/bot/handlers.py:86](../app/bot/handlers.py)
+1. `CommandHandler("model")` → `BotHandlers.set_model`
 2. Если `context.args` пустой → usage hint
-3. `installed = await self.llm.list_models()` — HTTP
+3. `installed = await self.chat.list_models()` — через фасад
 4. Если модель не в `installed` → user message с доступным списком
-5. `previous = self._get_model(user_id)`
-6. `self.user_models[user_id] = model_name`
-7. Лог `model_changed` (те же поля, что и в flow 5) · [app/bot/handlers.py:103-109](../app/bot/handlers.py)
+5. `previous = await self.users.get_model(user_id)`
+6. `await self.users.set_model(user_id, model_name)` — persistent
+7. Лог `model_changed` (те же поля, что и в Flow 5)
 8. `reply_text(f"Switched: {previous} → {model_name}")`
 
 ---
@@ -117,9 +122,10 @@
 
 **Trigger**: `/start` или `/help`.
 
-1. `CommandHandler("start"|"help")` → `BotHandlers.start` (help просто перенаправляет на start) · [app/bot/handlers.py:18, 29-32](../app/bot/handlers.py)
+1. `CommandHandler("start"|"help")` → `BotHandlers.start` (help просто перенаправляет на start)
 2. Лог `command_start` (user_id, username)
-3. `reply_text("Hello, {first_name}! ... Current model: X ... Commands: ...")` · [app/bot/handlers.py:21-27](../app/bot/handlers.py)
+3. `current = await self.users.get_model(user.id)`
+4. `reply_text("Hello, {first_name}! ... Current model: {current} ... Commands: ...")`
 
 ---
 
@@ -127,8 +133,8 @@
 
 **Trigger**: пользователь пишет `/reset`.
 
-1. `CommandHandler("reset")` → `BotHandlers.reset` · [app/bot/handlers.py](../app/bot/handlers.py)
-2. `await self.history.reset(user_id)` — удаляет запись в in-memory cache + unlink файла `data/history/{user_id}.yaml` (если существует) · [app/history/store.py](../app/history/store.py)
+1. `CommandHandler("reset")` → `BotHandlers.reset`
+2. `await self.chat.reset_history(user.id)` — фасад над `HistoryStore.reset` (handler не знает про `app.history`); удаляет запись в cache + unlink файла `data/history/{user_id}.yaml` · [app/chat/service.py](../app/chat/service.py)
 3. Лог `history_reset` (user_id, username)
 4. `reply_text("История диалога очищена.")`
 
@@ -157,26 +163,37 @@
 | `httpx` | HTTP клиент | app/llm/client.py | — |
 | `structlog` | JSON логи | app/logging_config.py, везде | — |
 | `pydantic-settings` | Env-based config | app/config.py | — |
-| `PyYAML` | Сериализация per-user истории диалога | app/history/store.py | — |
+| `PyYAML` | Сериализация per-user истории диалога + per-user state | app/history/store.py, app/users/store.py | — |
 
 ---
 
-## Карта файлов и их ответственность
+## Карта файлов и их ответственность (после C-04)
 
 ```
 app/
-├── main.py                  — entry point, setup, signal handling
+├── main.py                  — entry point, DI wiring (UserStore→UserService→ChatService→BotHandlers)
 ├── config.py                — Settings из .env
 ├── logging_config.py        — structlog configure
-├── bot/
-│   ├── handlers.py          — все Telegram хэндлеры + /reset
+├── bot/                     ← транспорт Telegram, депенды только на users + chat
+│   ├── handlers.py          — все Telegram хэндлеры + /reset (тонкие адаптеры)
 │   └── middleware.py        — LoggingMiddleware
-├── history/
-│   ├── __init__.py          — экспорт HistoryStore
-│   ├── store.py             — HistoryStore (YAML per-user + cache + locks)
-│   └── summarizer.py        — D-06 HistorySummarizer (LLM-based summary старых сообщений)
-└── llm/
+├── users/                   ← C-04: идентификация + per-user state, persistent
+│   ├── models.py            — dataclass User {telegram_id, current_model, created_at}
+│   ├── store.py             — UserStore (YAML per-user в data/users/{telegram_id}.yaml)
+│   └── service.py           — UserService (get_or_create, get_model с default-fallback, set_model)
+├── history/                 ← диалоговая история, не зависит ни от чего из app
+│   └── store.py             — HistoryStore (YAML per-user + cache + locks, count- + char-trim)
+├── chat/                    ← C-04: use-case слой, единственный «склеивающий» модуль
+│   ├── service.py           — ChatService (reply: оркестрация users+history+summarizer+llm; list_models / reset_history фасады)
+│   └── summarizer.py        — Summarizer (D-06 LLM-based summary; перенесён из history/ в C-04)
+└── llm/                     ← тонкий HTTP-адаптер к Lemonade
     └── client.py            — LLMClient + LLMError
 ```
 
-Тесты: `tests/test_llm_client.py` (6) + `tests/test_history_store.py` (15) + `tests/test_summarizer.py` (8) = 29.
+**Архитектурные правила** (enforced grep'ом в C-04 success criteria):
+- `bot/` импортит только `app.users` и `app.chat` (не `app.llm`/`app.history`)
+- `users/`, `history/`, `llm/` друг друга не импортят
+- `chat/` — единственный модуль, который депендит на несколько других (`users`, `history`, `llm`)
+- `LLMError` ре-экспортируется из `app.chat`, чтобы handler не лез в `app.llm.client`
+
+Тесты: `tests/test_llm_client.py` (6) + `tests/test_history_store.py` (15) + `tests/test_summarizer.py` (8) + `tests/test_user_store.py` (8) + `tests/test_user_service.py` (6) + `tests/test_chat_service.py` (9) = **52**.

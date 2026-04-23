@@ -14,7 +14,7 @@
 | **Branch** | `feature/TD/C-04-modular-monolith` |
 | **Task spec** | [tasks/C-04_MODULAR_MONOLITH.md](tasks/C-04_MODULAR_MONOLITH.md) |
 | **Started** | 2026-04-23 |
-| **Status** | In Progress |
+| **Status** | In Review (52/52 tests, ruff clean, awaiting manual Telegram smoke + merge) |
 | **Owner** | Stan |
 
 **Goal**: разнести бот на 4 изолированных модуля (`users/`, `chat/`, `history/`, `llm/`) + транспорт `bot/`. Handlers больше не импортят `LLMClient`/`HistoryStore` напрямую — только через `UserService` + `ChatService`.

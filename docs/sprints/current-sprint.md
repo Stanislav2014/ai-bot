@@ -17,11 +17,11 @@ _пусто_
 
 ## In Progress
 
-- **C-04** — Modular monolith: Users / Chat / History boundaries · [spec](../tasks/C-04_MODULAR_MONOLITH.md) · ветка `feature/TD/C-04-modular-monolith`
+_пусто_
 
 ## In Review
 
-_пусто_
+- **C-04** — Modular monolith: Users / Chat / History boundaries · [spec](../tasks/C-04_MODULAR_MONOLITH.md) · ветка `feature/TD/C-04-modular-monolith` · 52/52 tests, ruff clean, ждёт ручной Telegram-smoke + merge
 
 ## Done (этот спринт)
 

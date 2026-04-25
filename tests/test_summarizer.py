@@ -2,7 +2,7 @@ from unittest.mock import AsyncMock
 
 import pytest
 
-from app.history import Summarizer
+from app.chat import Summarizer
 
 
 @pytest.fixture

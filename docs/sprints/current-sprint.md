@@ -1,11 +1,11 @@
-# Current Sprint
+# Current Sprint — Sprint 2 (started 2026-04-23)
 
 **Sprint 1 закрыт 2026-04-17.**
 
-- Delivery: [sprint-1-delivery.md](sprint-1-delivery.md)
-- Archive (полный live change-request): [sprint-1-archive.md](sprint-1-archive.md)
-- Скриншоты из Telegram: [dialogs/](../dialogs/)
-- Все промты спринта: [prompts-sprint-1.md](../prompts/prompts-sprint-1.md)
+- Sprint 1 delivery: [sprint-1-delivery.md](sprint-1-delivery.md)
+- Sprint 1 archive: [sprint-1-archive.md](sprint-1-archive.md)
+- Скриншоты Sprint 1: [dialogs/](../dialogs/)
+- Промты Sprint 1: [prompts-sprint-1.md](../prompts/prompts-sprint-1.md)
 
 Итого в Sprint 1 закрыто: **9 задач** (C-01, C-02, D-04, D-05, D-06, D-07, D-08, D-09, D-10). 29/29 unit-тестов зелёные, ruff clean. Бот в проде на `master` с полным D-04..D-10 стеком. Push на GitHub — `Stanislav2014/ai-bot`.
 
@@ -13,7 +13,7 @@
 
 ## To Do
 
-_Sprint 2 не начат — новых задач нет._
+_пусто_
 
 ## In Progress
 
@@ -21,11 +21,11 @@ _пусто_
 
 ## In Review
 
-_пусто_
+- **C-04** — Modular monolith: Users / Chat / History boundaries · [spec](../tasks/C-04_MODULAR_MONOLITH.md) · ветка `feature/TD/C-04-modular-monolith` · 52/52 tests, ruff clean, ждёт ручной Telegram-smoke + merge
 
 ## Done (этот спринт)
 
-_пусто (при старте Sprint 2)_
+_пусто_
 
 ---
 

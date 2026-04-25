@@ -9,7 +9,9 @@ from app.bot.handlers import BotHandlers
 from app.bot.middleware import LoggingMiddleware
 from app.chat import ChatService, Summarizer
 from app.config import settings
+from app.events import EventBus
 from app.history import HistoryStore
+from app.history.subscriber import subscribe as subscribe_history
 from app.llm.client import LLMClient
 from app.logging_config import setup_logging
 from app.users import UserService, UserStore
@@ -34,6 +36,7 @@ async def run() -> None:
         system_prompt=settings.system_prompt[:80],
     )
 
+    bus = EventBus()
     llm = LLMClient()
     history = HistoryStore(
         data_dir=Path(settings.history_dir),
@@ -41,6 +44,7 @@ async def run() -> None:
         max_chars=settings.history_max_chars,
         enabled=settings.history_enabled,
     )
+    subscribe_history(bus, history)
     summarizer = Summarizer(
         llm=llm,
         threshold=settings.history_summarize_threshold,
@@ -48,12 +52,13 @@ async def run() -> None:
         model=summarize_model,
     )
     user_store = UserStore(data_dir=Path(settings.users_dir))
-    users = UserService(store=user_store, default_model=settings.default_model)
+    users = UserService(store=user_store, default_model=settings.default_model, bus=bus)
     chat = ChatService(
         users=users,
         history=history,
         summarizer=summarizer,
         llm=llm,
+        bus=bus,
         system_prompt=settings.system_prompt,
     )
     handlers = BotHandlers(users=users, chat=chat)

@@ -1,13 +1,15 @@
 from datetime import datetime, timezone
 
+from app.events import EventBus, UserCreated
 from app.users.models import User
 from app.users.store import UserStore
 
 
 class UserService:
-    def __init__(self, store: UserStore, default_model: str) -> None:
+    def __init__(self, store: UserStore, default_model: str, bus: EventBus) -> None:
         self._store = store
         self._default_model = default_model
+        self._bus = bus
 
     async def get_or_create(self, telegram_id: int) -> User:
         existing = await self._store.load(telegram_id)
@@ -19,6 +21,9 @@ class UserService:
             created_at=datetime.now(timezone.utc).isoformat(timespec="seconds"),
         )
         await self._store.save(user)
+        await self._bus.publish(
+            UserCreated(telegram_id=user.telegram_id, created_at=user.created_at)
+        )
         return user
 
     async def get_model(self, telegram_id: int) -> str:

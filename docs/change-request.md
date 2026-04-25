@@ -27,3 +27,30 @@
 - [ ] CR-6 — `make test` + `make lint` зелёные
 
 См. [task spec](tasks/C-04_MODULAR_MONOLITH.md) для полной декомпозиции.
+
+---
+
+## C-05 · In-memory event bus — decouple Chat ↔ History via events
+
+| Поле | Значение |
+|------|----------|
+| **Task ID** | `C-05` |
+| **Branch** | `feature/TD/C-05-event-bus` |
+| **Task spec** | [tasks/C-05_EVENT_BUS.md](tasks/C-05_EVENT_BUS.md) |
+| **Started** | 2026-04-25 |
+| **Status** | In Progress |
+| **Owner** | Stan |
+
+**Goal**: внедрить простой in-memory event bus и развязать `chat/` от `history/`. Chat публикует `MessageReceived` / `ResponseGenerated` / `HistorySummarized`, History подписывается. Бонус: `UserCreated` для будущих обработчиков.
+
+**Success criteria**:
+- [ ] CR-1 — `app/chat/` без импорта `app.history`
+- [ ] CR-2 — `app/history/` не импортит `chat/users/bot/llm`
+- [ ] CR-3 — `app/events/` — zero app-deps
+- [ ] CR-4 — `ChatService.reply` публикует `MessageReceived` + `ResponseGenerated`; summarize → `HistorySummarized`
+- [ ] CR-5 — `UserService.get_or_create` публикует `UserCreated` только для нового
+- [ ] CR-6 — History subscriber: 3 события → правильные методы store
+- [ ] CR-7 — User-facing flow идентичен
+- [ ] CR-8 — `make test` + `make lint` зелёные
+
+См. [task spec](tasks/C-05_EVENT_BUS.md) для полной декомпозиции.

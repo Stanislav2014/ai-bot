@@ -17,7 +17,7 @@ _пусто_
 
 ## In Progress
 
-_пусто_
+- **C-05** — In-memory event bus: decouple Chat ↔ History via events · [spec](../tasks/C-05_EVENT_BUS.md) · ветка `feature/TD/C-05-event-bus` · TDD по фазам (events → users → chat → subscriber → wire)
 
 ## In Review
 

@@ -9,7 +9,7 @@
 | **Branch** | `feature/TD/C-05-event-bus` |
 | **Task spec** | этот файл |
 | **Started** | 2026-04-25 |
-| **Status** | In Progress |
+| **Status** | In Review |
 | **Owner** | Stan |
 
 ---
@@ -20,14 +20,14 @@
 
 ## Success criteria (verifiable)
 
-- [ ] **CR-1**: `app/chat/` НЕ импортит `app.history` → verified: `grep -rE '^from app\.history' app/chat/` → пусто
-- [ ] **CR-2**: `app/history/` НЕ импортит `app.chat`, `app.users`, `app.bot`, `app.llm` → verified grep'ом
-- [ ] **CR-3**: `app/events/` zero app-deps → verified: `grep -rE '^from app\.' app/events/` → пусто
-- [ ] **CR-4**: `ChatService.reply` публикует `MessageReceived` (user) + `ResponseGenerated` (assistant); при summarize → `HistorySummarized`. Без LLM-ошибки → не публикует ничего связанного с историей. Verified в `test_chat_service.py`
-- [ ] **CR-5**: `UserService.get_or_create` публикует `UserCreated` только для нового пользователя (не для существующего). Verified в `test_user_service.py`
-- [ ] **CR-6**: History subscriber: `MessageReceived` → `history.append("user", text)`; `ResponseGenerated` → `history.append("assistant", text)`; `HistorySummarized` → `history.replace`. Verified в `test_history_subscriber.py`
-- [ ] **CR-7**: User-facing flow идентичен (логи, ответы, формат сообщений). История сохраняется как раньше — но через события, не прямыми вызовами
-- [ ] **CR-8**: `make test` ✅, `make lint` ✅
+- [x] **CR-1**: `app/chat/` НЕ импортит `app.history` → verified grep clean
+- [x] **CR-2**: `app/history/` НЕ импортит `app.chat`, `app.users`, `app.bot`, `app.llm` → verified grep clean
+- [x] **CR-3**: `app/events/` zero app-deps → verified grep clean (только intra-module + stdlib)
+- [x] **CR-4**: `ChatService.reply` публикует `MessageReceived` (user) + `ResponseGenerated` (assistant); при summarize → `HistorySummarized`; reset → `HistoryResetRequested`. Без LLM-ошибки → не публикует. Verified в `test_chat_service.py` (11 тестов)
+- [x] **CR-5**: `UserService.get_or_create` публикует `UserCreated` только для нового пользователя. Verified в `test_user_service.py` (3 новых теста)
+- [x] **CR-6**: History subscriber: 4 события → правильные методы store + per-user isolation. Verified в `test_history_subscriber.py` (6 тестов)
+- [x] **CR-7**: User-facing flow идентичен (sequential publish сохраняет порядок записи; логи `llm_reply`/`history_summarized` те же). DI smoke без сети подтверждает что события доходят и история пишется
+- [x] **CR-8**: `make test` 69/69 ✅, `make lint` clean ✅
 
 ---
 
@@ -245,3 +245,11 @@ def subscribe(bus: EventBus, store: HistoryStore) -> None
 
 ## History
 - 2026-04-25 — started, спека + ветка `feature/TD/C-05-event-bus`
+- 2026-04-25 — Phase 1 (EventBus): `tests/test_event_bus.py` (6) GREEN; `app/events/{bus,types,__init__}.py` созданы
+- 2026-04-25 — Phase 2 (UserService): 3 новых теста на публикацию `UserCreated` GREEN; `UserService.__init__` теперь принимает `bus`
+- 2026-04-25 — Phase 3 (ChatService): полная переделка `test_chat_service.py` (11 тестов, включая failure path и порядок событий) GREEN; `ChatService` больше не импортит `app.history`, `HistoryReader` Protocol для read-only. **Решение по ходу**: добавлено 5-е событие `HistoryResetRequested` — `reset_history` тоже идёт через bus, иначе chat дёргал бы `history.reset` напрямую
+- 2026-04-25 — Phase 4 (History subscriber): `tests/test_history_subscriber.py` (6) GREEN; `app/history/subscriber.py` с handler-ами под 4 события
+- 2026-04-25 — Phase 5 (Wire): `EventBus` в `main.py`, `subscribe_history(bus, history)`, передан в `UserService` и `ChatService`. DI smoke без сети — события прокидываются, история пишется
+- 2026-04-25 — Phase 6 (Verify): 69/69 tests green, ruff clean, grep подтвердил все 6 архитектурных правил
+- 2026-04-25 — Phase 7 (Docs): context-dump (карта модулей + Flow 1/2/7/8 + счётчик 52→69); tasks.md C-05; change-request → In Review; current-sprint C-05 → In Review
+- 2026-04-25 — In Review: ждёт ручной Telegram-smoke от Stan (после merge C-04 → master → rebase C-05) и merge

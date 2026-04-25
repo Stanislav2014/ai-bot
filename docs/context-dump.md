@@ -14,11 +14,12 @@
 2. `setup_logging()` → structlog configure JSON renderer · [app/logging_config.py](../app/logging_config.py)
 3. `settings` инстанцируется из `.env` (pydantic-settings) · [app/config.py](../app/config.py)
 4. DI-цепочка собирается в `main.run()`:
+   - `EventBus()` — in-memory bus, sequential publish (C-05) · [app/events/bus.py](../app/events/bus.py)
    - `LLMClient()` — httpx AsyncClient с timeout · [app/llm/client.py](../app/llm/client.py)
-   - `HistoryStore(history_dir, ...)` · [app/history/store.py](../app/history/store.py)
+   - `HistoryStore(history_dir, ...)` → `subscribe_history(bus, history)` подключает обработчики 4 событий (MessageReceived, ResponseGenerated, HistorySummarized, HistoryResetRequested) · [app/history/store.py](../app/history/store.py) · [app/history/subscriber.py](../app/history/subscriber.py)
    - `Summarizer(llm, threshold, keep_recent, model)` · [app/chat/summarizer.py](../app/chat/summarizer.py)
-   - `UserStore(users_dir)` → `UserService(store, default_model=settings.default_model)` · [app/users/](../app/users/)
-   - `ChatService(users, history, summarizer, llm, system_prompt)` · [app/chat/service.py](../app/chat/service.py)
+   - `UserStore(users_dir)` → `UserService(store, default_model=settings.default_model, bus=bus)` (публикует UserCreated при первом get_or_create) · [app/users/](../app/users/)
+   - `ChatService(users, history, summarizer, llm, bus, system_prompt)` — `history` принимается как `HistoryReader` Protocol (только `.get`) · [app/chat/service.py](../app/chat/service.py)
    - `BotHandlers(users=users, chat=chat)` — транспорт зависит **только** от UserService и ChatService · [app/bot/handlers.py](../app/bot/handlers.py)
 5. `ApplicationBuilder().token(...).build()` — python-telegram-bot Application
 6. Регистрация handlers:
@@ -42,18 +43,20 @@
 2. **LoggingMiddleware.check_update()** логирует `incoming_message` (user_id, username, chat_id, text[:200], message_id), возвращает `False` (не поглощает update) · [app/bot/middleware.py](../app/bot/middleware.py)
 3. `MessageHandler(TEXT & ~COMMAND)` → `BotHandlers.handle_message` · [app/bot/handlers.py](../app/bot/handlers.py)
 4. **Транспорт**: `model = await self.users.get_model(user_id)` для логирования; лог `user_message` (user_id, username, model, text_length); `chat.send_action("typing")`
-5. **`reply = await self.chat.reply(user_id, text)`** — вся бизнес-оркестрация внутри:
+5. **`reply = await self.chat.reply(user_id, text)`** — оркестрация (после C-05 — без прямых вызовов в history, всё через EventBus):
    1. `model = await users.get_model(telegram_id)` — fallback на `settings.default_model`, если у пользователя нет записи · [app/users/service.py](../app/users/service.py)
-   2. `history_msgs = await history.get(telegram_id)` — загрузка прошлых сообщений (cache → YAML) · [app/history/store.py](../app/history/store.py)
-   3. `new_history = await summarizer.maybe_summarize(history_msgs)` (D-06) — если `len > HISTORY_SUMMARIZE_THRESHOLD`, старые уходят в LLM на summary, результат — single `role=system` с префиксом `"Previous conversation summary: "`. При изменении — `await history.replace(...)` + лог `history_summarized` (before/after). Fail/disabled → возвращается без изменений · [app/chat/summarizer.py](../app/chat/summarizer.py)
+   2. `history_msgs = await history.get(telegram_id)` — единственный read-call в history (через Protocol `HistoryReader`); возвращает копию из cache → YAML · [app/history/store.py](../app/history/store.py)
+   3. `new_history = await summarizer.maybe_summarize(history_msgs)` (D-06) — если `len > HISTORY_SUMMARIZE_THRESHOLD`, старые уходят в LLM на summary. При изменении — `await bus.publish(HistorySummarized(...))` (C-05) → подписчик `app/history/subscriber.py` зовёт `store.replace`. Лог `history_summarized` (before/after). Fail/disabled → возвращается без изменений · [app/chat/summarizer.py](../app/chat/summarizer.py)
    4. `messages = [{system: system_prompt}] + history_msgs + [{user: text}]` — system_prompt inject-ится в `ChatService.__init__` из `settings.system_prompt` (env `SYSTEM_PROMPT`, D-07)
    5. `result = await llm.chat(messages, model=model)` → HTTP POST `{base_url}/v1/chat/completions`, body `{model, messages, stream: false}` · [app/llm/client.py](../app/llm/client.py)
    6. Логи `llm_request` (model, messages_count, `total_chars`, `estimated_tokens`; + `messages` при `LOG_CONTEXT_FULL=true`, D-08) и `llm_response` (model, tokens) — внутри `LLMClient`
-   7. `await history.append(telegram_id, "user", text)` — запись только **после** успешного LLM-ответа (чтобы не сломать парность user/assistant). Append применяет count-trim + char-trim FIFO внутри
-   8. `await history.append(telegram_id, "assistant", reply)` — те же два trim'а
+   7. `await bus.publish(MessageReceived(telegram_id, text))` (C-05) — запись user-message **после** успешного LLM-ответа. Подписчик зовёт `store.append("user", ...)` с count- + char-trim
+   8. `await bus.publish(ResponseGenerated(telegram_id, reply))` — подписчик зовёт `store.append("assistant", ...)`
    9. Лог `llm_reply` (user_id, model, reply_length, history_len)
    10. Возврат `reply` транспорту
 6. `update.message.reply_text(reply)` → отправка обратно в Telegram
+
+**Важно**: bus.publish последовательный (sequential await subscribers). К моменту возврата `chat.reply` события уже обработаны и история записана на диск.
 
 ---
 
@@ -127,6 +130,8 @@
 3. `current = await self.users.get_model(user.id)`
 4. `reply_text("Hello, {first_name}! ... Current model: {current} ... Commands: ...")`
 
+> Примечание (C-05): `users.get_or_create` (вызывается из `users.set_model` → Flow 5/6) публикует `UserCreated(telegram_id, created_at)` для нового пользователя. Подписчиков пока нет — событие зафиксировано как контракт для будущих обработчиков (welcome-message flow, analytics).
+
 ---
 
 ## Flow 8 — `/reset` command
@@ -134,7 +139,7 @@
 **Trigger**: пользователь пишет `/reset`.
 
 1. `CommandHandler("reset")` → `BotHandlers.reset`
-2. `await self.chat.reset_history(user.id)` — фасад над `HistoryStore.reset` (handler не знает про `app.history`); удаляет запись в cache + unlink файла `data/history/{user_id}.yaml` · [app/chat/service.py](../app/chat/service.py)
+2. `await self.chat.reset_history(user.id)` — после C-05 публикует `HistoryResetRequested(telegram_id)` через bus. Подписчик `app/history/subscriber.py` зовёт `store.reset` (удаляет запись в cache + unlink файла `data/history/{user_id}.yaml`). Sequential publish гарантирует, что к моменту возврата файл удалён · [app/chat/service.py](../app/chat/service.py)
 3. Лог `history_reset` (user_id, username)
 4. `reply_text("История диалога очищена.")`
 
@@ -167,33 +172,42 @@
 
 ---
 
-## Карта файлов и их ответственность (после C-04)
+## Карта файлов и их ответственность (после C-05)
 
 ```
 app/
-├── main.py                  — entry point, DI wiring (UserStore→UserService→ChatService→BotHandlers)
+├── main.py                  — entry point, DI wiring (EventBus → UserStore→UserService → HistoryStore + subscribe → ChatService → BotHandlers)
 ├── config.py                — Settings из .env
 ├── logging_config.py        — structlog configure
+├── events/                  ← C-05: in-memory event bus, zero app-deps (только stdlib)
+│   ├── bus.py               — EventBus (subscribe/publish, sequential await)
+│   └── types.py             — frozen dataclasses: UserCreated, MessageReceived, ResponseGenerated, HistorySummarized, HistoryResetRequested
 ├── bot/                     ← транспорт Telegram, депенды только на users + chat
 │   ├── handlers.py          — все Telegram хэндлеры + /reset (тонкие адаптеры)
 │   └── middleware.py        — LoggingMiddleware
-├── users/                   ← C-04: идентификация + per-user state, persistent
+├── users/                   ← C-04 + C-05: идентификация + per-user state, persistent; публикует UserCreated
 │   ├── models.py            — dataclass User {telegram_id, current_model, created_at}
 │   ├── store.py             — UserStore (YAML per-user в data/users/{telegram_id}.yaml)
-│   └── service.py           — UserService (get_or_create, get_model с default-fallback, set_model)
-├── history/                 ← диалоговая история, не зависит ни от чего из app
-│   └── store.py             — HistoryStore (YAML per-user + cache + locks, count- + char-trim)
-├── chat/                    ← C-04: use-case слой, единственный «склеивающий» модуль
-│   ├── service.py           — ChatService (reply: оркестрация users+history+summarizer+llm; list_models / reset_history фасады)
+│   └── service.py           — UserService (get_or_create → bus.publish(UserCreated) для нового, get_model с default-fallback, set_model)
+├── history/                 ← C-05: диалоговая история, подписчик 4 событий
+│   ├── store.py             — HistoryStore (YAML per-user + cache + locks, count- + char-trim)
+│   └── subscriber.py        — subscribe(bus, store): MessageReceived/ResponseGenerated → append; HistorySummarized → replace; HistoryResetRequested → reset
+├── chat/                    ← C-04 + C-05: use-case слой; больше не импортит app.history
+│   ├── service.py           — ChatService (reply: orchestrates users + history.get + summarizer + llm + публикует MessageReceived/ResponseGenerated/HistorySummarized; reset_history публикует HistoryResetRequested); HistoryReader Protocol
 │   └── summarizer.py        — Summarizer (D-06 LLM-based summary; перенесён из history/ в C-04)
 └── llm/                     ← тонкий HTTP-адаптер к Lemonade
     └── client.py            — LLMClient + LLMError
 ```
 
-**Архитектурные правила** (enforced grep'ом в C-04 success criteria):
-- `bot/` импортит только `app.users` и `app.chat` (не `app.llm`/`app.history`)
-- `users/`, `history/`, `llm/` друг друга не импортят
-- `chat/` — единственный модуль, который депендит на несколько других (`users`, `history`, `llm`)
+**Архитектурные правила** (enforced grep'ом, C-04/C-05 success criteria):
+- `bot/` импортит только `app.users` и `app.chat`
+- `chat/` НЕ импортит `app.history` (чтение через `HistoryReader` Protocol, запись через события)
+- `users/` импортит только `app.events` (для публикации UserCreated)
+- `history/` импортит только `app.events` (для подписки)
+- `llm/` импортит только `app.config`
+- `events/` — zero app-deps (только stdlib)
 - `LLMError` ре-экспортируется из `app.chat`, чтобы handler не лез в `app.llm.client`
 
-Тесты: `tests/test_llm_client.py` (6) + `tests/test_history_store.py` (15) + `tests/test_summarizer.py` (8) + `tests/test_user_store.py` (8) + `tests/test_user_service.py` (6) + `tests/test_chat_service.py` (9) = **52**.
+**События как контракт** (C-05): все state-mutations над историей идут через bus. Чтобы добавить аналитику, persistence событий, второго подписчика — достаточно зарегистрировать handler в `main.py`, исходные модули не меняются.
+
+Тесты: `tests/test_llm_client.py` (6) + `tests/test_history_store.py` (15) + `tests/test_summarizer.py` (8) + `tests/test_user_store.py` (8) + `tests/test_user_service.py` (9) + `tests/test_chat_service.py` (11) + `tests/test_event_bus.py` (6) + `tests/test_history_subscriber.py` (6) = **69**.

@@ -46,14 +46,14 @@ Branch: `feature/TD/BOT-C02` · merged 2026-04-16
 HTTP запрос к LLM серверу на каждый `/models` и переключение. Добавить TTL-кеш на 60s.
 См. [discuss.md § 6](discuss.md#6-model-list-caching)
 
-### C-04 🛠 Modular monolith — Users / Chat / History boundaries
+### C-04 ✅ Modular monolith — Users / Chat / History boundaries
 Разнести бот на 4 изолированных модуля (`users/`, `chat/`, `history/`, `llm/`) + транспорт `bot/`. Handlers больше не импортят `LLMClient`/`HistoryStore` напрямую. Закрывает D-03 (persistent per-user model selection).
-Branch: `feature/TD/C-04-modular-monolith`
+Branch: `feature/TD/C-04-modular-monolith` · merged 2026-04-26 · 52/52 tests
 → [tasks/C-04_MODULAR_MONOLITH.md](tasks/C-04_MODULAR_MONOLITH.md)
 
-### C-05 🛠 In-memory event bus — decouple Chat ↔ History via events
-Внедрить `app/events/` (EventBus + 4 dataclass-события: `UserCreated`, `MessageReceived`, `ResponseGenerated`, `HistorySummarized`). Chat больше не вызывает `history.append/replace` напрямую — публикует события, History подписывается. Часть 2 ДЗ «Эволюция архитектуры».
-Branch: `feature/TD/C-05-event-bus`
+### C-05 ✅ In-memory event bus — decouple Chat ↔ History via events
+Внедрить `app/events/` (EventBus + 5 frozen-dataclass событий: `UserCreated`, `MessageReceived`, `ResponseGenerated`, `HistorySummarized`, `HistoryResetRequested`). Chat больше не вызывает `history.append/replace/reset` напрямую — публикует события, History подписывается через `app/history/subscriber.py`. `chat/` не импортит `app.history` (через `HistoryReader` Protocol). Часть 2 ДЗ «Эволюция архитектуры».
+Branch: `feature/TD/C-05-event-bus` · merged 2026-04-26 · 69/69 tests
 → [tasks/C-05_EVENT_BUS.md](tasks/C-05_EVENT_BUS.md)
 
 ---

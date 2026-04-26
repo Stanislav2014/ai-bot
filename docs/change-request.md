@@ -14,17 +14,17 @@
 | **Branch** | `feature/TD/C-04-modular-monolith` |
 | **Task spec** | [tasks/C-04_MODULAR_MONOLITH.md](tasks/C-04_MODULAR_MONOLITH.md) |
 | **Started** | 2026-04-23 |
-| **Status** | In Review (52/52 tests, ruff clean, awaiting manual Telegram smoke + merge) |
+| **Status** | Merged 2026-04-26 (no-ff) · 52/52 tests · ruff clean |
 | **Owner** | Stan |
 
 **Goal**: разнести бот на 4 изолированных модуля (`users/`, `chat/`, `history/`, `llm/`) + транспорт `bot/`. Handlers больше не импортят `LLMClient`/`HistoryStore` напрямую — только через `UserService` + `ChatService`.
 
 **Success criteria**:
-- [ ] CR-1 — `app/bot/handlers.py` без импортов `app.llm` / `app.history`
-- [ ] CR-2/3 — модули `users/`, `history/`, `llm/` друг друга не знают
-- [ ] CR-4 — выбор модели persistent (YAML per-user в `data/users/`), переживает рестарт; закрывает D-03
-- [ ] CR-5 — все user-facing flow идентичны
-- [ ] CR-6 — `make test` + `make lint` зелёные
+- [x] CR-1 — `app/bot/handlers.py` без импортов `app.llm` / `app.history`
+- [x] CR-2/3 — модули `users/`, `history/`, `llm/` друг друга не знают
+- [x] CR-4 — выбор модели persistent (YAML per-user в `data/users/`), переживает рестарт; закрывает D-03
+- [x] CR-5 — все user-facing flow идентичны
+- [x] CR-6 — `make test` + `make lint` зелёные
 
 См. [task spec](tasks/C-04_MODULAR_MONOLITH.md) для полной декомпозиции.
 
@@ -38,7 +38,7 @@
 | **Branch** | `feature/TD/C-05-event-bus` |
 | **Task spec** | [tasks/C-05_EVENT_BUS.md](tasks/C-05_EVENT_BUS.md) |
 | **Started** | 2026-04-25 |
-| **Status** | In Review (69/69 tests, ruff clean, DI smoke OK, awaiting manual Telegram smoke + merge) |
+| **Status** | Merged 2026-04-26 (no-ff) · 69/69 tests · ruff clean · DI smoke OK |
 | **Owner** | Stan |
 
 **Goal**: внедрить простой in-memory event bus и развязать `chat/` от `history/`. Chat публикует `MessageReceived` / `ResponseGenerated` / `HistorySummarized` / `HistoryResetRequested`, History подписывается. Бонус: `UserCreated` для будущих обработчиков.

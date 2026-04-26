@@ -21,12 +21,12 @@ _пусто_
 
 ## In Review
 
-- **C-04** — Modular monolith: Users / Chat / History boundaries · [spec](../tasks/C-04_MODULAR_MONOLITH.md) · ветка `feature/TD/C-04-modular-monolith` · 52/52 tests, ruff clean, ждёт ручной Telegram-smoke + merge
-- **C-05** — In-memory event bus: decouple Chat ↔ History via events · [spec](../tasks/C-05_EVENT_BUS.md) · ветка `feature/TD/C-05-event-bus` (поверх C-04) · 69/69 tests, ruff clean, DI smoke OK, ждёт ручной Telegram-smoke + merge
+_пусто_
 
 ## Done (этот спринт)
 
-_пусто_
+- **C-04** — Modular monolith: Users / Chat / History boundaries · merged 2026-04-26 (no-ff) · 52/52 tests · [spec](../tasks/C-04_MODULAR_MONOLITH.md)
+- **C-05** — In-memory event bus: decouple Chat ↔ History via events · merged 2026-04-26 (no-ff) · 69/69 tests · [spec](../tasks/C-05_EVENT_BUS.md)
 
 ---
 

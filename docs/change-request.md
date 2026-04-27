@@ -116,3 +116,27 @@
 - F-09 Info · cap на длину одного сообщения до отправки в LLM
 
 См. [S-01 spec](tasks/S-01_RED_TEAM.md) для полного контекста и [raw results](security/red-team-results.md).
+
+---
+
+## I-01 · CI/CD pipeline через GitHub Actions
+
+| Поле | Значение |
+|------|----------|
+| **Task ID** | `I-01` (новая фаза `I-` — Infrastructure / DevOps) |
+| **Branch** | `feature/CI/I-01-github-actions` |
+| **Task spec** | [tasks/I-01_GITHUB_ACTIONS.md](tasks/I-01_GITHUB_ACTIONS.md) |
+| **Started** | 2026-04-27 |
+| **Status** | In Review (72/72 tests локально, ждёт первого зелёного run на GitHub Actions + merge) |
+| **Owner** | Stan |
+
+**Goal**: автоматическая проверка любых изменений (lint + test) до merge. Pipeline быстрый, изолированный, без сети к Telegram/Lemonade. Бонус — feature flag `LLM_ENABLED` для maintenance/cost-control.
+
+**Success criteria**:
+- [x] CR-1..CR-5 — workflow создан, триггерится на push/PR, кэширует pip, запускает ruff + pytest, env vars изолируют от сети
+- [x] CR-6 — никаких реальных секретов в коде (`.env` в `.gitignore`)
+- [x] CR-7 (бонус) — feature flag `LLM_ENABLED` реализован (3 теста)
+- [x] CR-8 — 72/72 tests green локально
+- [ ] CR-9 — первый run на GitHub Actions зелёный (verify после push)
+
+См. [task spec](tasks/I-01_GITHUB_ACTIONS.md) для полной декомпозиции.

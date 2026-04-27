@@ -274,3 +274,68 @@ async def test_reset_history_does_not_call_history_reset(
     await chat.reset_history(1)
 
     history.reset.assert_not_called()
+
+
+async def test_reply_returns_canned_message_when_llm_disabled(
+    users: UserService,
+    history: HistoryStore,
+    summarizer: Summarizer,
+    llm: AsyncMock,
+    bus: EventBus,
+) -> None:
+    chat = ChatService(
+        users=users,
+        history=history,
+        summarizer=summarizer,
+        llm=llm,
+        bus=bus,
+        system_prompt="SP",
+        llm_enabled=False,
+        llm_disabled_reply="AI is off",
+    )
+
+    reply = await chat.reply(1, "hi")
+    assert reply == "AI is off"
+
+
+async def test_reply_does_not_call_llm_when_disabled(
+    users: UserService,
+    history: HistoryStore,
+    summarizer: Summarizer,
+    llm: AsyncMock,
+    bus: EventBus,
+) -> None:
+    chat = ChatService(
+        users=users,
+        history=history,
+        summarizer=summarizer,
+        llm=llm,
+        bus=bus,
+        system_prompt="SP",
+        llm_enabled=False,
+    )
+
+    await chat.reply(1, "hi")
+    llm.chat.assert_not_called()
+
+
+async def test_reply_does_not_publish_events_when_llm_disabled(
+    users: UserService,
+    history: HistoryStore,
+    summarizer: Summarizer,
+    llm: AsyncMock,
+    bus: EventBus,
+) -> None:
+    collector = _EventCollector(bus)
+    chat = ChatService(
+        users=users,
+        history=history,
+        summarizer=summarizer,
+        llm=llm,
+        bus=bus,
+        system_prompt="SP",
+        llm_enabled=False,
+    )
+
+    await chat.reply(1, "hi")
+    assert collector.events == []

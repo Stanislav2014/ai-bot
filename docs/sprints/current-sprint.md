@@ -21,7 +21,7 @@ _пусто_
 
 ## In Review
 
-_пусто_
+- **I-01** — CI/CD pipeline через GitHub Actions + feature flag `LLM_ENABLED` · [spec](../tasks/I-01_GITHUB_ACTIONS.md) · ветка `feature/CI/I-01-github-actions` · 72/72 tests локально, ждёт первого зелёного run на GitHub Actions + merge
 
 ## Done (этот спринт)
 

@@ -18,6 +18,10 @@ class Settings(BaseSettings):
     system_prompt: str = "Ты опытный программист и отвечаешь кратко и по делу."
     log_context_full: bool = True
     log_file: str = "data/logs/bot.log"
+    llm_enabled: bool = True
+    llm_disabled_reply: str = (
+        "🛠 AI временно отключён (maintenance). Сообщение получено, но не обработано."
+    )
 
     model_config = {"env_file": ".env", "env_file_encoding": "utf-8"}
 

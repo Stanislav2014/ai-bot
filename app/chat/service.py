@@ -29,6 +29,8 @@ class ChatService:
         llm: LLMClient,
         bus: EventBus,
         system_prompt: str,
+        llm_enabled: bool = True,
+        llm_disabled_reply: str = "AI is currently disabled.",
     ) -> None:
         self._users = users
         self._history = history
@@ -36,8 +38,14 @@ class ChatService:
         self._llm = llm
         self._bus = bus
         self._system_prompt = system_prompt
+        self._llm_enabled = llm_enabled
+        self._llm_disabled_reply = llm_disabled_reply
 
     async def reply(self, telegram_id: int, text: str) -> str:
+        if not self._llm_enabled:
+            logger.info("llm_disabled_reply", user_id=telegram_id, text_length=len(text))
+            return self._llm_disabled_reply
+
         model = await self._users.get_model(telegram_id)
 
         history_msgs = await self._history.get(telegram_id)

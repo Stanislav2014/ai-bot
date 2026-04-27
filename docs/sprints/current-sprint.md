@@ -21,13 +21,14 @@ _пусто_
 
 ## In Review
 
-- **I-01** — CI/CD pipeline через GitHub Actions + feature flag `LLM_ENABLED` · [spec](../tasks/I-01_GITHUB_ACTIONS.md) · ветка `feature/CI/I-01-github-actions` · 72/72 tests локально, ждёт первого зелёного run на GitHub Actions + merge
+_пусто_
 
 ## Done (этот спринт)
 
 - **C-04** — Modular monolith: Users / Chat / History boundaries · merged 2026-04-26 (no-ff) · 52/52 tests · [spec](../tasks/C-04_MODULAR_MONOLITH.md)
 - **C-05** — In-memory event bus: decouple Chat ↔ History via events · merged 2026-04-26 (no-ff) · 69/69 tests · [spec](../tasks/C-05_EVENT_BUS.md)
 - **S-01** — Red Team audit (Часть 1 ДЗ «Безопасность») · merged 2026-04-27 (no-ff) · 9 findings, 1 High · [spec](../tasks/S-01_RED_TEAM.md)
+- **I-01** — CI/CD pipeline + LLM_ENABLED feature flag · merged 2026-04-27 (no-ff) · 72/72 tests · CI зелёный за 17s · [spec](../tasks/I-01_GITHUB_ACTIONS.md) · [PR #1](https://github.com/Stanislav2014/ai-bot/pull/1)
 
 ---
 

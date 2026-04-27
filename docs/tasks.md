@@ -73,9 +73,9 @@ Inputs: [S-01 task spec](tasks/S-01_RED_TEAM.md), [raw results](security/red-tea
 
 ## Phase I — Infrastructure / DevOps
 
-### I-01 🛠 CI/CD pipeline (GitHub Actions)
+### I-01 ✅ CI/CD pipeline (GitHub Actions)
 ДЗ «CI/CD для AI Telegram-бота». `.github/workflows/ci.yml` запускает lint (ruff) + test (pytest, 72 теста) на push/PR в master. Python 3.12, кэш pip по `requirements-dev.txt`. Тесты изолированы — мокают LLM (AsyncMock), не лезут в Telegram. **Бонус**: feature flag `LLM_ENABLED` — когда `false`, `ChatService.reply` возвращает canned reply без вызова LLM и без событий.
-Branch: `feature/CI/I-01-github-actions`
+Branch: `feature/CI/I-01-github-actions` · merged 2026-04-27 · CI зелёный за 17s ([PR #1](https://github.com/Stanislav2014/ai-bot/pull/1))
 → [tasks/I-01_GITHUB_ACTIONS.md](tasks/I-01_GITHUB_ACTIONS.md)
 
 ---

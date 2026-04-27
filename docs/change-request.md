@@ -56,3 +56,37 @@
 - [x] CR-8 — `make test` 69/69 ✅, `make lint` clean ✅
 
 См. [task spec](tasks/C-05_EVENT_BUS.md) для полной декомпозиции.
+
+---
+
+## S-01 · Red Team audit — взлом своего бота
+
+| Поле | Значение |
+|------|----------|
+| **Task ID** | `S-01` (новая фаза `S-` — Security) |
+| **Branch** | `feature/SEC/S-01-red-team` |
+| **Task spec** | [tasks/S-01_RED_TEAM.md](tasks/S-01_RED_TEAM.md) |
+| **Started** | 2026-04-27 |
+| **Status** | In Review (без правок кода — только аудит-документ + сырые результаты) |
+| **Owner** | Stan + Claude (autopilot) |
+
+**Goal**: прогнать стандартный набор Red Team атак (prompt injection, data leakage, jailbreak, API/backend, tool abuse) и задокументировать findings с severity для входа в S-02 Blue Team.
+
+**Method**: 5 источников без правки кода — direct Lemonade с тем же system_prompt, static analysis `app/bot/handlers.py`, YAML-store fuzz, multi-turn `ChatService.reply` симуляция, forensic над `data/`.
+
+**Findings (9):**
+- F-01 **High** · persistent injection через summarizer → инъекция попадает в system-message навсегда
+- F-02 Medium · `model_callback` не валидирует `model_name` (defense-in-depth дыра)
+- F-03 Medium · `/model` skip валидации когда `installed=[]` (Lemonade down → poison)
+- F-04 Medium · 0.6B сдаётся на persona override (DAN)
+- F-05 Medium · 0.6B hallucinates env/files/logs — мисинформация
+- F-06 Low · system_prompt в startup-логе
+- F-07 Low · format hijack (JSON output)
+- F-08 Low · нет rate-limit (известно)
+- F-09 Info · нет input length cap до LLM
+
+**Артефакты**:
+- [docs/tasks/S-01_RED_TEAM.md](tasks/S-01_RED_TEAM.md) — полный анализ + recommendations
+- [docs/security/red-team-results.md](security/red-team-results.md) — сырые ответы Lemonade на 17 payload'ов × 2 модели
+
+**Telegram-side тесты (M-01..M-05)** — переданы Stan для ручного прогона (rate-limit, длинные сообщения, /reset behaviour).

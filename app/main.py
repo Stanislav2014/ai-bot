@@ -60,6 +60,8 @@ async def run() -> None:
         llm=llm,
         bus=bus,
         system_prompt=settings.system_prompt,
+        llm_enabled=settings.llm_enabled,
+        llm_disabled_reply=settings.llm_disabled_reply,
     )
     handlers = BotHandlers(users=users, chat=chat)
 

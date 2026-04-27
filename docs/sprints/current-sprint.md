@@ -21,7 +21,7 @@ _пусто_
 
 ## In Review
 
-_пусто_
+- **S-01** — Red Team audit (Часть 1 ДЗ «Безопасность») · [spec](../tasks/S-01_RED_TEAM.md) · ветка `feature/SEC/S-01-red-team` · 9 findings, 1 High (persistent injection через summarizer) · код не правлен · ждёт review + merge
 
 ## Done (этот спринт)
 

@@ -13,7 +13,7 @@
 
 ## To Do
 
-_пусто_
+- **S-02** — Blue Team: закрыть 9 findings из S-01 (1 High, 4 Medium, 3 Low, 1 Info) · в работу пока не брать · inputs: [S-01](../tasks/S-01_RED_TEAM.md) + [results](../security/red-team-results.md)
 
 ## In Progress
 
@@ -21,12 +21,13 @@ _пусто_
 
 ## In Review
 
-- **S-01** — Red Team audit (Часть 1 ДЗ «Безопасность») · [spec](../tasks/S-01_RED_TEAM.md) · ветка `feature/SEC/S-01-red-team` · 9 findings, 1 High (persistent injection через summarizer) · код не правлен · ждёт review + merge
+_пусто_
 
 ## Done (этот спринт)
 
 - **C-04** — Modular monolith: Users / Chat / History boundaries · merged 2026-04-26 (no-ff) · 52/52 tests · [spec](../tasks/C-04_MODULAR_MONOLITH.md)
 - **C-05** — In-memory event bus: decouple Chat ↔ History via events · merged 2026-04-26 (no-ff) · 69/69 tests · [spec](../tasks/C-05_EVENT_BUS.md)
+- **S-01** — Red Team audit (Часть 1 ДЗ «Безопасность») · merged 2026-04-27 (no-ff) · 9 findings, 1 High · [spec](../tasks/S-01_RED_TEAM.md)
 
 ---
 

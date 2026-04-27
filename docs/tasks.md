@@ -60,10 +60,14 @@ Branch: `feature/TD/C-05-event-bus` · merged 2026-04-26 · 69/69 tests
 
 ## Phase S — Безопасность
 
-### S-01 🛠 Red Team audit — взлом своего бота
+### S-01 ✅ Red Team audit — взлом своего бота
 Часть 1 ДЗ «Безопасность». Прогнан без правок кода: 17 payload'ов × 2 модели через direct Lemonade, static analysis handlers, YAML-fuzz, multi-turn ChatService, log-forensic. **9 findings, 1 High** (persistent injection через summarizer попадает в system-message навсегда). 0.6B (default) сдалась на 7/17 атак, 4B (Stan's) — на 1/17. Артефакт для S-02 Blue Team.
-Branch: `feature/SEC/S-01-red-team`
+Branch: `feature/SEC/S-01-red-team` · merged 2026-04-27
 → [tasks/S-01_RED_TEAM.md](tasks/S-01_RED_TEAM.md) · [results](security/red-team-results.md)
+
+### S-02 📝 Blue Team — закрыть findings из S-01
+Закрыть 9 уязвимостей найденных в S-01: persistent injection через summarizer (F-01 High), отсутствующая валидация в `model_callback` (F-02), bypass `/model` при `installed=[]` (F-03), persona override (F-04) и hallucinations (F-05) на 0.6B, system_prompt в логах (F-06), format hijack (F-07), rate-limit (F-08), input length cap (F-09). Часть 2 ДЗ «Безопасность» (Blue Team). **В работу пока не брать** — спека создаётся при подъёме в In Progress.
+Inputs: [S-01 task spec](tasks/S-01_RED_TEAM.md), [raw results](security/red-team-results.md)
 
 ---
 

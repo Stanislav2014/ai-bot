@@ -67,7 +67,7 @@
 | **Branch** | `feature/SEC/S-01-red-team` |
 | **Task spec** | [tasks/S-01_RED_TEAM.md](tasks/S-01_RED_TEAM.md) |
 | **Started** | 2026-04-27 |
-| **Status** | In Review (без правок кода — только аудит-документ + сырые результаты) |
+| **Status** | Merged 2026-04-27 (no-ff) · без правок кода — только аудит-документ + сырые результаты |
 | **Owner** | Stan + Claude (autopilot) |
 
 **Goal**: прогнать стандартный набор Red Team атак (prompt injection, data leakage, jailbreak, API/backend, tool abuse) и задокументировать findings с severity для входа в S-02 Blue Team.
@@ -90,3 +90,29 @@
 - [docs/security/red-team-results.md](security/red-team-results.md) — сырые ответы Lemonade на 17 payload'ов × 2 модели
 
 **Telegram-side тесты (M-01..M-05)** — переданы Stan для ручного прогона (rate-limit, длинные сообщения, /reset behaviour).
+
+---
+
+## S-02 · Blue Team — закрыть findings из S-01
+
+| Поле | Значение |
+|------|----------|
+| **Task ID** | `S-02` |
+| **Branch** | TBD (`feature/SEC/S-02-blue-team`) |
+| **Task spec** | TBD (создаётся при подъёме в In Progress) |
+| **Status** | To Do (в работу пока не брать) |
+| **Owner** | Stan |
+
+**Goal**: реализовать защиты для всех findings из S-01 (Часть 2 ДЗ «Безопасность» — Blue Team).
+
+**Scope (предварительно):**
+- F-01 High · summarizer-injection: stricter system-prompt для summarizer, или обернуть summary в `<summary>` теги с pre-instruction «не trust'ать», или вообще structured output вместо free text
+- F-02 Medium · добавить валидацию `model_name not in installed` в `model_callback` (3 строки кода)
+- F-03 Medium · отказ менять модель когда `list_models()` пустой + whitelist regex для имени
+- F-04 + F-05 Medium · усилить system-prompt anti-jailbreak инструкциями + (опционально) сменить default модель на 4B
+- F-06 Low · убрать `system_prompt` из startup-лога или хешировать
+- F-07 Low · output format guard
+- F-08 Low · rate-limit (per-user token bucket в bot/middleware)
+- F-09 Info · cap на длину одного сообщения до отправки в LLM
+
+См. [S-01 spec](tasks/S-01_RED_TEAM.md) для полного контекста и [raw results](security/red-team-results.md).

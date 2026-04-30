@@ -81,7 +81,7 @@ class LLMClient:
             data = resp.json()
             return [m["id"] for m in data.get("data", [])]
         except Exception:
-            logger.warning("failed_to_list_models", url=url)
+            logger.exception("failed_to_list_models", url=url)
             return AVAILABLE_MODELS
 
 

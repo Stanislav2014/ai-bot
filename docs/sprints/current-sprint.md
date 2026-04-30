@@ -21,7 +21,7 @@ _пусто_
 
 ## In Review
 
-_пусто_
+- **O-01** — Структурированный логгер с trace_id (Часть 1 ДЗ «Логирование + Sentry») · branch `feature/OBS/O-01-logger` · 91/91 tests · ruff clean · ждёт ревью + merge в master · [spec](../tasks/O-01_LOGGING.md)
 
 ## Done (этот спринт)
 

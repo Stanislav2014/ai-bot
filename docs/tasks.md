@@ -80,6 +80,15 @@ Branch: `feature/CI/I-01-github-actions` · merged 2026-04-27 · CI зелёны
 
 ---
 
+## Phase O — Observability
+
+### O-01 ✅ Структурированный логгер с trace_id
+Часть 1 ДЗ «Логирование + интеграция с Sentry». Каждый JSON-лог получает `service=ai-bot` (processor) и `trace_id` (uuid4 hex, биндится в contextvars на входе `LoggingMiddleware`, наследуется всеми downstream-логами через `structlog.contextvars.merge_contextvars`). Также биндим `user_id` и `update_id`. `LLMClient.list_models` — `logger.warning` → `logger.exception` для traceback при сетевых сбоях.
+Branch: `feature/OBS/O-01-logger` · 91/91 tests · ruff clean
+→ [tasks/O-01_LOGGING.md](tasks/O-01_LOGGING.md)
+
+---
+
 ## Phase D — Фичи
 
 ### D-01 ✅ Inline keyboard model selection

@@ -1,4 +1,4 @@
-# Change Request — Sprint 2 (started 2026-04-23)
+# Change Request — Sprint 2 (started 2026-04-23, текущий день 2026-04-30)
 
 > 📋 Зеркало текущего спринта: каждая задача, которая находится в [current-sprint.md](sprints/current-sprint.md), имеет блок здесь. При merge задачи запись **не удаляется** — обновляется статус. Чистится только при закрытии спринта (архивации в task spec history).
 
@@ -140,3 +140,28 @@
 - [x] CR-9 — первый run на GitHub Actions зелёный (PR #1, 17s, все 8 шагов success)
 
 См. [task spec](tasks/I-01_GITHUB_ACTIONS.md) для полной декомпозиции.
+
+---
+
+## O-01 · Структурированный логгер с trace_id
+
+| Поле | Значение |
+|------|----------|
+| **Task ID** | `O-01` (новая фаза `O-` — Observability) |
+| **Branch** | `feature/OBS/O-01-logger` |
+| **Task spec** | [tasks/O-01_LOGGING.md](tasks/O-01_LOGGING.md) |
+| **Started** | 2026-04-30 |
+| **Status** | In Review (91/91 tests · ruff clean · ожидает merge в master) |
+| **Owner** | Stan + Claude (autopilot) |
+
+**Goal**: Часть 1 ДЗ «Логирование + Sentry». JSON-логи со стабильным набором обязательных полей: `timestamp`, `level`, `event`, `service`, `trace_id`. Все логи одного входящего апдейта связаны общим `trace_id` (uuid4) через `structlog.contextvars`. Sentry — отдельная задача `O-02`.
+
+**Success criteria**:
+- [x] CR-1..CR-2 — JSON-shape (`service=ai-bot` в каждой строке) · `tests/test_logging_config.py` 8 тестов
+- [x] CR-3..CR-4 — `trace_id` валидный uuid4 hex, propagates во все downstream-логи в рамках одного update · `tests/test_middleware.py::test_check_update_binds_uuid_trace_id` + `tests/test_chat_service.py::test_trace_id_propagates_into_chat_logs`
+- [x] CR-5..CR-6 — `user_id` биндится при наличии `from_user` (message + callback_query), contextvars очищаются между update'ами
+- [x] CR-7 — внешние сервисы: `LLMClient.list_models` → `logger.exception` для traceback (+ `format_exc_info` processor чтобы JSON содержал `exception` поле)
+- [x] CR-8 — `make test` 91/91 ✅ · `make lint` clean ✅
+- [x] CR-9 — smoke test (`/tmp/o01-smoke.log`) подтвердил: 4 лога одного запроса делят trace_id, второй update получает свежий uuid, все обязательные поля присутствуют
+
+См. [task spec](tasks/O-01_LOGGING.md) для полной декомпозиции.

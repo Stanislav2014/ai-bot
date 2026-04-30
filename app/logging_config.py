@@ -8,6 +8,11 @@ import structlog
 from app.config import settings
 
 
+def _add_service(_logger, _method_name, event_dict):
+    event_dict.setdefault("service", settings.service_name)
+    return event_dict
+
+
 def setup_logging() -> None:
     level = logging.getLevelNamesMapping().get(settings.log_level.upper(), logging.INFO)
 
@@ -15,8 +20,10 @@ def setup_logging() -> None:
         processors=[
             structlog.contextvars.merge_contextvars,
             structlog.processors.add_log_level,
+            _add_service,
             structlog.processors.StackInfoRenderer(),
             structlog.dev.set_exc_info,
+            structlog.processors.format_exc_info,
             structlog.processors.TimeStamper(fmt="iso"),
             structlog.processors.JSONRenderer(),
         ],

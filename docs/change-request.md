@@ -143,6 +143,32 @@
 
 ---
 
+## O-02.1 · Hotfix — закрыть утечки PII в Sentry
+
+| Поле | Значение |
+|------|----------|
+| **Task ID** | `O-02.1` (hotfix к O-02) |
+| **Branch** | `feature/OBS/O-02.1-pii-hotfix` |
+| **Task spec** | [tasks/O-02.1_PII_HOTFIX.md](tasks/O-02.1_PII_HOTFIX.md) |
+| **Started** | 2026-05-03 |
+| **Status** | In Progress |
+| **Owner** | Stan + Claude (autopilot) |
+
+**Goal**: закрыть две PII утечки в Sentry, обнаруженные при manual CR-9 проверке O-02:
+- **`system_prompt`** утекал через breadcrumb message: structlog `JSONRenderer` рендерит весь dict в `bc["message"]` JSON-строкой, мой `_before_send` чистил только `bc["data"]` (тест в O-02 покрывал design assumption, не реальный flow)
+- **`TELEGRAM_BOT_TOKEN`** утекал в URL: дефолтная `HttpxIntegration` Sentry SDK логирует URL каждого httpx-запроса, Telegram кладёт токен в path → утечка на каждый `getUpdates`
+
+**Solution**:
+- `_before_send` парсит `bc["message"]` как JSON, чистит sensitive ключи, re-сериализует
+- Новый `_before_breadcrumb` маскирует Telegram токен в `bc["data"]["url"]` через regex `_TG_TOKEN_RE` → `bot[REDACTED]/`
+- Defense-in-depth: тот же scrub в `_before_send` для `event["request"]["url"]` и `bc["data"]["url"]`
+
+**Tests**: 102 → 110 (+8). См. [task spec](tasks/O-02.1_PII_HOTFIX.md) для CR-1..CR-8.
+
+**CR-8 (manual re-verify)**: ПОСЛЕ revoke токена + новый Sentry проект → спровоцировать ошибку → проверить отсутствие `system_prompt` и `bot[REDACTED]` вместо токена.
+
+---
+
 ## O-02 · Sentry — error tracking c trace_id корреляцией
 
 | Поле | Значение |

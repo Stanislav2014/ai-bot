@@ -1,12 +1,55 @@
+import json
 import logging
+import re
 
 import sentry_sdk
 from sentry_sdk.integrations.logging import LoggingIntegration
 
 from app.config import settings
 
-
 _SENSITIVE_KEYS = ("system_prompt",)
+
+# Telegram bot API embeds the token directly in the URL path:
+#   https://api.telegram.org/bot<bot_id>:<auth_token>/<method>
+# Sentry's HttpxIntegration logs every URL as a breadcrumb, so the token
+# leaks on every getUpdates poll. Mask it before either source captures it.
+_TG_TOKEN_RE = re.compile(r"/bot[A-Za-z0-9_:-]+(?=/)")
+_TOKEN_REDACTION = "/bot[REDACTED]"
+
+
+def _scrub_url(url: str) -> str:
+    if not isinstance(url, str):
+        return url
+    return _TG_TOKEN_RE.sub(_TOKEN_REDACTION, url)
+
+
+def _scrub_breadcrumb_message(bc: dict) -> None:
+    msg = bc.get("message")
+    if not isinstance(msg, str) or not msg.lstrip().startswith("{"):
+        return
+    try:
+        parsed = json.loads(msg)
+    except (json.JSONDecodeError, ValueError):
+        return
+    if not isinstance(parsed, dict):
+        return
+    changed = False
+    for key in _SENSITIVE_KEYS:
+        if parsed.pop(key, None) is not None:
+            changed = True
+    if changed:
+        bc["message"] = json.dumps(parsed, ensure_ascii=False)
+
+
+def _scrub_breadcrumb_url(bc: dict) -> None:
+    data = bc.get("data")
+    if isinstance(data, dict) and "url" in data:
+        data["url"] = _scrub_url(data["url"])
+
+
+def _before_breadcrumb(crumb, _hint):
+    _scrub_breadcrumb_url(crumb)
+    return crumb
 
 
 def _before_send(event, _hint):
@@ -15,6 +58,10 @@ def _before_send(event, _hint):
         for key in _SENSITIVE_KEYS:
             extra.pop(key, None)
 
+    request = event.get("request")
+    if isinstance(request, dict) and "url" in request:
+        request["url"] = _scrub_url(request["url"])
+
     breadcrumbs = event.get("breadcrumbs")
     if isinstance(breadcrumbs, dict):
         for bc in breadcrumbs.get("values", []):
@@ -22,6 +69,8 @@ def _before_send(event, _hint):
             if isinstance(data, dict):
                 for key in _SENSITIVE_KEYS:
                     data.pop(key, None)
+            _scrub_breadcrumb_message(bc)
+            _scrub_breadcrumb_url(bc)
 
     return event
 
@@ -35,6 +84,7 @@ def setup_sentry() -> None:
         environment=settings.service_name,
         send_default_pii=False,
         before_send=_before_send,
+        before_breadcrumb=_before_breadcrumb,
         integrations=[
             LoggingIntegration(
                 level=logging.INFO,

@@ -151,7 +151,7 @@
 | **Branch** | `feature/OBS/O-02.1-pii-hotfix` |
 | **Task spec** | [tasks/O-02.1_PII_HOTFIX.md](tasks/O-02.1_PII_HOTFIX.md) |
 | **Started** | 2026-05-03 |
-| **Status** | In Progress |
+| **Status** | Merged 2026-05-03 (no-ff) · 110/110 tests · ruff clean · CI зелёный за 17s · [PR #4](https://github.com/Stanislav2014/ai-bot/pull/4) |
 | **Owner** | Stan + Claude (autopilot) |
 
 **Goal**: закрыть две PII утечки в Sentry, обнаруженные при manual CR-9 проверке O-02:

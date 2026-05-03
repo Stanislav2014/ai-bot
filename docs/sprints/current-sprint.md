@@ -17,7 +17,7 @@
 
 ## In Progress
 
-- **O-02.1** — Hotfix: закрыть PII утечки в Sentry (`system_prompt` через breadcrumb message + `TELEGRAM_BOT_TOKEN` через httpx URLs) · branch `feature/OBS/O-02.1-pii-hotfix` · [spec](../tasks/O-02.1_PII_HOTFIX.md)
+_пусто_
 
 ## In Review
 
@@ -31,6 +31,7 @@ _пусто_
 - **I-01** — CI/CD pipeline + LLM_ENABLED feature flag · merged 2026-04-27 (no-ff) · 72/72 tests · CI зелёный за 17s · [spec](../tasks/I-01_GITHUB_ACTIONS.md) · [PR #1](https://github.com/Stanislav2014/ai-bot/pull/1)
 - **O-01** — Структурированный логгер с trace_id (Часть 1 ДЗ «Логирование + Sentry») · merged 2026-05-03 (no-ff) · 91/91 tests · ruff clean · CI зелёный за 19s · [spec](../tasks/O-01_LOGGING.md) · [PR #2](https://github.com/Stanislav2014/ai-bot/pull/2)
 - **O-02** — Sentry: error tracking c корреляцией по `trace_id` (Часть 2 ДЗ «Логирование + Sentry») · merged 2026-05-03 (no-ff) · 102/102 tests · ruff clean · CI зелёный за 15s · [spec](../tasks/O-02_SENTRY.md) · [PR #3](https://github.com/Stanislav2014/ai-bot/pull/3)
+- **O-02.1** — Hotfix PII утечек в Sentry (`system_prompt` через breadcrumb JSON message + `TELEGRAM_BOT_TOKEN` через httpx URLs) · merged 2026-05-03 (no-ff) · 110/110 tests · ruff clean · CI зелёный за 17s · [spec](../tasks/O-02.1_PII_HOTFIX.md) · [PR #4](https://github.com/Stanislav2014/ai-bot/pull/4)
 
 ---
 

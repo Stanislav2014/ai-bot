@@ -171,4 +171,4 @@
 
 - 2026-05-03 — спека + ветка
 - 2026-05-03 — Phase 1 (init/no-op/kwargs) + Phase 2 (`before_send` PII strip) + Phase 3 (Sentry tags в bind/clear) + Phase 4 (main wiring) + Phase 5 (LoggingIntegration handler levels verified). 102/102 tests, ruff clean. PR #3 merged в master (commit `6410bf8`).
-- 2026-05-03 — Manual CR-9 (Sentry dashboard verification) — outstanding на стороне Stan'а.
+- 2026-05-03 — Manual CR-9 (Sentry dashboard verification) выполнен — events дошли с тэгами `trace_id`/`user_id`/`update_id`, breadcrumbs корректные. Но обнаружены 2 утечки PII → созданы хотфиксы O-02.1 (system_prompt + URL в data) и O-02.2 (URL в plain-text message). После всех фиксов re-verify подтвердил отсутствие утечек.

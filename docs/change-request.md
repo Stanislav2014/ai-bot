@@ -143,6 +143,30 @@
 
 ---
 
+## O-02 · Sentry — error tracking c trace_id корреляцией
+
+| Поле | Значение |
+|------|----------|
+| **Task ID** | `O-02` |
+| **Branch** | `feature/OBS/O-02-sentry` |
+| **Task spec** | [tasks/O-02_SENTRY.md](tasks/O-02_SENTRY.md) |
+| **Started** | 2026-05-03 |
+| **Status** | In Progress |
+| **Owner** | Stan + Claude (autopilot) |
+
+**Goal**: Часть 2 ДЗ «Логирование + Sentry». Все необработанные исключения и `logger.error/exception` уезжают в Sentry с тэгами `trace_id`/`user_id`/`update_id` (из contextvars O-01) — клик по error в Sentry даёт прямую связь с цепочкой JSON-логов одного запроса. Конфиг через `SENTRY_DSN`: пустая строка → SDK no-op (CI/dev безопасны). PII не утекает: `send_default_pii=False`, `before_send` чистит `system_prompt` (заодно закрывает S-01 F-06 для Sentry-канала).
+
+**Success criteria**: см. [task spec](tasks/O-02_SENTRY.md) — 9 CR, ключевые: пустой DSN no-op, `bind_request_context` ставит Sentry tags, `LoggingIntegration` ловит `logger.exception` автоматически, `before_send` strip-ает sensitive поля.
+
+**Architecture decisions**:
+- Новый модуль `app/sentry_config.py` (мирror `logging_config.py`) — SRP
+- `LoggingIntegration(event_level=ERROR)` — ловит structlog → stdlib root → Sentry без правки existing `logger.exception` calls
+- Sentry tags — bind/clear в `app/observability.py` рядом с contextvars, единая точка trace context
+
+См. [task spec](tasks/O-02_SENTRY.md) для полной декомпозиции.
+
+---
+
 ## O-01 · Структурированный логгер с trace_id
 
 | Поле | Значение |

@@ -17,7 +17,7 @@
 
 ## In Progress
 
-_пусто_
+- **O-02.2** — Hotfix: третий канал утечки токена в Sentry — URL в plain-text `bc.message` (httpx-логгер) · branch `feature/OBS/O-02.2-scrub-url-in-message` · [spec](../tasks/O-02.2_SCRUB_URL_IN_MESSAGE.md)
 
 ## In Review
 

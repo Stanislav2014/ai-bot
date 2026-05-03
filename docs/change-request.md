@@ -143,6 +143,30 @@
 
 ---
 
+## O-02.2 · Hotfix — третий канал утечки токена в Sentry (URL в plain-text message)
+
+| Поле | Значение |
+|------|----------|
+| **Task ID** | `O-02.2` (hotfix к O-02.1) |
+| **Branch** | `feature/OBS/O-02.2-scrub-url-in-message` |
+| **Task spec** | [tasks/O-02.2_SCRUB_URL_IN_MESSAGE.md](tasks/O-02.2_SCRUB_URL_IN_MESSAGE.md) |
+| **Started** | 2026-05-03 |
+| **Status** | In Progress |
+| **Owner** | Stan + Claude (autopilot) |
+
+**Goal**: при re-verify O-02.1 обнаружено что **дефолтный httpx-логгер** пишет URL в plain-text `bc["message"]` (`HTTP Request: POST https://api.telegram.org/bot<TOKEN>/getMe ...`), а O-02.1 чистил только `bc["data"]["url"]` и JSON-в-message. Это **третий канал утечки** токена.
+
+**Solution**:
+- `_scrub_breadcrumb_message` теперь **всегда** применяет `_scrub_url` к строке (regex), независимо от формата (JSON или plain text). JSON-парсинг остаётся для удаления sensitive ключей (system_prompt).
+- `_before_breadcrumb` дополнительно вызывает `_scrub_breadcrumb_message` — первая линия защиты до попадания breadcrumb'а в scope.
+- `_before_send` чистит `event["logentry"]["message"]` (defense in depth для error events с logentry payload).
+
+**Tests**: 110 → 114 (+4). См. [task spec](tasks/O-02.2_SCRUB_URL_IN_MESSAGE.md).
+
+**CR-6 (manual re-verify)**: после rebuild → провокация ошибки → ВСЕ httpx URLs в Sentry breadcrumbs (включая category=`httpx`) показывают `bot[REDACTED]/`.
+
+---
+
 ## O-02.1 · Hotfix — закрыть утечки PII в Sentry
 
 | Поле | Значение |

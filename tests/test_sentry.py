@@ -201,3 +201,79 @@ def test_before_send_redacts_token_in_breadcrumb_data_url():
     url = cleaned["breadcrumbs"]["values"][0]["data"]["url"]
     assert "ABCdef" not in url
     assert "[REDACTED]" in url
+
+
+# --- O-02.2: third leak channel — URL token inside breadcrumb message text ---
+
+
+def test_before_send_redacts_token_in_breadcrumb_message_plain_text():
+    """httpx default integration logs 'HTTP Request: POST <URL>' into bc.message — token leaks via plain string, not JSON."""
+    event = {
+        "breadcrumbs": {
+            "values": [
+                {
+                    "category": "httpx",
+                    "type": "default",
+                    "message": (
+                        'HTTP Request: POST '
+                        "https://api.telegram.org/bot8634143010:AAGM5VGCWuivcRlYxDRwNMadzzKD-2lZeSQ/getMe "
+                        '"HTTP/1.1 200 OK"'
+                    ),
+                },
+            ],
+        },
+    }
+    cleaned = _before_send(event, {})
+    msg = cleaned["breadcrumbs"]["values"][0]["message"]
+    assert "AAGM5VGCWuivcRlYxDRwNMadzzKD-2lZeSQ" not in msg
+    assert "8634143010" not in msg
+    assert "[REDACTED]" in msg
+    assert msg.startswith("HTTP Request: POST")
+    assert msg.endswith('"HTTP/1.1 200 OK"')
+
+
+def test_before_breadcrumb_redacts_token_in_message_plain_text():
+    """before_breadcrumb is the first line of defense; it must scrub message strings too."""
+    crumb = {
+        "category": "httpx",
+        "type": "default",
+        "message": "HTTP Request: GET https://api.telegram.org/bot999:tok/getUpdates",
+    }
+    cleaned = _before_breadcrumb(crumb, {})
+    assert "tok" not in cleaned["message"]
+    assert "[REDACTED]" in cleaned["message"]
+
+
+def test_before_send_redacts_token_in_event_logentry_message():
+    """LoggingIntegration captures error events with logentry.message — defense in depth."""
+    event = {
+        "logentry": {
+            "message": "request failed for https://api.telegram.org/bot42:secret/sendMessage",
+        },
+    }
+    cleaned = _before_send(event, {})
+    assert "secret" not in cleaned["logentry"]["message"]
+    assert "[REDACTED]" in cleaned["logentry"]["message"]
+
+
+def test_breadcrumb_message_scrubbing_preserves_combined_json_and_url():
+    """Edge case: JSON breadcrumb that contains a URL inside its values gets both treatments."""
+    event = {
+        "breadcrumbs": {
+            "values": [
+                {
+                    "message": json.dumps({
+                        "event": "llm_request",
+                        "url": "https://api.telegram.org/bot1:t/getMe",
+                        "system_prompt": "secret",
+                    }),
+                },
+            ],
+        },
+    }
+    cleaned = _before_send(event, {})
+    msg = cleaned["breadcrumbs"]["values"][0]["message"]
+    assert "system_prompt" not in msg
+    assert "secret" not in msg
+    assert "[REDACTED]" in msg
+    assert "/bot1:t/" not in msg

@@ -25,20 +25,26 @@ def _scrub_url(url: str) -> str:
 
 def _scrub_breadcrumb_message(bc: dict) -> None:
     msg = bc.get("message")
-    if not isinstance(msg, str) or not msg.lstrip().startswith("{"):
+    if not isinstance(msg, str):
         return
-    try:
-        parsed = json.loads(msg)
-    except (json.JSONDecodeError, ValueError):
-        return
-    if not isinstance(parsed, dict):
-        return
-    changed = False
-    for key in _SENSITIVE_KEYS:
-        if parsed.pop(key, None) is not None:
-            changed = True
-    if changed:
-        bc["message"] = json.dumps(parsed, ensure_ascii=False)
+
+    new_msg = _scrub_url(msg)
+
+    if new_msg.lstrip().startswith("{"):
+        try:
+            parsed = json.loads(new_msg)
+        except (json.JSONDecodeError, ValueError):
+            parsed = None
+        if isinstance(parsed, dict):
+            changed = False
+            for key in _SENSITIVE_KEYS:
+                if parsed.pop(key, None) is not None:
+                    changed = True
+            if changed:
+                new_msg = json.dumps(parsed, ensure_ascii=False)
+
+    if new_msg != msg:
+        bc["message"] = new_msg
 
 
 def _scrub_breadcrumb_url(bc: dict) -> None:
@@ -49,6 +55,7 @@ def _scrub_breadcrumb_url(bc: dict) -> None:
 
 def _before_breadcrumb(crumb, _hint):
     _scrub_breadcrumb_url(crumb)
+    _scrub_breadcrumb_message(crumb)
     return crumb
 
 
@@ -61,6 +68,10 @@ def _before_send(event, _hint):
     request = event.get("request")
     if isinstance(request, dict) and "url" in request:
         request["url"] = _scrub_url(request["url"])
+
+    logentry = event.get("logentry")
+    if isinstance(logentry, dict) and isinstance(logentry.get("message"), str):
+        logentry["message"] = _scrub_url(logentry["message"])
 
     breadcrumbs = event.get("breadcrumbs")
     if isinstance(breadcrumbs, dict):

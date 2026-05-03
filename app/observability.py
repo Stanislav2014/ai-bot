@@ -13,6 +13,7 @@ def bind_request_context(
     trace_id: str,
     update_id: int | None = None,
     user_id: int | None = None,
+    username: str | None = None,
 ) -> None:
     structlog.contextvars.clear_contextvars()
     bindings: dict[str, object] = {"trace_id": trace_id}
@@ -24,6 +25,12 @@ def bind_request_context(
 
     for key, value in bindings.items():
         sentry_sdk.set_tag(key, value)
+
+    if user_id is not None:
+        user_payload: dict[str, object] = {"id": user_id}
+        if username is not None:
+            user_payload["username"] = username
+        sentry_sdk.set_user(user_payload)
 
 
 def clear_request_context() -> None:

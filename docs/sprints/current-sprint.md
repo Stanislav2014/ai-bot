@@ -17,7 +17,7 @@
 
 ## In Progress
 
-_пусто_
+- **O-03** — Часть 3 ДЗ: 4 типа ошибок (manual/async/external/data) через `/sentry_test` + `sentry_sdk.set_user` бонус · branch `feature/OBS/O-03-error-scenarios` · [spec](../tasks/O-03_ERROR_SCENARIOS.md)
 
 ## In Review
 

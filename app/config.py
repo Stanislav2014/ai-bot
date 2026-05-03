@@ -25,6 +25,7 @@ class Settings(BaseSettings):
     )
     sentry_dsn: str = ""
     sentry_traces_sample_rate: float = 0.0
+    sentry_test_user_ids: list[int] = []
 
     model_config = {"env_file": ".env", "env_file_encoding": "utf-8"}
 

@@ -143,6 +143,32 @@
 
 ---
 
+## O-03 · Часть 3 ДЗ — четыре типа ошибок для verify Sentry + `sentry_sdk.set_user`
+
+| Поле | Значение |
+|------|----------|
+| **Task ID** | `O-03` |
+| **Branch** | `feature/OBS/O-03-error-scenarios` |
+| **Task spec** | [tasks/O-03_ERROR_SCENARIOS.md](tasks/O-03_ERROR_SCENARIOS.md) |
+| **Started** | 2026-05-03 |
+| **Status** | In Progress |
+| **Owner** | Stan + Claude (autopilot) |
+
+**Goal**: закрыть Часть 3 ДЗ — 4 типа ошибок (manual `raise`, async через `create_task`, external httpx connection error, data `JSONDecodeError`). Каждый kind триггерится через защищённую whitelist'ом команду `/sentry_test <kind>`. Бонус: `sentry_sdk.set_user({"id", "username"})` в `bind_request_context` — лучшая идентификация в Sentry UI.
+
+**Solution**:
+- `app/bot/handlers.py` — `_trigger_error(kind)`, `_is_sentry_test_allowed(user_id)`, метод `BotHandlers.sentry_test`
+- `app/main.py` — `CommandHandler("sentry_test", ...)`
+- `app/observability.py` — `bind_request_context` дополнительно `sentry_sdk.set_user`, `clear_request_context` уже сбрасывает scope
+- `app/bot/middleware.py` — пробрасывает `username` в `bind_request_context`
+- `.env(.example)` — `SENTRY_TEST_USER_IDS=[]` (default disabled)
+
+**Tests**: 114 → 127 (+13). См. [task spec](tasks/O-03_ERROR_SCENARIOS.md) для CR-1..CR-6.
+
+**CR-6 (manual verify)**: после rebuild → `/sentry_test raise/async/external/data` → каждый event в Sentry имеет stack trace + tags trace_id/user_id/update_id + User panel с username.
+
+---
+
 ## O-02.2 · Hotfix — третий канал утечки токена в Sentry (URL в plain-text message)
 
 | Поле | Значение |

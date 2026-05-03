@@ -92,6 +92,11 @@ Branch: `feature/OBS/O-01-logger` · merged 2026-05-03 · 91/91 tests · ruff cl
 Branch: `feature/OBS/O-02-sentry` · merged 2026-05-03 · 102/102 tests · ruff clean · CI зелёный за 15s ([PR #3](https://github.com/Stanislav2014/ai-bot/pull/3))
 → [tasks/O-02_SENTRY.md](tasks/O-02_SENTRY.md)
 
+### O-03 🛠 Часть 3 ДЗ — четыре типа ошибок для verify Sentry + sentry_sdk.set_user
+Закрытие Части 3 ДЗ «Логирование + Sentry». Команда `/sentry_test <kind>` (защищена whitelist'ом `SENTRY_TEST_USER_IDS`) триггерит 4 типа ошибок: `raise` (manual `RuntimeError`), `async` (`asyncio.create_task` → `RuntimeError`), `external` (`httpx.AsyncClient` → connection refused на `127.0.0.1:1`), `data` (`json.JSONDecodeError`). Бонус — `sentry_sdk.set_user({"id", "username"})` в `bind_request_context` для User panel в Sentry UI.
+Branch: `feature/OBS/O-03-error-scenarios` · In Progress
+→ [tasks/O-03_ERROR_SCENARIOS.md](tasks/O-03_ERROR_SCENARIOS.md)
+
 ### O-02.2 ✅ Hotfix — третий канал утечки токена в Sentry (URL в plain-text message)
 При re-verify O-02.1 обнаружено: дефолтный `httpx`-логгер пишет URL в plain-text `bc.message` (не в `data.url`), а O-02.1 чистил только `data.url` и JSON-в-message. Hotfix: `_scrub_breadcrumb_message` теперь всегда применяет URL-regex к строке + `_before_breadcrumb` дополнительно дёргает scrub_message (первая линия защиты) + `_before_send` чистит `event.logentry.message`.
 Branch: `feature/OBS/O-02.2-scrub-url-in-message` · merged 2026-05-03 · 114/114 tests · ruff clean · CI зелёный за 17s ([PR #5](https://github.com/Stanislav2014/ai-bot/pull/5))

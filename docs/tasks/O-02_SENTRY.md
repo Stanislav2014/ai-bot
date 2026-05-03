@@ -8,7 +8,7 @@
 | **Ticket** | — (homework: «Логирование + интеграция с Sentry», Часть 2) |
 | **Branch** | `feature/OBS/O-02-sentry` |
 | **Started** | 2026-05-03 |
-| **Status** | In Progress |
+| **Status** | Merged 2026-05-03 (no-ff) · [PR #3](https://github.com/Stanislav2014/ai-bot/pull/3) |
 | **Owner** | Stan + Claude (autopilot) |
 
 ---
@@ -170,3 +170,5 @@
 ## History
 
 - 2026-05-03 — спека + ветка
+- 2026-05-03 — Phase 1 (init/no-op/kwargs) + Phase 2 (`before_send` PII strip) + Phase 3 (Sentry tags в bind/clear) + Phase 4 (main wiring) + Phase 5 (LoggingIntegration handler levels verified). 102/102 tests, ruff clean. PR #3 merged в master (commit `6410bf8`).
+- 2026-05-03 — Manual CR-9 (Sentry dashboard verification) — outstanding на стороне Stan'а.

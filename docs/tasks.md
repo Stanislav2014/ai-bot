@@ -87,9 +87,9 @@ Branch: `feature/CI/I-01-github-actions` · merged 2026-04-27 · CI зелёны
 Branch: `feature/OBS/O-01-logger` · merged 2026-05-03 · 91/91 tests · ruff clean · CI зелёный за 19s ([PR #2](https://github.com/Stanislav2014/ai-bot/pull/2))
 → [tasks/O-01_LOGGING.md](tasks/O-01_LOGGING.md)
 
-### O-02 🛠 Sentry — error tracking c trace_id корреляцией
-Часть 2 ДЗ «Логирование + Sentry». `sentry-sdk` через `LoggingIntegration(event_level=ERROR)` ловит `logger.error/exception` автоматически. `bind_request_context` ставит Sentry tags `trace_id`/`user_id`/`update_id` — клик в Sentry даёт прямую связь с JSON-логами того же запроса. `SENTRY_DSN=""` → SDK no-op (CI/dev). `send_default_pii=False` + `before_send` чистит `system_prompt` (попутно закрывает S-01 F-06 для Sentry-канала).
-Branch: `feature/OBS/O-02-sentry` · In Progress
+### O-02 ✅ Sentry — error tracking c trace_id корреляцией
+Часть 2 ДЗ «Логирование + Sentry». `sentry-sdk==2.58.0` через `LoggingIntegration(event_level=ERROR)` ловит `logger.error/exception` автоматически. `bind_request_context` ставит Sentry tags `trace_id`/`user_id`/`update_id` — клик в Sentry даёт прямую связь с JSON-логами того же запроса. `SENTRY_DSN=""` → SDK no-op (CI/dev). `send_default_pii=False` + `before_send` чистит `system_prompt` (попутно закрывает S-01 F-06 для Sentry-канала).
+Branch: `feature/OBS/O-02-sentry` · merged 2026-05-03 · 102/102 tests · ruff clean · CI зелёный за 15s ([PR #3](https://github.com/Stanislav2014/ai-bot/pull/3))
 → [tasks/O-02_SENTRY.md](tasks/O-02_SENTRY.md)
 
 ---

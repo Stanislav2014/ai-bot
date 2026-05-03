@@ -151,7 +151,7 @@
 | **Branch** | `feature/OBS/O-02-sentry` |
 | **Task spec** | [tasks/O-02_SENTRY.md](tasks/O-02_SENTRY.md) |
 | **Started** | 2026-05-03 |
-| **Status** | In Progress |
+| **Status** | Merged 2026-05-03 (no-ff) · 102/102 tests · ruff clean · CI зелёный за 15s · [PR #3](https://github.com/Stanislav2014/ai-bot/pull/3) |
 | **Owner** | Stan + Claude (autopilot) |
 
 **Goal**: Часть 2 ДЗ «Логирование + Sentry». Все необработанные исключения и `logger.error/exception` уезжают в Sentry с тэгами `trace_id`/`user_id`/`update_id` (из contextvars O-01) — клик по error в Sentry даёт прямую связь с цепочкой JSON-логов одного запроса. Конфиг через `SENTRY_DSN`: пустая строка → SDK no-op (CI/dev безопасны). PII не утекает: `send_default_pii=False`, `before_send` чистит `system_prompt` (заодно закрывает S-01 F-06 для Sentry-канала).

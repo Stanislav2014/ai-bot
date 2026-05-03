@@ -1,5 +1,6 @@
 import uuid
 
+import sentry_sdk
 import structlog
 
 
@@ -21,6 +22,10 @@ def bind_request_context(
         bindings["user_id"] = user_id
     structlog.contextvars.bind_contextvars(**bindings)
 
+    for key, value in bindings.items():
+        sentry_sdk.set_tag(key, value)
+
 
 def clear_request_context() -> None:
     structlog.contextvars.clear_contextvars()
+    sentry_sdk.get_isolation_scope().clear()

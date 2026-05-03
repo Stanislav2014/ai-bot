@@ -17,7 +17,7 @@
 
 ## In Progress
 
-_пусто_
+- **O-02** — Sentry: error tracking c корреляцией по `trace_id` (Часть 2 ДЗ «Логирование + Sentry») · branch `feature/OBS/O-02-sentry` · [spec](../tasks/O-02_SENTRY.md)
 
 ## In Review
 

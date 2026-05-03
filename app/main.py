@@ -14,11 +14,13 @@ from app.history import HistoryStore
 from app.history.subscriber import subscribe as subscribe_history
 from app.llm.client import LLMClient
 from app.logging_config import setup_logging
+from app.sentry_config import setup_sentry
 from app.users import UserService, UserStore
 
 
 async def run() -> None:
     setup_logging()
+    setup_sentry()
     logger = structlog.get_logger()
     summarize_model = settings.history_summarize_model or settings.default_model
     logger.info(

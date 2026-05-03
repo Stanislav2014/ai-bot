@@ -21,7 +21,7 @@ _пусто_
 
 ## In Review
 
-- **O-01** — Структурированный логгер с trace_id (Часть 1 ДЗ «Логирование + Sentry») · branch `feature/OBS/O-01-logger` · 91/91 tests · ruff clean · ждёт ревью + merge в master · [spec](../tasks/O-01_LOGGING.md)
+_пусто_
 
 ## Done (этот спринт)
 
@@ -29,6 +29,7 @@ _пусто_
 - **C-05** — In-memory event bus: decouple Chat ↔ History via events · merged 2026-04-26 (no-ff) · 69/69 tests · [spec](../tasks/C-05_EVENT_BUS.md)
 - **S-01** — Red Team audit (Часть 1 ДЗ «Безопасность») · merged 2026-04-27 (no-ff) · 9 findings, 1 High · [spec](../tasks/S-01_RED_TEAM.md)
 - **I-01** — CI/CD pipeline + LLM_ENABLED feature flag · merged 2026-04-27 (no-ff) · 72/72 tests · CI зелёный за 17s · [spec](../tasks/I-01_GITHUB_ACTIONS.md) · [PR #1](https://github.com/Stanislav2014/ai-bot/pull/1)
+- **O-01** — Структурированный логгер с trace_id (Часть 1 ДЗ «Логирование + Sentry») · merged 2026-05-03 (no-ff) · 91/91 tests · ruff clean · CI зелёный за 19s · [spec](../tasks/O-01_LOGGING.md) · [PR #2](https://github.com/Stanislav2014/ai-bot/pull/2)
 
 ---
 

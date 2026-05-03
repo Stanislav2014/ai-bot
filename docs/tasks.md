@@ -84,7 +84,7 @@ Branch: `feature/CI/I-01-github-actions` · merged 2026-04-27 · CI зелёны
 
 ### O-01 ✅ Структурированный логгер с trace_id
 Часть 1 ДЗ «Логирование + интеграция с Sentry». Каждый JSON-лог получает `service=ai-bot` (processor) и `trace_id` (uuid4 hex, биндится в contextvars на входе `LoggingMiddleware`, наследуется всеми downstream-логами через `structlog.contextvars.merge_contextvars`). Также биндим `user_id` и `update_id`. `LLMClient.list_models` — `logger.warning` → `logger.exception` для traceback при сетевых сбоях.
-Branch: `feature/OBS/O-01-logger` · 91/91 tests · ruff clean
+Branch: `feature/OBS/O-01-logger` · merged 2026-05-03 · 91/91 tests · ruff clean · CI зелёный за 19s ([PR #2](https://github.com/Stanislav2014/ai-bot/pull/2))
 → [tasks/O-01_LOGGING.md](tasks/O-01_LOGGING.md)
 
 ---

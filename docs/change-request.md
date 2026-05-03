@@ -151,7 +151,7 @@
 | **Branch** | `feature/OBS/O-01-logger` |
 | **Task spec** | [tasks/O-01_LOGGING.md](tasks/O-01_LOGGING.md) |
 | **Started** | 2026-04-30 |
-| **Status** | In Review (91/91 tests · ruff clean · ожидает merge в master) |
+| **Status** | Merged 2026-05-03 (no-ff) · 91/91 tests · ruff clean · CI зелёный за 19s · [PR #2](https://github.com/Stanislav2014/ai-bot/pull/2) |
 | **Owner** | Stan + Claude (autopilot) |
 
 **Goal**: Часть 1 ДЗ «Логирование + Sentry». JSON-логи со стабильным набором обязательных полей: `timestamp`, `level`, `event`, `service`, `trace_id`. Все логи одного входящего апдейта связаны общим `trace_id` (uuid4) через `structlog.contextvars`. Sentry — отдельная задача `O-02`.

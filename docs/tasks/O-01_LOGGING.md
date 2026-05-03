@@ -8,7 +8,7 @@
 | **Ticket** | — (homework: «Логирование + интеграция с Sentry», Часть 1) |
 | **Branch** | `feature/OBS/O-01-logger` |
 | **Started** | 2026-04-30 |
-| **Status** | In Progress |
+| **Status** | Merged 2026-05-03 (no-ff) · [PR #2](https://github.com/Stanislav2014/ai-bot/pull/2) |
 | **Owner** | Stan + Claude (autopilot) |
 
 ---

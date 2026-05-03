@@ -23,6 +23,8 @@ class Settings(BaseSettings):
     llm_disabled_reply: str = (
         "🛠 AI временно отключён (maintenance). Сообщение получено, но не обработано."
     )
+    sentry_dsn: str = ""
+    sentry_traces_sample_rate: float = 0.0
 
     model_config = {"env_file": ".env", "env_file_encoding": "utf-8"}
 

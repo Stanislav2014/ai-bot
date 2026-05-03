@@ -1,11 +1,45 @@
+import asyncio
+import json
+
+import httpx
 import structlog
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update
 from telegram.ext import ContextTypes
 
 from app.chat import ChatService, LLMError
+from app.config import settings
 from app.users import UserService
 
 logger = structlog.get_logger()
+
+
+_SENTRY_TEST_KINDS = ("raise", "async", "external", "data")
+
+
+def _is_sentry_test_allowed(user_id: int) -> bool:
+    return user_id in settings.sentry_test_user_ids
+
+
+async def _async_raiser() -> None:
+    await asyncio.sleep(0)
+    raise RuntimeError("async sentry test error from create_task")
+
+
+async def _trigger_error(kind: str) -> None:
+    if kind == "raise":
+        raise RuntimeError("manual sentry test error")
+    if kind == "data":
+        json.loads("{not_valid_json")
+        return
+    if kind == "async":
+        task = asyncio.create_task(_async_raiser())
+        await task
+        return
+    if kind == "external":
+        async with httpx.AsyncClient() as client:
+            await client.get("http://127.0.0.1:1/", timeout=2.0)
+        return
+    raise ValueError(f"unknown sentry_test kind: {kind!r}")
 
 
 class BotHandlers:
@@ -153,3 +187,21 @@ class BotHandlers:
         await self.chat.reset_history(user.id)
         logger.info("history_reset", user_id=user.id, username=user.username)
         await update.message.reply_text("История диалога очищена.")
+
+    async def sentry_test(
+        self, update: Update, context: ContextTypes.DEFAULT_TYPE
+    ) -> None:
+        user_id = update.effective_user.id
+        if not _is_sentry_test_allowed(user_id):
+            await update.message.reply_text("Команда недоступна.")
+            return
+
+        kind = (context.args[0] if context.args else "").lower()
+        if kind not in _SENTRY_TEST_KINDS:
+            await update.message.reply_text(
+                f"Usage: /sentry_test <{'|'.join(_SENTRY_TEST_KINDS)}>"
+            )
+            return
+
+        logger.info("sentry_test_triggered", user_id=user_id, kind=kind)
+        await _trigger_error(kind)

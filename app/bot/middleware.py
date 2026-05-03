@@ -31,6 +31,7 @@ class LoggingMiddleware(BaseHandler):
             trace_id=new_trace_id(),
             update_id=update.update_id,
             user_id=from_user.id if from_user else None,
+            username=from_user.username if from_user else None,
         )
 
         if update.message:

@@ -78,6 +78,7 @@ async def run() -> None:
     app.add_handler(CommandHandler("models", handlers.models))
     app.add_handler(CommandHandler("model", handlers.set_model))
     app.add_handler(CommandHandler("reset", handlers.reset))
+    app.add_handler(CommandHandler("sentry_test", handlers.sentry_test))
 
     # Callback handler for inline keyboard (model selection)
     app.add_handler(CallbackQueryHandler(handlers.model_callback, pattern=r"^model:"))

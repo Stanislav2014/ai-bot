@@ -151,7 +151,7 @@
 | **Branch** | `feature/OBS/O-03-error-scenarios` |
 | **Task spec** | [tasks/O-03_ERROR_SCENARIOS.md](tasks/O-03_ERROR_SCENARIOS.md) |
 | **Started** | 2026-05-03 |
-| **Status** | In Progress |
+| **Status** | Merged 2026-05-03 (no-ff) · 127/127 tests · ruff clean · CI зелёный за 13s · [PR #6](https://github.com/Stanislav2014/ai-bot/pull/6) |
 | **Owner** | Stan + Claude (autopilot) |
 
 **Goal**: закрыть Часть 3 ДЗ — 4 типа ошибок (manual `raise`, async через `create_task`, external httpx connection error, data `JSONDecodeError`). Каждый kind триггерится через защищённую whitelist'ом команду `/sentry_test <kind>`. Бонус: `sentry_sdk.set_user({"id", "username"})` в `bind_request_context` — лучшая идентификация в Sentry UI.

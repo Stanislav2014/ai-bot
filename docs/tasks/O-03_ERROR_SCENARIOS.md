@@ -8,7 +8,7 @@
 | **Ticket** | — (homework: «Логирование + Sentry», Часть 3) |
 | **Branch** | `feature/OBS/O-03-error-scenarios` |
 | **Started** | 2026-05-03 |
-| **Status** | In Progress |
+| **Status** | Merged 2026-05-03 (no-ff) · [PR #6](https://github.com/Stanislav2014/ai-bot/pull/6) |
 | **Owner** | Stan + Claude (autopilot) |
 
 ---

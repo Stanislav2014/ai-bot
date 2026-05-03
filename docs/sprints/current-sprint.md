@@ -17,7 +17,7 @@
 
 ## In Progress
 
-- **O-03** — Часть 3 ДЗ: 4 типа ошибок (manual/async/external/data) через `/sentry_test` + `sentry_sdk.set_user` бонус · branch `feature/OBS/O-03-error-scenarios` · [spec](../tasks/O-03_ERROR_SCENARIOS.md)
+_пусто_
 
 ## In Review
 
@@ -33,6 +33,7 @@ _пусто_
 - **O-02** — Sentry: error tracking c корреляцией по `trace_id` (Часть 2 ДЗ «Логирование + Sentry») · merged 2026-05-03 (no-ff) · 102/102 tests · ruff clean · CI зелёный за 15s · [spec](../tasks/O-02_SENTRY.md) · [PR #3](https://github.com/Stanislav2014/ai-bot/pull/3)
 - **O-02.1** — Hotfix PII утечек в Sentry (`system_prompt` через breadcrumb JSON message + `TELEGRAM_BOT_TOKEN` через httpx URLs) · merged 2026-05-03 (no-ff) · 110/110 tests · ruff clean · CI зелёный за 17s · [spec](../tasks/O-02.1_PII_HOTFIX.md) · [PR #4](https://github.com/Stanislav2014/ai-bot/pull/4)
 - **O-02.2** — Hotfix третьего канала утечки токена (URL в plain-text `bc.message` от httpx-логгера) · merged 2026-05-03 (no-ff) · 114/114 tests · ruff clean · CI зелёный за 17s · [spec](../tasks/O-02.2_SCRUB_URL_IN_MESSAGE.md) · [PR #5](https://github.com/Stanislav2014/ai-bot/pull/5)
+- **O-03** — Часть 3 ДЗ: 4 типа ошибок (`/sentry_test raise|async|external|data`) + `sentry_sdk.set_user` · merged 2026-05-03 (no-ff) · 127/127 tests · ruff clean · CI зелёный за 13s · [spec](../tasks/O-03_ERROR_SCENARIOS.md) · [PR #6](https://github.com/Stanislav2014/ai-bot/pull/6)
 
 ---
 

@@ -1,9 +1,13 @@
+import json
+import logging
 from pathlib import Path
 from unittest.mock import AsyncMock
 
 import pytest
+import structlog
 
 from app.chat import ChatService, Summarizer
+from app.config import settings
 from app.events import (
     EventBus,
     HistoryResetRequested,
@@ -12,6 +16,7 @@ from app.events import (
     ResponseGenerated,
 )
 from app.history import HistoryStore
+from app.logging_config import setup_logging
 from app.users import UserService, UserStore
 
 
@@ -317,6 +322,37 @@ async def test_reply_does_not_call_llm_when_disabled(
 
     await chat.reply(1, "hi")
     llm.chat.assert_not_called()
+
+
+async def test_trace_id_propagates_into_chat_logs(
+    capsys,
+    monkeypatch,
+    tmp_path: Path,
+    users: UserService,
+    history: HistoryStore,
+    summarizer: Summarizer,
+    llm: AsyncMock,
+    bus: EventBus,
+) -> None:
+    """trace_id bound on inbound update must reach every downstream log line."""
+    monkeypatch.setattr(settings, "log_file", str(tmp_path / "test.log"))
+    setup_logging()
+    structlog.contextvars.bind_contextvars(trace_id="trace-xyz", user_id=1)
+    try:
+        chat = make_chat(users=users, history=history, summarizer=summarizer, llm=llm, bus=bus)
+        await chat.reply(1, "hi")
+    finally:
+        structlog.contextvars.clear_contextvars()
+        logging.getLogger().handlers.clear()
+        structlog.reset_defaults()
+
+    lines = capsys.readouterr().out.strip().splitlines()
+    records = [json.loads(line) for line in lines]
+    assert records, "no logs captured"
+    for r in records:
+        assert r["trace_id"] == "trace-xyz", f"missing/wrong trace_id in {r}"
+        assert r["service"] == "ai-bot"
+    assert any(r["event"] == "llm_reply" for r in records)
 
 
 async def test_reply_does_not_publish_events_when_llm_disabled(

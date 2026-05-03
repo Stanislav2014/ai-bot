@@ -7,6 +7,7 @@ class Settings(BaseSettings):
     default_model: str = "qwen3:0.6b"
     llm_timeout: int = 120
     log_level: str = "INFO"
+    service_name: str = "ai-bot"
     history_dir: str = "data/history"
     users_dir: str = "data/users"
     history_enabled: bool = True

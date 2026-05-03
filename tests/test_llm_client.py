@@ -1,10 +1,15 @@
+import json
+import logging
 from unittest.mock import AsyncMock, patch
 
 import httpx
 import pytest
 import pytest_asyncio
+import structlog
 
+from app.config import settings
 from app.llm.client import LLMClient, LLMError, _context_stats
+from app.logging_config import setup_logging
 
 
 def test_context_stats_counts_chars_and_tokens() -> None:
@@ -68,3 +73,29 @@ async def test_chat_connection_error(llm):
     ):
         with pytest.raises(LLMError, match="Cannot connect"):
             await llm.chat([{"role": "user", "content": "Hi"}])
+
+
+async def test_list_models_logs_traceback_on_failure(llm, capsys, monkeypatch, tmp_path):
+    """list_models() must use logger.exception so JSON output carries the traceback."""
+    monkeypatch.setattr(settings, "log_file", str(tmp_path / "test.log"))
+    setup_logging()
+    try:
+        with patch.object(
+            llm._client,
+            "get",
+            new_callable=AsyncMock,
+            side_effect=httpx.ConnectError("boom"),
+        ):
+            await llm.list_models()
+    finally:
+        logging.getLogger().handlers.clear()
+        structlog.contextvars.clear_contextvars()
+        structlog.reset_defaults()
+
+    lines = capsys.readouterr().out.strip().splitlines()
+    records = [json.loads(line) for line in lines]
+    failure = next((r for r in records if r["event"] == "failed_to_list_models"), None)
+    assert failure is not None, "failed_to_list_models event missing"
+    assert failure["level"] == "error"
+    assert "exception" in failure, "logger.exception must include traceback"
+    assert "ConnectError" in failure["exception"]

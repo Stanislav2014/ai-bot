@@ -40,7 +40,7 @@
 **Слои**: `bot/handlers.py` (транспорт) → `chat/service.py::ChatService.reply` (оркестрация) → `users` + `history` + `chat/summarizer` + `llm`.
 
 1. `Update` приходит через polling в `Application` dispatcher
-2. **LoggingMiddleware.check_update()** логирует `incoming_message` (user_id, username, chat_id, text[:200], message_id), возвращает `False` (не поглощает update) · [app/bot/middleware.py](../app/bot/middleware.py)
+2. **LoggingMiddleware.check_update()** (O-01) — генерит uuid4 `trace_id`, биндит в `structlog.contextvars` (`trace_id`, `update_id`, `user_id`); далее логирует `incoming_message` (username, chat_id, text[:200], message_id) либо `incoming_callback` (callback_query). Все downstream-логи в рамках этого update'а наследуют `trace_id` через `merge_contextvars` processor. Возвращает `False` (не поглощает update). · [app/bot/middleware.py](../app/bot/middleware.py) · [app/observability.py](../app/observability.py)
 3. `MessageHandler(TEXT & ~COMMAND)` → `BotHandlers.handle_message` · [app/bot/handlers.py](../app/bot/handlers.py)
 4. **Транспорт**: `model = await self.users.get_model(user_id)` для логирования; лог `user_message` (user_id, username, model, text_length); `chat.send_action("typing")`
 5. **`reply = await self.chat.reply(user_id, text)`** — оркестрация (после C-05 — без прямых вызовов в history, всё через EventBus):
@@ -166,7 +166,7 @@
 | **Telegram Bot API** | python-telegram-bot polling mode, `getUpdates`, `sendMessage`, callback queries, chat actions | app/main.py, app/bot/handlers.py | [contracts/external/telegram.md](contracts/external/telegram.md) |
 | **Lemonade** | OpenAI-compatible `/v1/chat/completions`, `/v1/models`. Запущен как отдельный проект (`../lemonade-server`), бот ходит к нему через shared docker-сеть `llm-net` | app/llm/client.py | [contracts/external/ollama.md](contracts/external/ollama.md) (имя файла историческое, контракт актуален) |
 | `httpx` | HTTP клиент | app/llm/client.py | — |
-| `structlog` | JSON логи | app/logging_config.py, везде | — |
+| `structlog` | JSON логи + contextvars-инжект `trace_id`/`user_id`/`update_id` (O-01) | app/logging_config.py, app/observability.py, app/bot/middleware.py | — |
 | `pydantic-settings` | Env-based config | app/config.py | — |
 | `PyYAML` | Сериализация per-user истории диалога + per-user state | app/history/store.py, app/users/store.py | — |
 
@@ -178,7 +178,8 @@
 app/
 ├── main.py                  — entry point, DI wiring (EventBus → UserStore→UserService → HistoryStore + subscribe → ChatService → BotHandlers)
 ├── config.py                — Settings из .env
-├── logging_config.py        — structlog configure
+├── logging_config.py        — structlog configure (JSON; обязательные поля: timestamp, level, event, service, [trace_id, user_id, update_id из contextvars])
+├── observability.py         ← O-01: new_trace_id() + bind_request_context() / clear_request_context() — обёртки над structlog.contextvars для одного inbound update'а
 ├── events/                  ← C-05: in-memory event bus, zero app-deps (только stdlib)
 │   ├── bus.py               — EventBus (subscribe/publish, sequential await)
 │   └── types.py             — frozen dataclasses: UserCreated, MessageReceived, ResponseGenerated, HistorySummarized, HistoryResetRequested
@@ -210,4 +211,4 @@ app/
 
 **События как контракт** (C-05): все state-mutations над историей идут через bus. Чтобы добавить аналитику, persistence событий, второго подписчика — достаточно зарегистрировать handler в `main.py`, исходные модули не меняются.
 
-Тесты: `tests/test_llm_client.py` (6) + `tests/test_history_store.py` (15) + `tests/test_summarizer.py` (8) + `tests/test_user_store.py` (8) + `tests/test_user_service.py` (9) + `tests/test_chat_service.py` (11) + `tests/test_event_bus.py` (6) + `tests/test_history_subscriber.py` (6) = **69**.
+Тесты: `tests/test_llm_client.py` (7) + `tests/test_history_store.py` (15) + `tests/test_summarizer.py` (8) + `tests/test_user_store.py` (8) + `tests/test_user_service.py` (9) + `tests/test_chat_service.py` (15) + `tests/test_event_bus.py` (6) + `tests/test_history_subscriber.py` (6) + `tests/test_logging_config.py` (8) + `tests/test_middleware.py` (9) = **91**.

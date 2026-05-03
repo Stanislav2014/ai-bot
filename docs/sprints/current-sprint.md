@@ -17,7 +17,7 @@
 
 ## In Progress
 
-_пусто_
+- **O-02.1** — Hotfix: закрыть PII утечки в Sentry (`system_prompt` через breadcrumb message + `TELEGRAM_BOT_TOKEN` через httpx URLs) · branch `feature/OBS/O-02.1-pii-hotfix` · [spec](../tasks/O-02.1_PII_HOTFIX.md)
 
 ## In Review
 

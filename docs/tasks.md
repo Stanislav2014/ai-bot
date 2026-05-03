@@ -92,6 +92,11 @@ Branch: `feature/OBS/O-01-logger` · merged 2026-05-03 · 91/91 tests · ruff cl
 Branch: `feature/OBS/O-02-sentry` · merged 2026-05-03 · 102/102 tests · ruff clean · CI зелёный за 15s ([PR #3](https://github.com/Stanislav2014/ai-bot/pull/3))
 → [tasks/O-02_SENTRY.md](tasks/O-02_SENTRY.md)
 
+### O-02.1 🛠 Hotfix — закрыть утечки PII в Sentry
+При manual CR-9 проверке O-02 обнаружены 2 утечки: (1) `system_prompt` уходит в Sentry через breadcrumb `message` (structlog JSONRenderer рендерит dict в JSON-строку, мой `_before_send` чистил только `bc.data`); (2) `TELEGRAM_BOT_TOKEN` уходит в URL `bot<TOKEN>/...` через дефолтный `HttpxIntegration` на каждом `getUpdates` polling. Hotfix: `_before_send` парсит `bc.message` JSON и чистит sensitive ключи; новый `_before_breadcrumb` + regex маскируют токен → `bot[REDACTED]/`.
+Branch: `feature/OBS/O-02.1-pii-hotfix` · In Progress
+→ [tasks/O-02.1_PII_HOTFIX.md](tasks/O-02.1_PII_HOTFIX.md)
+
 ---
 
 ## Phase D — Фичи

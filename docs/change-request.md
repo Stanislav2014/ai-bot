@@ -151,7 +151,7 @@
 | **Branch** | `feature/OBS/O-02.2-scrub-url-in-message` |
 | **Task spec** | [tasks/O-02.2_SCRUB_URL_IN_MESSAGE.md](tasks/O-02.2_SCRUB_URL_IN_MESSAGE.md) |
 | **Started** | 2026-05-03 |
-| **Status** | In Progress |
+| **Status** | Merged 2026-05-03 (no-ff) · 114/114 tests · ruff clean · CI зелёный за 17s · [PR #5](https://github.com/Stanislav2014/ai-bot/pull/5) |
 | **Owner** | Stan + Claude (autopilot) |
 
 **Goal**: при re-verify O-02.1 обнаружено что **дефолтный httpx-логгер** пишет URL в plain-text `bc["message"]` (`HTTP Request: POST https://api.telegram.org/bot<TOKEN>/getMe ...`), а O-02.1 чистил только `bc["data"]["url"]` и JSON-в-message. Это **третий канал утечки** токена.

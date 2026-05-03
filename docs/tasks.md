@@ -92,9 +92,9 @@ Branch: `feature/OBS/O-01-logger` · merged 2026-05-03 · 91/91 tests · ruff cl
 Branch: `feature/OBS/O-02-sentry` · merged 2026-05-03 · 102/102 tests · ruff clean · CI зелёный за 15s ([PR #3](https://github.com/Stanislav2014/ai-bot/pull/3))
 → [tasks/O-02_SENTRY.md](tasks/O-02_SENTRY.md)
 
-### O-02.2 🛠 Hotfix — третий канал утечки токена в Sentry (URL в plain-text message)
+### O-02.2 ✅ Hotfix — третий канал утечки токена в Sentry (URL в plain-text message)
 При re-verify O-02.1 обнаружено: дефолтный `httpx`-логгер пишет URL в plain-text `bc.message` (не в `data.url`), а O-02.1 чистил только `data.url` и JSON-в-message. Hotfix: `_scrub_breadcrumb_message` теперь всегда применяет URL-regex к строке + `_before_breadcrumb` дополнительно дёргает scrub_message (первая линия защиты) + `_before_send` чистит `event.logentry.message`.
-Branch: `feature/OBS/O-02.2-scrub-url-in-message` · In Progress
+Branch: `feature/OBS/O-02.2-scrub-url-in-message` · merged 2026-05-03 · 114/114 tests · ruff clean · CI зелёный за 17s ([PR #5](https://github.com/Stanislav2014/ai-bot/pull/5))
 → [tasks/O-02.2_SCRUB_URL_IN_MESSAGE.md](tasks/O-02.2_SCRUB_URL_IN_MESSAGE.md)
 
 ### O-02.1 ✅ Hotfix — закрыть утечки PII в Sentry
